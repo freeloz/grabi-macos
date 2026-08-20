@@ -1,26 +1,23 @@
 #!/bin/zsh
-# Compila y empaqueta RecordApp como un .app en dist/.
+# Compila y empaqueta Grabi como .app en dist/.
 #
 # ¿Por qué un bundle? macOS atribuye los permisos de TCC (pantalla, cámara,
 # micrófono) al "responsable" del proceso: un binario suelto lanzado desde
 # Terminal hereda los permisos de Terminal. Con el bundle, los permisos son
-# de RecordApp, como en cualquier app normal.
-#
-# Nota: la firma es ad-hoc (sin cuenta de developer). macOS puede volver a
-# pedir el permiso de Grabación de Pantalla tras recompilar, porque la
-# identidad ad-hoc cambia con cada build.
+# de Grabi, como en cualquier app normal.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 CONFIG="${1:-release}"
-APP=dist/RecordApp.app
+APP=dist/Grabi.app
 
 swift build -c "$CONFIG"
 
-rm -rf "$APP"
+rm -rf "$APP" dist/RecordApp.app
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp ".build/$CONFIG/RecordApp" "$APP/Contents/MacOS/RecordApp"
+cp ".build/$CONFIG/RecordApp" "$APP/Contents/MacOS/Grabi"
 cp Support/Info.plist "$APP/Contents/Info.plist"
+cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 # Firma: con la identidad local estable "Grabi Dev" si existe (los permisos

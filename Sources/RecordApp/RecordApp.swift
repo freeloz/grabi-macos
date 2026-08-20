@@ -2,34 +2,34 @@ import SwiftUI
 import AppKit
 import RecordUI
 
-/// Al lanzarse como ejecutable de Swift Package (fuera de un bundle normal),
-/// hay que pedir explícitamente política de app regular para que la ventana
-/// aparezca en primer plano con icono en el Dock.
+/// Grabi vive en la barra de menú (LSUIElement: sin ícono en el Dock).
+@MainActor
+enum AppShared {
+    static let model = GrabiAppModel()
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
-    }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        true
+        NSApp.setActivationPolicy(.accessory)
+        // Primer arranque: onboarding de 3 pantallas que termina grabando.
+        let model = AppShared.model
+        if !model.onboardingDone {
+            model.onboardingController.show(model: model)
+        }
     }
 }
 
 @main
-struct RecordApp: App {
+struct GrabiApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @StateObject private var model = AppModel()
+    @ObservedObject private var model = AppShared.model
 
     var body: some Scene {
-        Window("Record", id: "main") {
-            ContentView(model: model)
+        MenuBarExtra {
+            PanelView(model: model)
+        } label: {
+            MenuBarLabel(model: model)
         }
-        .windowResizability(.contentSize)
-
-        // Galería del sistema de diseño (solo debug/verificación).
-        Window("Galería Grabi", id: "gallery") {
-            GrabiGallery()
-        }
+        .menuBarExtraStyle(.window)
     }
 }

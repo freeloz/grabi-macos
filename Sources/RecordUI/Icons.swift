@@ -9,6 +9,7 @@ public enum GrabiIcon: String, CaseIterable, Sendable {
     case microfono, audioSistema
     case camCirculo, camCuadrado, camRect
     case carpeta
+    case ajustes
 }
 
 public struct GrabiIconView: View {
@@ -111,6 +112,11 @@ public struct GrabiIconView: View {
                 p.move(to: P(8.5, 16))
                 p.addQuadCurve(to: P(15.5, 16), control: P(12, 12.5))
                 context.stroke(p, with: color, style: stroke)
+            case .ajustes:
+                context.stroke(circle(12, 12, 3), with: color, style: stroke)
+                for (x1, y1, x2, y2) in [(12.0, 3.0, 12.0, 5.5), (12.0, 18.5, 12.0, 21.0), (3.0, 12.0, 5.5, 12.0), (18.5, 12.0, 21.0, 12.0), (5.6, 5.6, 7.4, 7.4), (16.6, 16.6, 18.4, 18.4), (18.4, 5.6, 16.6, 7.4), (7.4, 16.6, 5.6, 18.4)] {
+                    context.stroke(line(x1, y1, x2, y2), with: color, style: stroke)
+                }
             case .carpeta:
                 var p = Path()
                 p.move(to: P(3, 7))

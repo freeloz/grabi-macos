@@ -2,29 +2,35 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- El bundle ID se mantiene (com.ivan.recordapp) para conservar los
+	     permisos de TCC ya concedidos; el nombre visible es Grabi. -->
 	<key>CFBundleIdentifier</key>
 	<string>com.ivan.recordapp</string>
 	<key>CFBundleName</key>
-	<string>RecordApp</string>
+	<string>Grabi</string>
 	<key>CFBundleDisplayName</key>
-	<string>RecordApp</string>
+	<string>Grabi</string>
 	<key>CFBundleExecutable</key>
-	<string>RecordApp</string>
+	<string>Grabi</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>0.1</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>RecordApp usa la cámara para incluirla en tus grabaciones (picture-in-picture o pantalla completa).</string>
+	<string>Grabi usa la cámara para incluirte en tus grabaciones. Es solo para grabar — nada sale de tu Mac.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>RecordApp usa el micrófono para grabar tu voz en una pista de audio separada.</string>
+	<string>Grabi usa el micrófono para grabar tu voz. Es solo para grabar — nada sale de tu Mac.</string>
 </dict>
 </plist>
