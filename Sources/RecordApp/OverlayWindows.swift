@@ -68,6 +68,39 @@ private struct PillRoot: View {
     }
 }
 
+// MARK: - Borde de grabación
+// Marco redondeado alrededor de lo que se está grabando (pantalla, ventana o
+// región): siempre sabes qué área se ve. Click-through y excluido de la captura.
+
+@MainActor
+final class CaptureBorderWindowController {
+    private var panel: NSPanel?
+
+    func show(frame: NSRect) {
+        if panel == nil {
+            let p = makeFloatingPanel(level: .statusBar)
+            p.ignoresMouseEvents = true // nunca estorba: los clics lo atraviesan
+            p.contentView = NSHostingView(rootView: CaptureBorderView())
+            panel = p
+        }
+        panel?.setFrame(frame, display: true)
+        panel?.orderFrontRegardless()
+    }
+
+    func close() {
+        panel?.orderOut(nil)
+    }
+}
+
+private struct CaptureBorderView: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: GrabiRadius.md)
+            .strokeBorder(GrabiColor.rec, lineWidth: 3)
+            .padding(1)
+            .ignoresSafeArea()
+    }
+}
+
 // MARK: - Recuadro flotante de la selfie durante la grabación
 // La cámara en vivo, con su forma, EXCLUIDA de la captura, colocada en el
 // mismo lugar donde se compone en el video. Arrastrarla mueve el PiP grabado
@@ -99,7 +132,7 @@ final class CameraWindowController: NSObject {
                 model: model,
                 renderView: renderView,
                 onResizeBegan: { [weak self] in self?.beginResize() },
-                onResizeChanged: { [weak self] delta in self?.resize(by: delta) }))
+                onResizeChanged: { [weak self] delta, corner in self?.resize(by: delta, corner: corner) }))
             panel = p
             moveObserver = NotificationCenter.default.addObserver(
                 forName: NSWindow.didMoveNotification, object: p, queue: .main
@@ -125,38 +158,7 @@ final class CameraWindowController: NSObject {
 
     /// Rect de lo capturado, en coordenadas de pantalla NS.
     private func computeBaseRect() -> NSRect? {
-        guard let model else { return nil }
-        guard model.screenEnabled else { return nil } // cámara-sola: sin mapeo
-
-        func screen(for displayID: CGDirectDisplayID?) -> NSScreen? {
-            let id = displayID ?? CGMainDisplayID()
-            return NSScreen.screens.first {
-                ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == id
-            } ?? NSScreen.main
-        }
-
-        switch model.captureMode {
-        case .pantalla:
-            return screen(for: model.selectedDisplayID)?.frame
-        case .region:
-            guard let rect = model.regionRect, let scr = screen(for: model.selectedDisplayID) else {
-                return screen(for: model.selectedDisplayID)?.frame
-            }
-            // regionRect: puntos relativos a la pantalla, origen arriba-izquierda.
-            return NSRect(x: scr.frame.minX + rect.minX,
-                          y: scr.frame.maxY - rect.minY - rect.height,
-                          width: rect.width, height: rect.height)
-        case .ventana:
-            guard let window = model.selectedWindow, let primary = NSScreen.screens.first else {
-                return screen(for: nil)?.frame
-            }
-            // SCWindow.frame: coordenadas CG (origen arriba-izquierda de la
-            // pantalla principal) → NS (abajo-izquierda).
-            let f = window.frame
-            return NSRect(x: f.minX,
-                          y: primary.frame.maxY - f.minY - f.height,
-                          width: f.width, height: f.height)
-        }
+        model?.captureAreaFrame()
     }
 
     private func applyLayout() {
@@ -187,33 +189,53 @@ final class CameraWindowController: NSObject {
         }
     }
 
-    // MARK: Redimensionar desde la manija (esquina inferior derecha)
+    // MARK: Redimensionar desde cualquier esquina (ancla: la esquina opuesta)
 
-    private var resizeStartHeight: CGFloat?
+    private var resizeStartLayout: (origin: CGPoint, height: CGFloat)?
+    private var resizeStartFrame: NSRect?
 
     private func beginResize() {
-        resizeStartHeight = panel?.frame.height
+        resizeStartLayout = model.map { ($0.cameraLayout.origin, $0.cameraLayout.height) }
+        resizeStartFrame = panel?.frame
     }
 
-    /// Cambia el tamaño manteniendo fija la esquina superior izquierda; en
-    /// modo mapeado actualiza `cameraLayout.height` → el PiP grabado cambia
-    /// de tamaño en vivo.
-    private func resize(by delta: CGFloat) {
-        guard let startHeight = resizeStartHeight, let model else { return }
-        if let base = baseRect {
-            let newHeight = (startHeight + delta) / base.height
+    /// En modo mapeado actualiza `cameraLayout` → el PiP grabado cambia de
+    /// tamaño en vivo; la esquina opuesta a la arrastrada queda fija.
+    private func resize(by delta: CGFloat, corner: ResizeCorner) {
+        guard let model else { return }
+        let aspect = model.cameraLayout.shape.aspectRatio
+
+        if let base = baseRect, let start = resizeStartLayout {
             // Mismo rango que la vista previa (prototipo: s 80–210 sobre 360).
-            model.cameraLayout.height = min(max(newHeight, 80.0 / 360.0), 210.0 / 360.0)
+            let newHeight = min(max(start.height + delta / base.height, 80.0 / 360.0), 210.0 / 360.0)
+            let dH = start.height - newHeight
+            let dW = dH * aspect * base.height / base.width
+            var origin = start.origin
+            switch corner {
+            case .bottomRight: break
+            case .bottomLeft: origin.x += dW
+            case .topRight: origin.y += dH
+            case .topLeft: origin.x += dW; origin.y += dH
+            }
+            let wFrac = newHeight * aspect * base.height / base.width
+            origin.x = min(max(origin.x, 0), max(0, 1 - wFrac))
+            origin.y = min(max(origin.y, 0), max(0, 1 - newHeight))
+            model.cameraLayout = CameraLayout(shape: model.cameraLayout.shape, origin: origin, height: newHeight)
             // applyLayout() llega vía la suscripción a $cameraLayout.
-        } else if let panel {
-            // Cámara-sola: solo cambia la ventana flotante.
-            let h = min(max(startHeight + delta, 140), 420)
-            let w = h * model.cameraLayout.shape.aspectRatio
-            var f = panel.frame
-            f.origin.y = f.maxY - h // esquina superior fija
-            f.size = NSSize(width: w, height: h)
+        } else if let panel, let f0 = resizeStartFrame {
+            // Cámara-sola: solo cambia la ventana flotante (coords NS: y hacia
+            // arriba; "topLeft" visual = (minX, maxY)).
+            let h = min(max(f0.height + delta, 140), 420)
+            let w = h * aspect
+            let newFrame: NSRect
+            switch corner {
+            case .bottomRight: newFrame = NSRect(x: f0.minX, y: f0.maxY - h, width: w, height: h)
+            case .bottomLeft: newFrame = NSRect(x: f0.maxX - w, y: f0.maxY - h, width: w, height: h)
+            case .topRight: newFrame = NSRect(x: f0.minX, y: f0.minY, width: w, height: h)
+            case .topLeft: newFrame = NSRect(x: f0.maxX - w, y: f0.minY, width: w, height: h)
+            }
             programmaticMove = true
-            panel.setFrame(f, display: true)
+            panel.setFrame(newFrame, display: true)
             programmaticMove = false
         }
     }
@@ -235,14 +257,38 @@ final class CameraWindowController: NSObject {
     }
 }
 
+/// Esquina de redimensión (nombres visuales: topLeft = arriba-izquierda).
+enum ResizeCorner {
+    case topLeft, topRight, bottomLeft, bottomRight
+
+    /// Crecimiento a partir del arrastre: hacia afuera = agrandar.
+    func delta(from translation: CGSize) -> CGFloat {
+        switch self {
+        case .bottomRight: return max(translation.width, translation.height)
+        case .bottomLeft: return max(-translation.width, translation.height)
+        case .topRight: return max(translation.width, -translation.height)
+        case .topLeft: return max(-translation.width, -translation.height)
+        }
+    }
+
+    var alignment: Alignment {
+        switch self {
+        case .topLeft: return .topLeading
+        case .topRight: return .topTrailing
+        case .bottomLeft: return .bottomLeading
+        case .bottomRight: return .bottomTrailing
+        }
+    }
+}
+
 private struct CameraFloatView: View {
     @ObservedObject var model: GrabiAppModel
     let renderView: PixelBufferNSView
     let onResizeBegan: () -> Void
-    let onResizeChanged: (CGFloat) -> Void
+    let onResizeChanged: (CGFloat, ResizeCorner) -> Void
 
     @State private var hovering = false
-    @State private var resizing = false
+    @State private var resizingCorner: ResizeCorner?
 
     var body: some View {
         let layout = model.cameraLayout
@@ -258,33 +304,41 @@ private struct CameraFloatView: View {
                         Button(shape.displayName) { model.cameraLayout.shape = shape }
                     }
                 }
-                .overlay(alignment: .bottomTrailing) {
-                    // Manija de tamaño: visible al pasar el cursor (o mientras
-                    // se arrastra), área de golpeo de 30 px.
-                    Circle()
-                        .fill(Color.white)
-                        .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
-                        .frame(width: 13, height: 13)
-                        .opacity(hovering || resizing ? 1 : 0)
-                        .frame(width: 30, height: 30)
-                        .contentShape(Circle())
-                        .padding(layout.shape == .circle ? geo.size.height * 0.10 : 4)
-                        .gesture(
-                            DragGesture(coordinateSpace: .global)
-                                .onChanged { value in
-                                    if !resizing {
-                                        resizing = true
-                                        onResizeBegan()
-                                    }
-                                    onResizeChanged(max(value.translation.width, value.translation.height))
-                                }
-                                .onEnded { _ in resizing = false }
-                        )
+                // Mover: arrastra desde dentro del cuadro (la ventana es
+                // movable-by-background). Redimensionar: cualquier esquina.
+                .overlay {
+                    ForEach([ResizeCorner.topLeft, .topRight, .bottomLeft, .bottomRight], id: \.self) { corner in
+                        cornerHandle(corner, circleInset: layout.shape == .circle ? geo.size.height * 0.10 : 4)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: corner.alignment)
+                    }
                 }
                 .onHover { hovering = $0 }
                 .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
         }
         .ignoresSafeArea()
+    }
+
+    /// Manija de esquina: visible al pasar el cursor, área de golpeo de 30 px.
+    private func cornerHandle(_ corner: ResizeCorner, circleInset: CGFloat) -> some View {
+        Circle()
+            .fill(Color.white)
+            .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
+            .frame(width: 13, height: 13)
+            .opacity(hovering || resizingCorner != nil ? 1 : 0)
+            .frame(width: 30, height: 30)
+            .contentShape(Circle())
+            .padding(circleInset)
+            .gesture(
+                DragGesture(coordinateSpace: .global)
+                    .onChanged { value in
+                        if resizingCorner == nil {
+                            resizingCorner = corner
+                            onResizeBegan()
+                        }
+                        onResizeChanged(corner.delta(from: value.translation), corner)
+                    }
+                    .onEnded { _ in resizingCorner = nil }
+            )
     }
 }
 

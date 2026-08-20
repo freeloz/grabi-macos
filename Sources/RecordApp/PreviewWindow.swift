@@ -138,7 +138,7 @@ struct PreviewRoot: View {
                 set: { model.cameraLayout.shape = $0 }
             ))
             .disabled(!model.cameraEnabled)
-            Text("Arrastra la cámara · esquina inferior derecha para redimensionar · clic derecho para más")
+            Text("Arrastra la cámara · esquinas para redimensionar · clic derecho para más")
                 .font(.system(size: 12))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .lineLimit(2)
@@ -177,7 +177,7 @@ private struct CameraOverlay: View {
     let contentRect: CGRect
 
     @State private var dragStartOrigin: CGPoint?
-    @State private var resizeStartHeight: CGFloat?
+    @State private var resizeStart: (origin: CGPoint, height: CGFloat)?
 
     /// Margen alrededor del recuadro para que las manijas (centradas en las
     /// esquinas) queden DENTRO del área interactiva del overlay.
@@ -197,11 +197,12 @@ private struct CameraOverlay: View {
                 .frame(width: pipWidth, height: pipHeight)
                 .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
                 .gesture(dragGesture(pipWidth: pipWidth, pipHeight: pipHeight))
-            // 4 manijas de esquina; solo la inferior derecha redimensiona.
-            handle(at: CGPoint(x: handlePad, y: handlePad))
-            handle(at: CGPoint(x: handlePad + pipWidth, y: handlePad))
-            handle(at: CGPoint(x: handlePad, y: handlePad + pipHeight))
-            resizeHandle(at: CGPoint(x: handlePad + pipWidth, y: handlePad + pipHeight))
+            // 4 manijas de esquina: todas redimensionan, con ancla en la
+            // esquina opuesta (Fase 3 §02).
+            resizeHandle(.topLeft, at: CGPoint(x: handlePad, y: handlePad))
+            resizeHandle(.topRight, at: CGPoint(x: handlePad + pipWidth, y: handlePad))
+            resizeHandle(.bottomLeft, at: CGPoint(x: handlePad, y: handlePad + pipHeight))
+            resizeHandle(.bottomRight, at: CGPoint(x: handlePad + pipWidth, y: handlePad + pipHeight))
         }
         .frame(width: pipWidth + handlePad * 2, height: pipHeight + handlePad * 2)
         .offset(x: x - handlePad, y: y - handlePad)
@@ -222,19 +223,11 @@ private struct CameraOverlay: View {
         }
     }
 
-    private func handle(at point: CGPoint) -> some View {
+    private func resizeHandle(_ corner: ResizeCorner, at point: CGPoint) -> some View {
         Circle()
             .fill(Color.white)
             .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
-            .frame(width: 11, height: 11)
-            .position(point)
-    }
-
-    private func resizeHandle(at point: CGPoint) -> some View {
-        Circle()
-            .fill(Color.white)
-            .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
-            .frame(width: 13, height: 13)
+            .frame(width: 12, height: 12)
             // Área de golpeo de 30 px (mínimo 28 con puntero, Fase 2 §10):
             // la manija visible es pequeña pero fácil de agarrar.
             .frame(width: 30, height: 30)
@@ -246,17 +239,31 @@ private struct CameraOverlay: View {
             .gesture(
                 DragGesture()
                     .onChanged { value in
-                        if resizeStartHeight == nil {
-                            resizeStartHeight = model.cameraLayout.height
+                        if resizeStart == nil {
+                            resizeStart = (model.cameraLayout.origin, model.cameraLayout.height)
                         }
-                        guard let startFraction = resizeStartHeight else { return }
-                        let delta = max(value.translation.width, value.translation.height)
-                        let newHeight = startFraction + delta / contentRect.height
+                        guard let start = resizeStart else { return }
+                        let delta = corner.delta(from: value.translation)
                         // Rango del prototipo: s 80–210 sobre lienzo de 360.
-                        model.cameraLayout.height = min(max(newHeight, 80.0 / 360.0), 210.0 / 360.0)
-                        clampOrigin()
+                        let newHeight = min(max(start.height + delta / contentRect.height, 80.0 / 360.0), 210.0 / 360.0)
+                        // Ancla en la esquina opuesta a la arrastrada.
+                        let aspect = model.cameraLayout.shape.aspectRatio
+                        let dH = start.height - newHeight
+                        let dW = dH * aspect * contentRect.height / contentRect.width
+                        var origin = start.origin
+                        switch corner {
+                        case .bottomRight: break
+                        case .bottomLeft: origin.x += dW
+                        case .topRight: origin.y += dH
+                        case .topLeft: origin.x += dW; origin.y += dH
+                        }
+                        let wFrac = newHeight * aspect * contentRect.height / max(contentRect.width, 1)
+                        origin.x = min(max(origin.x, 0), max(0, 1 - wFrac))
+                        origin.y = min(max(origin.y, 0), max(0, 1 - newHeight))
+                        model.cameraLayout = CameraLayout(
+                            shape: model.cameraLayout.shape, origin: origin, height: newHeight)
                     }
-                    .onEnded { _ in resizeStartHeight = nil }
+                    .onEnded { _ in resizeStart = nil }
             )
     }
 

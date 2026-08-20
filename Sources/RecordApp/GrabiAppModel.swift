@@ -68,6 +68,7 @@ final class GrabiAppModel: ObservableObject {
     let settingsController = SettingsWindowController()
     let regionController = RegionPickerController()
     let capturePickerController = WindowPickerController()
+    let borderController = CaptureBorderWindowController()
     let permissionController = PermissionWindowController()
 
     private let hotkeys = HotkeyManager()
@@ -392,6 +393,7 @@ final class GrabiAppModel: ObservableObject {
             }
             pillController.show(model: self)
             if cameraEnabled { cameraWindowController.show(model: self) }
+            if screenEnabled, let area = captureAreaFrame() { borderController.show(frame: area) }
         case .paused:
             // Acumular el tramo grabado; el cronómetro se congela.
             if let start = segmentStart {
@@ -409,6 +411,7 @@ final class GrabiAppModel: ObservableObject {
             accumulated = 0
             pillController.close()
             cameraWindowController.close()
+            borderController.close()
             if case .failed(let error) = state {
                 errorMessage = error.errorDescription
             }
@@ -469,6 +472,43 @@ final class GrabiAppModel: ObservableObject {
         Task {
             if isActive { await stop() }
             NSApp.terminate(nil)
+        }
+    }
+
+    /// Área capturada en coordenadas de pantalla NS (origen abajo-izquierda,
+    /// globales). La usan el borde de grabación y el recuadro selfie flotante.
+    /// nil → no se captura pantalla (modo cámara-sola).
+    func captureAreaFrame() -> NSRect? {
+        guard screenEnabled else { return nil }
+
+        func screen(for displayID: CGDirectDisplayID?) -> NSScreen? {
+            let id = displayID ?? CGMainDisplayID()
+            return NSScreen.screens.first {
+                ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == id
+            } ?? NSScreen.main
+        }
+
+        switch captureMode {
+        case .pantalla:
+            return screen(for: selectedDisplayID)?.frame
+        case .region:
+            guard let rect = regionRect, let scr = screen(for: selectedDisplayID) else {
+                return screen(for: selectedDisplayID)?.frame
+            }
+            // regionRect: puntos relativos a la pantalla, origen arriba-izquierda.
+            return NSRect(x: scr.frame.minX + rect.minX,
+                          y: scr.frame.maxY - rect.minY - rect.height,
+                          width: rect.width, height: rect.height)
+        case .ventana:
+            guard let window = selectedWindow, let primary = NSScreen.screens.first else {
+                return screen(for: nil)?.frame
+            }
+            // SCWindow.frame: coordenadas CG (origen arriba-izquierda de la
+            // pantalla principal) → NS (abajo-izquierda).
+            let f = window.frame
+            return NSRect(x: f.minX,
+                          y: primary.frame.maxY - f.minY - f.height,
+                          width: f.width, height: f.height)
         }
     }
 
