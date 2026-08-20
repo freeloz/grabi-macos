@@ -25,6 +25,23 @@ final class AppModel: ObservableObject {
     @Published var showUnavailableDialog = false
     @Published private(set) var unavailableSources: [RecordingSource] = []
 
+    // Controles de prueba de FASE A (UI provisional): target y pausa.
+    @Published var selectedTarget: CaptureTarget = .mainDisplay
+    @Published private(set) var availableWindows: [WindowInfo] = []
+
+    var isPaused: Bool {
+        if case .paused = engineState { return true }
+        return false
+    }
+
+    func refreshWindows() async {
+        availableWindows = (try? await RecordingEngine.availableContent())?.windows ?? []
+    }
+
+    func togglePause() {
+        if isPaused { engine.resume() } else { engine.pause() }
+    }
+
     private var cancellables = Set<AnyCancellable>()
     private var timer: AnyCancellable?
     private var recordingStartedAt: Date?
@@ -144,7 +161,8 @@ final class AppModel: ObservableObject {
                 capturesCamera: cameraEnabled,
                 capturesMicrophone: micEnabled,
                 capturesSystemAudio: systemAudioEnabled,
-                outputURL: outputURL)
+                outputURL: outputURL,
+                target: selectedTarget)
             try await engine.start(configuration: config)
         } catch {
             errorMessage = error.localizedDescription

@@ -16,9 +16,20 @@ struct ContentView: View {
                 }
             }
 
+            targetPicker
+
             statusSection
 
             recordButton
+
+            if model.isRecording || model.isPaused {
+                Button {
+                    model.togglePause()
+                } label: {
+                    Label(model.isPaused ? "Reanudar" : "Pausar",
+                          systemImage: model.isPaused ? "play.circle" : "pause.circle")
+                }
+            }
 
             if case .stopped = model.engineState, model.lastRecordingURL != nil {
                 Button {
@@ -63,6 +74,25 @@ struct ContentView: View {
                 return "\(source.displayName): \(why)"
             }
             .joined(separator: "\n\n")
+    }
+
+    // Selector de target provisional para probar FASE A (pantalla/ventana/región).
+    private var targetPicker: some View {
+        Picker("Capturar", selection: Binding(
+            get: { model.selectedTarget },
+            set: { model.selectedTarget = $0 }
+        )) {
+            Text("Pantalla completa").tag(CaptureTarget.mainDisplay)
+            Text("Región (centro 800×500)").tag(CaptureTarget.region(
+                displayID: nil,
+                rect: CGRect(x: 200, y: 150, width: 800, height: 500)))
+            ForEach(model.availableWindows.prefix(10)) { window in
+                Text("Ventana: \(window.appName) — \(window.title.prefix(30))")
+                    .tag(CaptureTarget.window(window.id))
+            }
+        }
+        .disabled(model.isBusy)
+        .task { await model.refreshWindows() }
     }
 
     private var statusSection: some View {

@@ -17,6 +17,21 @@ public enum CaptureTarget: Equatable, Sendable {
     public static let mainDisplay = CaptureTarget.display(nil)
 }
 
+extension CaptureTarget: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .display(let id):
+            hasher.combine(0); hasher.combine(id)
+        case .window(let id):
+            hasher.combine(1); hasher.combine(id)
+        case .region(let id, let rect):
+            hasher.combine(2); hasher.combine(id)
+            hasher.combine(rect.origin.x); hasher.combine(rect.origin.y)
+            hasher.combine(rect.width); hasher.combine(rect.height)
+        }
+    }
+}
+
 /// Pantalla disponible para capturar.
 public struct DisplayInfo: Identifiable, Equatable, Sendable {
     public let id: CGDirectDisplayID
