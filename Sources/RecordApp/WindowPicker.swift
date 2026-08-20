@@ -1,16 +1,56 @@
 import SwiftUI
 import AppKit
 import CoreGraphics
+import ScreenCaptureKit
 import RecordEngine
 import RecordUI
 
-/// Miniaturas para el selector visual. CGWindowListCreateImage /
-/// CGDisplayCreateImage están deprecadas desde macOS 14 pero son la única
-/// vía en macOS 13 (nuestro mínimo); con el permiso de pantalla concedido
-/// devuelven el contenido real.
-enum CaptureThumbnailer {
-    static func window(_ windowID: CGWindowID) async -> NSImage? {
-        await Task.detached(priority: .userInitiated) {
+/// Miniaturas para el selector visual.
+///
+/// En macOS 14+ usa SCScreenshotManager: captura por GPU directamente al
+/// tamaño de la miniatura y en paralelo — carga casi instantánea. En macOS 13
+/// cae a CGWindowListCreateImage/CGDisplayCreateImage (deprecadas en 14, pero
+/// únicas disponibles ahí); son lentas porque el window server las atiende en
+/// serie y a resolución completa.
+actor CaptureThumbnailer {
+    static let shared = CaptureThumbnailer()
+
+    private var scWindows: [CGWindowID: SCWindow] = [:]
+    private var scDisplays: [CGDirectDisplayID: SCDisplay] = [:]
+    private var refreshed = false
+
+    /// Ancho objetivo de las miniaturas en píxeles (tarjeta ~228 pt @2x).
+    private let targetWidth: CGFloat = 480
+
+    /// Un solo fetch de SCShareableContent por apertura del selector.
+    func refresh() async {
+        refreshed = false
+        await ensureFresh()
+    }
+
+    private func ensureFresh() async {
+        guard !refreshed else { return }
+        refreshed = true
+        guard #available(macOS 14.0, *) else { return }
+        guard let content = try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true) else { return }
+        scWindows = Dictionary(uniqueKeysWithValues: content.windows.map { ($0.windowID, $0) })
+        scDisplays = Dictionary(uniqueKeysWithValues: content.displays.map { ($0.displayID, $0) })
+    }
+
+    func window(_ windowID: CGWindowID) async -> NSImage? {
+        await ensureFresh()
+        if #available(macOS 14.0, *), let scWindow = scWindows[windowID] {
+            let config = SCStreamConfiguration()
+            let scale = min(1, targetWidth / max(scWindow.frame.width, 1))
+            config.width = max(Int(scWindow.frame.width * scale), 2)
+            config.height = max(Int(scWindow.frame.height * scale), 2)
+            config.showsCursor = false
+            let filter = SCContentFilter(desktopIndependentWindow: scWindow)
+            if let cgImage = try? await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config) {
+                return NSImage(cgImage: cgImage, size: .zero)
+            }
+        }
+        return await Task.detached(priority: .userInitiated) {
             guard let cgImage = CGWindowListCreateImage(
                 .null, .optionIncludingWindow, windowID,
                 [.boundsIgnoreFraming, .nominalResolution])
@@ -19,8 +59,20 @@ enum CaptureThumbnailer {
         }.value
     }
 
-    static func display(_ displayID: CGDirectDisplayID) async -> NSImage? {
-        await Task.detached(priority: .userInitiated) {
+    func display(_ displayID: CGDirectDisplayID) async -> NSImage? {
+        await ensureFresh()
+        if #available(macOS 14.0, *), let scDisplay = scDisplays[displayID] {
+            let config = SCStreamConfiguration()
+            let scale = targetWidth / max(CGFloat(scDisplay.width), 1)
+            config.width = max(Int(CGFloat(scDisplay.width) * scale), 2)
+            config.height = max(Int(CGFloat(scDisplay.height) * scale), 2)
+            config.showsCursor = false
+            let filter = SCContentFilter(display: scDisplay, excludingWindows: [])
+            if let cgImage = try? await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config) {
+                return NSImage(cgImage: cgImage, size: .zero)
+            }
+        }
+        return await Task.detached(priority: .userInitiated) {
             guard let cgImage = CGDisplayCreateImage(displayID) else { return nil }
             return NSImage(cgImage: cgImage, size: .zero)
         }.value
@@ -53,7 +105,7 @@ private struct CapturePickerView: View {
                                 title: display.name,
                                 subtitle: "\(Int(display.frame.width))×\(Int(display.frame.height))",
                                 isSelected: model.captureMode == .pantalla && isSelectedDisplay(display),
-                                thumbnail: { await CaptureThumbnailer.display(display.id) }
+                                thumbnail: { await CaptureThumbnailer.shared.display(display.id) }
                             ) {
                                 model.selectedDisplayID = display.isMain ? nil : display.id
                                 model.captureMode = .pantalla
@@ -79,7 +131,7 @@ private struct CapturePickerView: View {
                                     title: window.appName,
                                     subtitle: window.title,
                                     isSelected: model.captureMode == .ventana && model.selectedWindow?.id == window.id,
-                                    thumbnail: { await CaptureThumbnailer.window(window.id) }
+                                    thumbnail: { await CaptureThumbnailer.shared.window(window.id) }
                                 ) {
                                     model.selectedWindow = window
                                     model.captureMode = .ventana
@@ -94,7 +146,10 @@ private struct CapturePickerView: View {
         }
         .frame(width: 720, height: 540)
         .background(GrabiColor.bg)
-        .task { await model.refreshAll() }
+        .task {
+            await CaptureThumbnailer.shared.refresh()
+            await model.refreshAll()
+        }
     }
 
     private func isSelectedDisplay(_ display: DisplayInfo) -> Bool {
