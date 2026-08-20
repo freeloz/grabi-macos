@@ -82,7 +82,13 @@ struct ContentView: View {
             get: { model.selectedTarget },
             set: { model.selectedTarget = $0 }
         )) {
-            Text("Pantalla completa").tag(CaptureTarget.mainDisplay)
+            ForEach(model.availableDisplays) { display in
+                Text(display.isMain ? "Pantalla completa (\(display.name))" : display.name)
+                    .tag(display.isMain ? CaptureTarget.mainDisplay : CaptureTarget.display(display.id))
+            }
+            if model.availableDisplays.isEmpty {
+                Text("Pantalla completa").tag(CaptureTarget.mainDisplay)
+            }
             Text("Región (centro 800×500)").tag(CaptureTarget.region(
                 displayID: nil,
                 rect: CGRect(x: 200, y: 150, width: 800, height: 500)))
@@ -92,7 +98,10 @@ struct ContentView: View {
             }
         }
         .disabled(model.isBusy)
-        .task { await model.refreshWindows() }
+        .task { await model.refreshContent() }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            Task { await model.refreshContent() }
+        }
     }
 
     private var statusSection: some View {

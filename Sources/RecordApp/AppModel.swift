@@ -28,14 +28,28 @@ final class AppModel: ObservableObject {
     // Controles de prueba de FASE A (UI provisional): target y pausa.
     @Published var selectedTarget: CaptureTarget = .mainDisplay
     @Published private(set) var availableWindows: [WindowInfo] = []
+    @Published private(set) var availableDisplays: [DisplayInfo] = []
 
     var isPaused: Bool {
         if case .paused = engineState { return true }
         return false
     }
 
-    func refreshWindows() async {
-        availableWindows = (try? await RecordingEngine.availableContent())?.windows ?? []
+    /// Refresca pantallas y ventanas capturables. Se llama al aparecer y cada
+    /// vez que la app vuelve a primer plano (así las ventanas cerradas
+    /// desaparecen de la lista sin botón de refrescar).
+    func refreshContent() async {
+        guard let content = try? await RecordingEngine.availableContent() else { return }
+        availableDisplays = content.displays
+        availableWindows = content.windows
+        // Si el target seleccionado ya no existe (ventana cerrada, pantalla
+        // desconectada), volver a pantalla principal.
+        if case .window(let id) = selectedTarget, !content.windows.contains(where: { $0.id == id }) {
+            selectedTarget = .mainDisplay
+        }
+        if case .display(.some(let id)) = selectedTarget, !content.displays.contains(where: { $0.id == id }) {
+            selectedTarget = .mainDisplay
+        }
     }
 
     func togglePause() {

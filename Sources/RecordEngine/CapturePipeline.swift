@@ -159,13 +159,25 @@ final class CapturePipeline {
         if let screen {
             if config.capturesScreen {
                 if let compositor {
+                    // La cámara tarda ~1 s en arrancar (auto-exposición). Para
+                    // que la grabación no empiece con el PiP congelado o
+                    // apareciendo de golpe, no se escribe video hasta que la
+                    // cámara entrega su primer frame (tope: 45 frames ≈ 1,5 s
+                    // por si la cámara falla). Si hubo vista previa antes, la
+                    // cámara ya está caliente y esto no espera nada.
+                    var framesWaitingForCamera = 0 // solo se toca en la cola de video
                     screen.onVideoFrame = { [weak self] screenBuffer, pts in
                         guard let self else { return }
+                        let cameraFrame = box.value
                         // Composición en la cola de video de SCStream (GPU);
                         // el mismo frame compuesto va a writer y vista previa.
-                        guard let composed = compositor.compose(screen: screenBuffer, camera: box.value) else { return }
-                        self.writer?.appendVideo(pixelBuffer: composed, presentationTime: pts)
+                        guard let composed = compositor.compose(screen: screenBuffer, camera: cameraFrame) else { return }
                         self.onPreviewFrame?(composed)
+                        if cameraFrame == nil, self.writer != nil, framesWaitingForCamera < 45 {
+                            framesWaitingForCamera += 1
+                            return
+                        }
+                        self.writer?.appendVideo(pixelBuffer: composed, presentationTime: pts)
                     }
                 } else {
                     screen.onVideoFrame = { [weak self] screenBuffer, pts in
