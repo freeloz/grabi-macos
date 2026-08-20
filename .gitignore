@@ -16,3 +16,6 @@ xcuserdata/
 
 # App bundle generado por el script de empaquetado
 dist/
+
+# Artefactos de pruebas locales
+grabi-memoria.csv
