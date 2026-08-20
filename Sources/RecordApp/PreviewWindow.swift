@@ -54,11 +54,17 @@ final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegat
 final class PixelBufferNSView: NSView {
     private let contentLayer = CALayer()
 
+    /// true → recorte centrado (aspect-fill), como la cámara del PiP.
+    var usesAspectFill = false {
+        didSet { contentLayer.contentsGravity = usesAspectFill ? .resizeAspectFill : .resizeAspect }
+    }
+
     override init(frame: NSRect) {
         super.init(frame: frame)
         wantsLayer = true
         layer?.backgroundColor = .black
         contentLayer.contentsGravity = .resizeAspect
+        contentLayer.masksToBounds = true
         layer?.addSublayer(contentLayer)
     }
 

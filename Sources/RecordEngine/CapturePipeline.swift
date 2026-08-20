@@ -41,6 +41,9 @@ final class CapturePipeline {
     var onFatalError: ((Error) -> Void)?
     /// Nivel RMS del audio del sistema (cola de audio de SCStream).
     var onSystemAudioLevel: ((Double) -> Void)?
+    /// Frames crudos de la cámara (sin espejo ni forma), para el recuadro
+    /// flotante de la selfie durante la grabación. Cola de la cámara.
+    var onCameraFrame: ((CVPixelBuffer) -> Void)?
 
     private var running = false
 
@@ -147,10 +150,11 @@ final class CapturePipeline {
 
         if let camera {
             if compositor != nil {
-                camera.onFrame = { pixelBuffer, _ in
+                camera.onFrame = { [weak self] pixelBuffer, _ in
                     // En PiP la cámara no marca el ritmo: solo deja su frame
                     // más reciente para que lo estampe el frame de pantalla.
                     box.value = pixelBuffer
+                    self?.onCameraFrame?(pixelBuffer)
                 }
             } else {
                 // Cámara sin pantalla → la cámara ES el video, a pantalla
@@ -161,6 +165,7 @@ final class CapturePipeline {
                     guard let self, let mirrored = mirror.mirrored(pixelBuffer) else { return }
                     self.writer?.appendVideo(pixelBuffer: mirrored, presentationTime: pts)
                     self.onPreviewFrame?(mirrored)
+                    self.onCameraFrame?(pixelBuffer)
                 }
             }
         }

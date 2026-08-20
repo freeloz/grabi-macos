@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 import RecordEngine
 import RecordUI
 
@@ -65,6 +66,167 @@ private struct PillRoot: View {
                 .fixedSize()
         }
     }
+}
+
+// MARK: - Recuadro flotante de la selfie durante la grabación
+// La cámara en vivo, con su forma, EXCLUIDA de la captura, colocada en el
+// mismo lugar donde se compone en el video. Arrastrarla mueve el PiP grabado
+// en vivo: el recuadro ES la vista previa de lo que se está grabando.
+
+@MainActor
+final class CameraWindowController: NSObject {
+    private var panel: NSPanel?
+    private let renderView = PixelBufferNSView()
+    private weak var model: GrabiAppModel?
+    private var layoutCancellable: AnyCancellable?
+    private var moveObserver: NSObjectProtocol?
+    private var programmaticMove = false
+    /// Área de captura en coordenadas NS (origen abajo-izquierda, globales);
+    /// nil → sin mapeo (modo cámara-sola: libre).
+    private var baseRect: NSRect?
+
+    func show(model: GrabiAppModel) {
+        self.model = model
+        renderView.usesAspectFill = true // recorte centrado, como el PiP grabado
+        model.engine.onCameraFrame = { [weak self] pixelBuffer in
+            DispatchQueue.main.async { self?.renderView.render(pixelBuffer) }
+        }
+        if panel == nil {
+            let p = makeFloatingPanel(level: .statusBar)
+            p.isMovableByWindowBackground = true
+            p.hasShadow = true
+            p.contentView = NSHostingView(rootView: CameraFloatView(model: model, renderView: renderView))
+            panel = p
+            moveObserver = NotificationCenter.default.addObserver(
+                forName: NSWindow.didMoveNotification, object: p, queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in self?.windowMoved() }
+            }
+        }
+        baseRect = computeBaseRect()
+        applyLayout()
+        panel?.orderFrontRegardless()
+
+        // Seguir cambios de forma/tamaño/posición hechos desde otro lado
+        // (ventana de vista previa, menú contextual).
+        layoutCancellable = model.$cameraLayout
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.applyLayout() }
+    }
+
+    func close() {
+        layoutCancellable = nil
+        panel?.orderOut(nil)
+    }
+
+    /// Rect de lo capturado, en coordenadas de pantalla NS.
+    private func computeBaseRect() -> NSRect? {
+        guard let model else { return nil }
+        guard model.screenEnabled else { return nil } // cámara-sola: sin mapeo
+
+        func screen(for displayID: CGDirectDisplayID?) -> NSScreen? {
+            let id = displayID ?? CGMainDisplayID()
+            return NSScreen.screens.first {
+                ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == id
+            } ?? NSScreen.main
+        }
+
+        switch model.captureMode {
+        case .pantalla:
+            return screen(for: model.selectedDisplayID)?.frame
+        case .region:
+            guard let rect = model.regionRect, let scr = screen(for: model.selectedDisplayID) else {
+                return screen(for: model.selectedDisplayID)?.frame
+            }
+            // regionRect: puntos relativos a la pantalla, origen arriba-izquierda.
+            return NSRect(x: scr.frame.minX + rect.minX,
+                          y: scr.frame.maxY - rect.minY - rect.height,
+                          width: rect.width, height: rect.height)
+        case .ventana:
+            guard let window = model.selectedWindow, let primary = NSScreen.screens.first else {
+                return screen(for: nil)?.frame
+            }
+            // SCWindow.frame: coordenadas CG (origen arriba-izquierda de la
+            // pantalla principal) → NS (abajo-izquierda).
+            let f = window.frame
+            return NSRect(x: f.minX,
+                          y: primary.frame.maxY - f.minY - f.height,
+                          width: f.width, height: f.height)
+        }
+    }
+
+    private func applyLayout() {
+        guard let panel, let model else { return }
+        let layout = model.cameraLayout
+        programmaticMove = true
+        defer { programmaticMove = false }
+
+        if let base = baseRect {
+            let h = base.height * layout.height
+            let w = h * layout.shape.aspectRatio
+            let x = base.minX + base.width * layout.origin.x
+            let y = base.maxY - base.height * layout.origin.y - h
+            panel.setFrame(NSRect(x: x, y: y, width: w, height: h), display: true)
+        } else if let screen = NSScreen.main {
+            // Cámara-sola: tamaño fijo abajo a la derecha, libre de mover.
+            let h: CGFloat = 220
+            let w = h * layout.shape.aspectRatio
+            if panel.frame.width < 10 { // primera vez
+                panel.setFrame(NSRect(x: screen.visibleFrame.maxX - w - 24,
+                                      y: screen.visibleFrame.minY + 24,
+                                      width: w, height: h), display: true)
+            } else {
+                var f = panel.frame
+                f.size = NSSize(width: w, height: h)
+                panel.setFrame(f, display: true)
+            }
+        }
+    }
+
+    /// El usuario arrastró el recuadro → mover el PiP grabado en vivo.
+    private func windowMoved() {
+        guard !programmaticMove, let panel, let base = baseRect, let model else { return }
+        let f = panel.frame
+        let wFrac = f.width / base.width
+        let hFrac = f.height / base.height
+        var x = (f.minX - base.minX) / base.width
+        var y = (base.maxY - f.maxY) / base.height
+        x = min(max(x, 0), max(0, 1 - wFrac))
+        y = min(max(y, 0), max(0, 1 - hFrac))
+        // Evitar el eco: cameraLayout.didSet re-aplica el frame.
+        programmaticMove = true
+        model.cameraLayout.origin = CGPoint(x: x, y: y)
+        programmaticMove = false
+    }
+}
+
+private struct CameraFloatView: View {
+    @ObservedObject var model: GrabiAppModel
+    let renderView: PixelBufferNSView
+
+    var body: some View {
+        let layout = model.cameraLayout
+        GeometryReader { geo in
+            let radius = layout.shape == .circle
+                ? geo.size.height / 2
+                : geo.size.height * layout.cornerRadiusFraction
+            CameraPixelView(view: renderView)
+                .scaleEffect(x: -1, y: 1) // modo espejo, igual que lo grabado
+                .clipShape(RoundedRectangle(cornerRadius: radius))
+                .contextMenu {
+                    ForEach(CameraShape.allCases) { shape in
+                        Button(shape.displayName) { model.cameraLayout.shape = shape }
+                    }
+                }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+private struct CameraPixelView: NSViewRepresentable {
+    let view: PixelBufferNSView
+    func makeNSView(context: Context) -> PixelBufferNSView { view }
+    func updateNSView(_ nsView: PixelBufferNSView, context: Context) {}
 }
 
 // MARK: - Cuenta regresiva 3·2·1 (Fase 3/4: mascota concentrándose)

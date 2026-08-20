@@ -62,6 +62,7 @@ final class GrabiAppModel: ObservableObject {
     // Ventanas gestionadas
     let previewController = PreviewWindowController()
     let pillController = PillWindowController()
+    let cameraWindowController = CameraWindowController()
     let countdownController = CountdownWindowController()
     let onboardingController = OnboardingWindowController()
     let settingsController = SettingsWindowController()
@@ -389,6 +390,7 @@ final class GrabiAppModel: ObservableObject {
                 startTimer()
             }
             pillController.show(model: self)
+            if cameraEnabled { cameraWindowController.show(model: self) }
         case .paused:
             // Acumular el tramo grabado; el cronómetro se congela.
             if let start = segmentStart {
@@ -405,6 +407,7 @@ final class GrabiAppModel: ObservableObject {
             elapsed = accumulated
             accumulated = 0
             pillController.close()
+            cameraWindowController.close()
             if case .failed(let error) = state {
                 errorMessage = error.errorDescription
             }

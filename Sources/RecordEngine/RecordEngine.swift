@@ -39,6 +39,11 @@ public final class RecordingEngine: ObservableObject {
         didSet { pipeline?.onPreviewFrame = onPreviewFrame }
     }
 
+    /// Frames crudos de la cámara (para el recuadro flotante de la selfie).
+    public var onCameraFrame: ((CVPixelBuffer) -> Void)? {
+        didSet { pipeline?.onCameraFrame = onCameraFrame }
+    }
+
     /// Nivel del micrófono 0–1 (durante monitoreo o grabación). Cola de captura.
     public var onMicLevel: ((Double) -> Void)?
     /// Nivel del audio del sistema 0–1 (con el pipeline activo). Cola de captura.
@@ -105,6 +110,7 @@ public final class RecordingEngine: ObservableObject {
         guard config.hasVideo else { return } // sin video no hay nada que previsualizar
         let pipeline = CapturePipeline(config: config)
         pipeline.onPreviewFrame = onPreviewFrame
+        pipeline.onCameraFrame = onCameraFrame
         pipeline.onSystemAudioLevel = { [weak self] level in
             self?.onSystemAudioLevel?(level)
         }
@@ -192,6 +198,7 @@ public final class RecordingEngine: ObservableObject {
             await teardownPipeline()
             pipeline = CapturePipeline(config: config)
             pipeline.onPreviewFrame = onPreviewFrame
+            pipeline.onCameraFrame = onCameraFrame
             pipeline.onSystemAudioLevel = { [weak self] level in
                 self?.onSystemAudioLevel?(level)
             }
