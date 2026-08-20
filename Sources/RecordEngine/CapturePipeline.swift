@@ -39,6 +39,8 @@ final class CapturePipeline {
     private var _onPreviewFrame: ((CVPixelBuffer) -> Void)?
 
     var onFatalError: ((Error) -> Void)?
+    /// Nivel RMS del audio del sistema (cola de audio de SCStream).
+    var onSystemAudioLevel: ((Double) -> Void)?
 
     private var running = false
 
@@ -196,7 +198,12 @@ final class CapturePipeline {
             }
             if config.capturesSystemAudio {
                 screen.onSystemAudio = { [weak self] sample in
-                    self?.writer?.appendSystemAudio(sample)
+                    guard let self else { return }
+                    self.writer?.appendSystemAudio(sample)
+                    if let onLevel = self.onSystemAudioLevel,
+                       let level = AudioLevel.normalizedLevel(from: sample) {
+                        onLevel(level)
+                    }
                 }
             }
             screen.onFatalError = { [weak self] error in

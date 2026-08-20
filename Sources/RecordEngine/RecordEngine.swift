@@ -39,8 +39,14 @@ public final class RecordingEngine: ObservableObject {
         didSet { pipeline?.onPreviewFrame = onPreviewFrame }
     }
 
+    /// Nivel del micrófono 0–1 (durante monitoreo o grabación). Cola de captura.
+    public var onMicLevel: ((Double) -> Void)?
+    /// Nivel del audio del sistema 0–1 (con el pipeline activo). Cola de captura.
+    public var onSystemAudioLevel: ((Double) -> Void)?
+
     private var pipeline: CapturePipeline?
     private var micCapturer: MicrophoneCapturer?
+    private var micMonitor: MicrophoneCapturer?
     private var writer: MovieWriter?
 
     public init() {}
@@ -55,6 +61,30 @@ public final class RecordingEngine: ObservableObject {
     /// Pantallas y ventanas disponibles para capturar.
     public static func availableContent() async throws -> ShareableContent {
         try await ShareableContent.current()
+    }
+
+    // MARK: - Monitoreo de nivel de micrófono (feedback antes de grabar)
+
+    /// Captura el mic SOLO para medir su nivel (no graba nada). Enciende el
+    /// indicador naranja del sistema — honestidad ante todo. Se apaga solo al
+    /// empezar a grabar (la grabación ya reporta nivel por su propia captura).
+    public func startMicrophoneMonitoring(deviceID: String? = nil) async {
+        guard micMonitor == nil, micCapturer == nil else { return }
+        let monitor = MicrophoneCapturer()
+        guard (try? monitor.configure(deviceID: deviceID)) != nil else { return }
+        monitor.onAudio = { [weak self] sample in
+            if let level = AudioLevel.normalizedLevel(from: sample) {
+                self?.onMicLevel?(level)
+            }
+        }
+        micMonitor = monitor
+        await monitor.start()
+    }
+
+    public func stopMicrophoneMonitoring() async {
+        await micMonitor?.stop()
+        micMonitor = nil
+        onMicLevel?(0)
     }
 
     // MARK: - Vista previa
@@ -75,6 +105,9 @@ public final class RecordingEngine: ObservableObject {
         guard config.hasVideo else { return } // sin video no hay nada que previsualizar
         let pipeline = CapturePipeline(config: config)
         pipeline.onPreviewFrame = onPreviewFrame
+        pipeline.onSystemAudioLevel = { [weak self] level in
+            self?.onSystemAudioLevel?(level)
+        }
         pipeline.onFatalError = { [weak self] error in
             Task { await self?.handleFatalError(error) }
         }
@@ -159,12 +192,18 @@ public final class RecordingEngine: ObservableObject {
             await teardownPipeline()
             pipeline = CapturePipeline(config: config)
             pipeline.onPreviewFrame = onPreviewFrame
+            pipeline.onSystemAudioLevel = { [weak self] level in
+                self?.onSystemAudioLevel?(level)
+            }
             pipeline.onFatalError = { [weak self] error in
                 Task { await self?.handleFatalError(error) }
             }
             try await pipeline.start()
             self.pipeline = pipeline
         }
+
+        // El monitoreo de nivel cede el mic a la grabación.
+        await stopMicrophoneMonitoring()
 
         // Micrófono: se configura primero (sin arrancar) para conocer sus
         // canales nativos; solo captura durante la grabación.
@@ -189,8 +228,12 @@ public final class RecordingEngine: ObservableObject {
             includeSystemAudio: config.capturesSystemAudio)
 
         if let mic {
-            mic.onAudio = { sample in
+            mic.onAudio = { [weak self] sample in
                 writer.appendMicrophone(sample)
+                if let onLevel = self?.onMicLevel,
+                   let level = AudioLevel.normalizedLevel(from: sample) {
+                    onLevel(level)
+                }
             }
             micCapturer = mic
             await mic.start()
