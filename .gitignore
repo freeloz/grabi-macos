@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+
+# App bundle generado por el script de empaquetado
+dist/
