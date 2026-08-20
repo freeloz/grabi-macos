@@ -153,11 +153,14 @@ final class CapturePipeline {
                     box.value = pixelBuffer
                 }
             } else {
-                // Cámara sin pantalla → la cámara ES el video, a pantalla completa.
+                // Cámara sin pantalla → la cámara ES el video, a pantalla
+                // completa y en modo espejo (como toda selfie).
+                let mirror = MirrorRenderer(width: camera.dimensions.width,
+                                            height: camera.dimensions.height)
                 camera.onFrame = { [weak self] pixelBuffer, pts in
-                    guard let self else { return }
-                    self.writer?.appendVideo(pixelBuffer: pixelBuffer, presentationTime: pts)
-                    self.onPreviewFrame?(pixelBuffer)
+                    guard let self, let mirrored = mirror.mirrored(pixelBuffer) else { return }
+                    self.writer?.appendVideo(pixelBuffer: mirrored, presentationTime: pts)
+                    self.onPreviewFrame?(mirrored)
                 }
             }
         }

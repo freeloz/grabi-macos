@@ -144,6 +144,12 @@ final class PiPCompositor {
             translationX: -image.extent.origin.x,
             y: -image.extent.origin.y))
 
+        // Modo espejo: la selfie se ve como en un espejo (lo natural para el
+        // usuario frente a la cámara).
+        image = image
+            .transformed(by: CGAffineTransform(scaleX: -1, y: 1))
+            .transformed(by: CGAffineTransform(translationX: pipWidth, y: 0))
+
         let mask = shapeMask(width: pipWidth, height: pipHeight, layout: layout)
         if let masked = CIFilter(name: "CIBlendWithMask", parameters: [
             kCIInputImageKey: image,
@@ -183,5 +189,47 @@ final class PiPCompositor {
         cachedMask = mask
         cachedMaskKey = key
         return mask
+    }
+}
+
+/// Espeja horizontalmente los frames de cámara en GPU, para el modo
+/// cámara-sola (a pantalla completa la selfie también va en modo espejo).
+final class MirrorRenderer {
+    private let ciContext: CIContext
+    private var pool: CVPixelBufferPool?
+    private let width: Int
+    private let height: Int
+    private let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
+
+    init(width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        if let device = MTLCreateSystemDefaultDevice() {
+            ciContext = CIContext(mtlDevice: device)
+        } else {
+            ciContext = CIContext()
+        }
+        let attrs: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+            kCVPixelBufferWidthKey as String: width,
+            kCVPixelBufferHeightKey as String: height,
+            kCVPixelBufferIOSurfacePropertiesKey as String: [:],
+        ]
+        CVPixelBufferPoolCreate(nil, nil, attrs as CFDictionary, &pool)
+    }
+
+    func mirrored(_ pixelBuffer: CVPixelBuffer) -> CVPixelBuffer? {
+        guard let pool else { return nil }
+        var outBuffer: CVPixelBuffer?
+        CVPixelBufferPoolCreatePixelBuffer(nil, pool, &outBuffer)
+        guard let outBuffer else { return nil }
+        var image = CIImage(cvPixelBuffer: pixelBuffer)
+        image = image
+            .transformed(by: CGAffineTransform(scaleX: -1, y: 1))
+            .transformed(by: CGAffineTransform(translationX: image.extent.width, y: 0))
+        ciContext.render(image, to: outBuffer,
+                         bounds: CGRect(x: 0, y: 0, width: width, height: height),
+                         colorSpace: colorSpace)
+        return outBuffer
     }
 }

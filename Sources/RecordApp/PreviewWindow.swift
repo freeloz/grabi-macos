@@ -173,6 +173,10 @@ private struct CameraOverlay: View {
     @State private var dragStartOrigin: CGPoint?
     @State private var resizeStartHeight: CGFloat?
 
+    /// Margen alrededor del recuadro para que las manijas (centradas en las
+    /// esquinas) queden DENTRO del área interactiva del overlay.
+    private let handlePad: CGFloat = 15
+
     var body: some View {
         let layout = model.cameraLayout
         let pipHeight = contentRect.height * layout.height
@@ -184,17 +188,17 @@ private struct CameraOverlay: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(GrabiColor.brandStrong, lineWidth: 2.5)
-                .background(Color.clear)
+                .frame(width: pipWidth, height: pipHeight)
+                .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
+                .gesture(dragGesture(pipWidth: pipWidth, pipHeight: pipHeight))
             // 4 manijas de esquina; solo la inferior derecha redimensiona.
-            handle(at: CGPoint(x: 0, y: 0))
-            handle(at: CGPoint(x: pipWidth, y: 0))
-            handle(at: CGPoint(x: 0, y: pipHeight))
-            resizeHandle(at: CGPoint(x: pipWidth, y: pipHeight), pipWidth: pipWidth)
+            handle(at: CGPoint(x: handlePad, y: handlePad))
+            handle(at: CGPoint(x: handlePad + pipWidth, y: handlePad))
+            handle(at: CGPoint(x: handlePad, y: handlePad + pipHeight))
+            resizeHandle(at: CGPoint(x: handlePad + pipWidth, y: handlePad + pipHeight))
         }
-        .frame(width: pipWidth, height: pipHeight)
-        .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
-        .offset(x: x, y: y)
-        .gesture(dragGesture(pipWidth: pipWidth, pipHeight: pipHeight))
+        .frame(width: pipWidth + handlePad * 2, height: pipHeight + handlePad * 2)
+        .offset(x: x - handlePad, y: y - handlePad)
         .contextMenu {
             ForEach(CameraShape.allCases) { shape in
                 Button {
@@ -220,12 +224,19 @@ private struct CameraOverlay: View {
             .position(point)
     }
 
-    private func resizeHandle(at point: CGPoint, pipWidth: CGFloat) -> some View {
+    private func resizeHandle(at point: CGPoint) -> some View {
         Circle()
             .fill(Color.white)
             .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
             .frame(width: 13, height: 13)
+            // Área de golpeo de 30 px (mínimo 28 con puntero, Fase 2 §10):
+            // la manija visible es pequeña pero fácil de agarrar.
+            .frame(width: 30, height: 30)
+            .contentShape(Circle())
             .position(point)
+            .onHover { inside in
+                if inside { NSCursor.crosshair.push() } else { NSCursor.pop() }
+            }
             .gesture(
                 DragGesture()
                     .onChanged { value in
