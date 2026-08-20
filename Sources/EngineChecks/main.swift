@@ -1,3 +1,6 @@
+// @testable solo existe en builds de debug; en release (make-app.sh) este
+// ejecutable se reduce a un aviso para no romper el empaquetado.
+#if DEBUG
 import Foundation
 import AVFoundation
 import CoreVideo
@@ -227,3 +230,7 @@ do {
 
 print(failures == 0 ? "\n✅ Todo en orden (\(failures) fallos)" : "\n❌ \(failures) fallo(s)")
 exit(failures == 0 ? 0 : 1)
+
+#else
+print("EngineChecks corre en debug: usa `swift run EngineChecks` (sin -c release)")
+#endif
