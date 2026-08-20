@@ -90,6 +90,14 @@ aprobado (Fases 0–4): es la especificación de la UI. La galería interna
 (Ajustes → Galería del sistema) muestra cada componente en todos sus estados
 para verificar fidelidad.
 
+## Ajustes
+
+- **Calidad de grabación** (v0.1.1): *Estándar* (hasta 1080p, ~3 GB/hora,
+  por defecto) o *Nítida* (resolución nativa de la fuente hasta 4K; el
+  bitrate escala proporcionalmente al área de píxeles para mantener la
+  calidad por píxel, con tope de 32 Mbps). El aspecto siempre se conserva.
+- **Carpeta de grabaciones** y **atajos globales** (⌘⇧2 · ⌘⇧P).
+
 ## Permisos
 
 Grabi necesita Grabación de Pantalla (incluye el audio del sistema), Cámara

@@ -224,8 +224,11 @@ public final class RecordingEngine: ObservableObject {
         // Writer con SOLO las pistas de las fuentes activadas.
         var videoSpec: MovieWriter.VideoSpec?
         if let size = pipeline.canvasSize, config.hasVideo {
-            videoSpec = .init(width: size.width, height: size.height,
-                              bitrate: config.videoBitrate, fps: config.framesPerSecond)
+            videoSpec = .init(
+                width: size.width, height: size.height,
+                bitrate: MovieWriter.scaledBitrate(base: config.videoBitrate,
+                                                   width: size.width, height: size.height),
+                fps: config.framesPerSecond)
         }
         let writer = try MovieWriter(
             outputURL: config.outputURL,

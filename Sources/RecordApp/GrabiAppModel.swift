@@ -10,6 +10,39 @@ enum CaptureMode: String, CaseIterable {
     case pantalla, ventana, region
 }
 
+/// Calidad de grabación (Ajustes, v0.1.1). "Estándar" es el comportamiento
+/// de v0.1; "Nítida" captura a la resolución nativa de la fuente (hasta 4K)
+/// y el motor escala el bitrate por área para mantener la calidad por píxel.
+enum RecordingQuality: String, CaseIterable, Identifiable {
+    case estandar, nitida
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .estandar: return "Estándar"
+        case .nitida: return "Nítida"
+        }
+    }
+
+    /// Pista honesta del costo (medido: ~2,9 GB/h en 1080p con contenido en
+    /// movimiento; en nítida depende de la fuente — cifra por validar).
+    var hint: String {
+        switch self {
+        case .estandar: return "Hasta 1080p · ~3 GB por hora"
+        case .nitida: return "Resolución nativa, hasta 4K · ~6 GB por hora"
+        }
+    }
+
+    /// Tope de ancho en píxeles; el aspecto siempre se conserva.
+    var targetWidth: Int {
+        switch self {
+        case .estandar: return 1920
+        case .nitida: return 3840
+        }
+    }
+}
+
 /// Estado de la UI de Grabi: fuentes, captura, cámara, grabación y ventanas.
 @MainActor
 final class GrabiAppModel: ObservableObject {
@@ -58,6 +91,12 @@ final class GrabiAppModel: ObservableObject {
     @Published var onboardingDone: Bool {
         didSet { UserDefaults.standard.set(onboardingDone, forKey: "onboardingDone") }
     }
+    @Published var quality: RecordingQuality {
+        didSet {
+            UserDefaults.standard.set(quality.rawValue, forKey: "recordingQuality")
+            sourcesChanged() // la vista previa se reinicia a la nueva resolución
+        }
+    }
 
     // Ventanas gestionadas
     let previewController = PreviewWindowController()
@@ -95,6 +134,7 @@ final class GrabiAppModel: ObservableObject {
             destinationFolder = defaultFolder
         }
         onboardingDone = UserDefaults.standard.bool(forKey: "onboardingDone")
+        quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .estandar
 
         engine.$state
             .receive(on: DispatchQueue.main)
@@ -232,6 +272,7 @@ final class GrabiAppModel: ObservableObject {
             capturesMicrophone: micEnabled,
             capturesSystemAudio: systemAudioEnabled,
             outputURL: url,
+            targetWidth: quality.targetWidth,
             target: currentTarget,
             cameraLayout: cameraLayout)
     }

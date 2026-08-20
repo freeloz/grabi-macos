@@ -191,6 +191,24 @@ func checkCompositor() {
     check(live != nil, "cambio de layout en vivo")
 }
 
+func checkBitrateEscalado() {
+    section("6 · Bitrate escalado por área (calidad Nítida, v0.1.1)")
+    // Estándar (≤1920×1200): idéntico a v0.1, sin escalar.
+    check(MovieWriter.scaledBitrate(base: 8_000_000, width: 1920, height: 1080) == 8_000_000,
+          "1920×1080 → 8 Mbps (sin cambio)")
+    check(MovieWriter.scaledBitrate(base: 8_000_000, width: 1920, height: 1200) == 8_000_000,
+          "1920×1200 → 8 Mbps (línea base v0.1)")
+    // 4K: ×3,6 el área → ×3,6 el bitrate (misma calidad por píxel).
+    let uhd = MovieWriter.scaledBitrate(base: 8_000_000, width: 3840, height: 2160)
+    check(abs(uhd - 28_800_000) < 100_000, "3840×2160 → ~28,8 Mbps (fue \(uhd))")
+    // Tope de seguridad del encoder.
+    check(MovieWriter.scaledBitrate(base: 8_000_000, width: 5120, height: 2880) == 32_000_000,
+          "5K → tope 32 Mbps")
+    // Ventana pequeña en Nítida: nunca por debajo de la base.
+    check(MovieWriter.scaledBitrate(base: 8_000_000, width: 800, height: 600) == 8_000_000,
+          "fuentes pequeñas conservan la base")
+}
+
 // MARK: - Main
 
 print("EngineChecks · verificación de integración del motor Grabi")
@@ -201,6 +219,7 @@ do {
     try await checkSoloAudio()
     try await checkNadaGrabado()
     checkCompositor()
+    checkBitrateEscalado()
 } catch {
     failures += 1
     print("  ✗ EXCEPCIÓN: \(error)")

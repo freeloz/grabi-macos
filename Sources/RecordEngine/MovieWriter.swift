@@ -21,6 +21,18 @@ final class MovieWriter {
         let fps: Int
     }
 
+    /// El bitrate de la configuración se interpreta como objetivo para un
+    /// lienzo de hasta 1920×1200 (el máximo de v0.1: "Estándar" queda
+    /// idéntico). Para lienzos mayores (calidad "Nítida", hasta 4K) se escala
+    /// proporcionalmente al área de píxeles — mantener la calidad POR PÍXEL,
+    /// no reciclar los 8 Mbps de 1080p en un frame 4K — con tope de 32 Mbps,
+    /// cómodo para el encoder HEVC por hardware de Apple Silicon.
+    static func scaledBitrate(base: Int, width: Int, height: Int) -> Int {
+        let baseArea = 1920.0 * 1200.0
+        let factor = max(1.0, Double(width * height) / baseArea)
+        return min(Int(Double(base) * factor), 32_000_000)
+    }
+
     private let writer: AVAssetWriter
     private let queue = DispatchQueue(label: "record.movie-writer")
 

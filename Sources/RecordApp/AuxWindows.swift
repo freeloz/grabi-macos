@@ -305,7 +305,7 @@ final class SettingsWindowController: TitledWindowController {
     private let gallery = GalleryWindowController()
 
     func show(model: GrabiAppModel) {
-        present(title: "Ajustes de Grabi", size: NSSize(width: 420, height: 300),
+        present(title: "Ajustes de Grabi", size: NSSize(width: 420, height: 430),
                 content: SettingsView(model: model, gallery: gallery))
     }
 }
@@ -338,6 +338,25 @@ private struct SettingsView: View {
             }
 
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
+                Text("Calidad de grabación")
+                    .font(GrabiFont.bodySemibold)
+                    .foregroundStyle(GrabiColor.text)
+                VStack(spacing: 0) {
+                    qualityRow(.estandar)
+                    RowDivider()
+                    qualityRow(.nitida)
+                }
+                .background(GrabiColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
+                if model.isActive {
+                    Text("El cambio aplica a la próxima grabación.")
+                        .font(GrabiFont.caption)
+                        .foregroundStyle(GrabiColor.textSecondary)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: GrabiSpace.s2) {
                 Text("Atajos de teclado globales")
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
@@ -367,8 +386,36 @@ private struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 420, height: 300)
+        .frame(width: 420, height: 430)
         .background(GrabiColor.bg)
+    }
+
+    /// Fila de calidad: toda la fila es clicable, check en brand-strong para
+    /// la seleccionada (patrón del dropdown, Fase 2 §05).
+    private func qualityRow(_ quality: RecordingQuality) -> some View {
+        let selected = model.quality == quality
+        return HStack(spacing: 11) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(quality.displayName)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(GrabiColor.text)
+                Text(quality.hint)
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(GrabiColor.textSecondary)
+            }
+            Spacer()
+            if selected {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(GrabiColor.brandStrong)
+            }
+        }
+        .padding(.horizontal, 13)
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
+        .onTapGesture { model.quality = quality }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func shortcutRow(_ label: String, keys: String) -> some View {
