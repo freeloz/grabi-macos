@@ -166,6 +166,15 @@ public final class RecordingEngine: ObservableObject {
             self.pipeline = pipeline
         }
 
+        // Micrófono: se configura primero (sin arrancar) para conocer sus
+        // canales nativos; solo captura durante la grabación.
+        var mic: MicrophoneCapturer?
+        if config.capturesMicrophone {
+            let m = MicrophoneCapturer()
+            try m.configure(deviceID: config.microphoneDeviceID)
+            mic = m
+        }
+
         // Writer con SOLO las pistas de las fuentes activadas.
         var videoSpec: MovieWriter.VideoSpec?
         if let size = pipeline.canvasSize, config.hasVideo {
@@ -176,12 +185,10 @@ public final class RecordingEngine: ObservableObject {
             outputURL: config.outputURL,
             video: videoSpec,
             includeMicrophone: config.capturesMicrophone,
+            microphoneChannels: mic?.nativeChannelCount ?? 2,
             includeSystemAudio: config.capturesSystemAudio)
 
-        // Micrófono: solo durante la grabación.
-        if config.capturesMicrophone {
-            let mic = MicrophoneCapturer()
-            try mic.configure(deviceID: config.microphoneDeviceID)
+        if let mic {
             mic.onAudio = { sample in
                 writer.appendMicrophone(sample)
             }

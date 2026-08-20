@@ -17,7 +17,12 @@ import CoreGraphics
 ///   excluyen de la captura de pantalla/región vía `excludingApplications`.
 ///   En captura de ventana no aplica: solo se ve la ventana elegida.
 final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
-    var onVideoFrame: ((CVPixelBuffer, CMTime) -> Void)?
+    /// (buffer, PTS, rect del contenido real en PÍXELES dentro del buffer).
+    /// En captura de ventana SCStream no siempre llena el buffer: dibuja la
+    /// ventana en una esquina y deja el resto vacío. El rect (de los
+    /// attachments contentRect × scaleFactor de cada frame) permite recortar
+    /// solo el contenido; nil → el frame llena el buffer.
+    var onVideoFrame: ((CVPixelBuffer, CMTime, CGRect?) -> Void)?
     var onSystemAudio: ((CMSampleBuffer) -> Void)?
     /// El stream se detuvo solo (p. ej. permiso revocado o ventana cerrada).
     var onFatalError: ((Error) -> Void)?
@@ -156,11 +161,32 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
             // SCStream emite también frames "idle"/incompletos sin imagen;
             // solo interesan los completos.
             guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
-                  let statusRaw = attachments.first?[.status] as? Int,
+                  let info = attachments.first,
+                  let statusRaw = info[.status] as? Int,
                   statusRaw == SCFrameStatus.complete.rawValue,
                   let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
             else { return }
-            onVideoFrame?(pixelBuffer, CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+
+            // Rect del contenido real, en píxeles del buffer.
+            var contentRect: CGRect?
+            if let rectDict = info[.contentRect] as? NSDictionary,
+               let rect = CGRect(dictionaryRepresentation: rectDict as CFDictionary),
+               let scaleFactor = info[.scaleFactor] as? CGFloat, scaleFactor > 0 {
+                let pixelRect = CGRect(
+                    x: rect.origin.x * scaleFactor,
+                    y: rect.origin.y * scaleFactor,
+                    width: rect.width * scaleFactor,
+                    height: rect.height * scaleFactor)
+                let bufferRect = CGRect(x: 0, y: 0,
+                                        width: CVPixelBufferGetWidth(pixelBuffer),
+                                        height: CVPixelBufferGetHeight(pixelBuffer))
+                let clipped = pixelRect.intersection(bufferRect)
+                // Solo interesa si el contenido NO llena el buffer.
+                if !clipped.isEmpty, clipped.size != bufferRect.size {
+                    contentRect = clipped
+                }
+            }
+            onVideoFrame?(pixelBuffer, CMSampleBufferGetPresentationTimeStamp(sampleBuffer), contentRect)
         case .audio:
             onSystemAudio?(sampleBuffer)
         default:

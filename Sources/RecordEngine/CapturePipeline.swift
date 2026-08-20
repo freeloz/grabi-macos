@@ -114,8 +114,12 @@ final class CapturePipeline {
             canvasSize = camera.dimensions
         }
 
-        // 3. Compositor solo en modo PiP (pantalla + cámara).
-        if config.capturesScreen, config.capturesCamera, let size = canvasSize {
+        // 3. Compositor: en modo PiP (pantalla + cámara) y también en captura
+        //    de ventana sin cámara, porque ahí hay que recortar el contentRect
+        //    (SCStream no llena el buffer con la ventana).
+        var needsCompositor = config.capturesScreen && config.capturesCamera
+        if case .window = config.target, config.capturesScreen { needsCompositor = true }
+        if needsCompositor, let size = canvasSize {
             compositor = PiPCompositor(width: size.width, height: size.height, layout: config.cameraLayout)
         }
 
@@ -165,22 +169,25 @@ final class CapturePipeline {
                     // cámara entrega su primer frame (tope: 45 frames ≈ 1,5 s
                     // por si la cámara falla). Si hubo vista previa antes, la
                     // cámara ya está caliente y esto no espera nada.
+                    let waitsForCamera = config.capturesCamera
                     var framesWaitingForCamera = 0 // solo se toca en la cola de video
-                    screen.onVideoFrame = { [weak self] screenBuffer, pts in
+                    screen.onVideoFrame = { [weak self] screenBuffer, pts, contentRect in
                         guard let self else { return }
                         let cameraFrame = box.value
                         // Composición en la cola de video de SCStream (GPU);
                         // el mismo frame compuesto va a writer y vista previa.
-                        guard let composed = compositor.compose(screen: screenBuffer, camera: cameraFrame) else { return }
+                        guard let composed = compositor.compose(screen: screenBuffer,
+                                                                screenContentRect: contentRect,
+                                                                camera: cameraFrame) else { return }
                         self.onPreviewFrame?(composed)
-                        if cameraFrame == nil, self.writer != nil, framesWaitingForCamera < 45 {
+                        if waitsForCamera, cameraFrame == nil, self.writer != nil, framesWaitingForCamera < 45 {
                             framesWaitingForCamera += 1
                             return
                         }
                         self.writer?.appendVideo(pixelBuffer: composed, presentationTime: pts)
                     }
                 } else {
-                    screen.onVideoFrame = { [weak self] screenBuffer, pts in
+                    screen.onVideoFrame = { [weak self] screenBuffer, pts, _ in
                         guard let self else { return }
                         self.writer?.appendVideo(pixelBuffer: screenBuffer, presentationTime: pts)
                         self.onPreviewFrame?(screenBuffer)

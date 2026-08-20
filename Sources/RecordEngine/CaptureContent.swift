@@ -72,10 +72,24 @@ public struct ShareableContent: Sendable {
                 isMain: display.displayID == mainID)
         }
         let ownPID = ProcessInfo.processInfo.processIdentifier
+        // Overlays del sistema que aparecen como "ventanas" pero no tiene
+        // sentido grabar (Centro de Notificaciones, Dock, Spotlight, etc.).
+        let systemBundleIDs: Set<String> = [
+            "com.apple.notificationcenterui",
+            "com.apple.dock",
+            "com.apple.controlcenter",
+            "com.apple.WindowManager",
+            "com.apple.Spotlight",
+            "com.apple.systemuiserver",
+            "com.apple.wallpaper.agent",
+            "com.apple.screencaptureui",
+        ]
         let windows = content.windows.compactMap { window -> WindowInfo? in
             guard let app = window.owningApplication,
                   app.processID != ownPID,
+                  !systemBundleIDs.contains(app.bundleIdentifier),
                   window.isOnScreen,
+                  window.windowLayer == 0, // solo ventanas normales, no overlays/paneles
                   window.frame.width >= 80, window.frame.height >= 60,
                   let title = window.title, !title.isEmpty
             else { return nil }

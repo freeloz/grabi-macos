@@ -8,6 +8,11 @@ final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDe
     private let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "record.microphone")
 
+    /// Canales nativos del micrófono (tras `configure`). La pista AAC del mic
+    /// se crea con este número: forzar un mic mono a estéreo hace que el
+    /// downmix reparta/atenúe la señal y se escuche muy bajo.
+    private(set) var nativeChannelCount = 2
+
     func configure(deviceID: String?) throws {
         let device: AVCaptureDevice?
         if let deviceID {
@@ -28,6 +33,11 @@ final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDe
         }
         guard session.canAddInput(input) else { throw RecordingError.microfonoNoDisponible }
         session.addInput(input)
+
+        if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(device.activeFormat.formatDescription) {
+            let channels = Int(asbd.pointee.mChannelsPerFrame)
+            nativeChannelCount = (1...2).contains(channels) ? channels : 2
+        }
 
         let output = AVCaptureAudioDataOutput()
         output.setSampleBufferDelegate(self, queue: queue)

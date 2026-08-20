@@ -54,21 +54,50 @@ final class PiPCompositor {
     }
 
     /// Pantalla + cámara (si hay) → buffer nuevo listo para encoder/preview.
-    func compose(screen: CVPixelBuffer, camera: CVPixelBuffer?) -> CVPixelBuffer? {
+    ///
+    /// `screenContentRect` (píxeles, origen arriba-izquierda): rect del
+    /// contenido real dentro del buffer cuando SCStream no lo llena (captura
+    /// de ventana). Se recorta y se escala al lienzo, centrado sobre negro —
+    /// así la cámara PiP siempre queda DENTRO del contenido grabado.
+    func compose(screen: CVPixelBuffer, screenContentRect: CGRect? = nil, camera: CVPixelBuffer?) -> CVPixelBuffer? {
         guard let pool else { return nil }
         var outBuffer: CVPixelBuffer?
         CVPixelBufferPoolCreatePixelBuffer(nil, pool, &outBuffer)
         guard let outBuffer else { return nil }
 
         var image = CIImage(cvPixelBuffer: screen)
-        // Si el frame de pantalla no coincide con el lienzo (p. ej. una
-        // ventana que cambió de tamaño), se escala para llenar el ancho.
+
+        if let rect = screenContentRect {
+            // contentRect viene con origen arriba-izquierda; Core Image usa
+            // origen abajo-izquierda.
+            let bufferHeight = image.extent.height
+            let ciRect = CGRect(x: rect.origin.x,
+                                y: bufferHeight - rect.maxY,
+                                width: rect.width,
+                                height: rect.height)
+                .integral.intersection(image.extent)
+            if !ciRect.isEmpty {
+                image = image.cropped(to: ciRect)
+                    .transformed(by: CGAffineTransform(translationX: -ciRect.origin.x, y: -ciRect.origin.y))
+            }
+        }
+
+        // Aspect-fit centrado al lienzo (si la ventana cambia de tamaño a
+        // mitad de grabación, se letterboxea sin deformar).
         if Int(image.extent.width) != width || Int(image.extent.height) != height {
             let sx = CGFloat(width) / image.extent.width
             let sy = CGFloat(height) / image.extent.height
             let s = min(sx, sy)
             image = image.transformed(by: CGAffineTransform(scaleX: s, y: s))
+            let dx = (CGFloat(width) - image.extent.width) / 2 - image.extent.origin.x
+            let dy = (CGFloat(height) - image.extent.height) / 2 - image.extent.origin.y
+            image = image.transformed(by: CGAffineTransform(translationX: dx, y: dy))
         }
+
+        // Fondo negro explícito: con letterbox el buffer del pool no queda
+        // cubierto del todo y podría traer contenido de un frame anterior.
+        image = image.composited(over: CIImage(color: .black).cropped(
+            to: CGRect(x: 0, y: 0, width: width, height: height)))
 
         if let camera {
             let placed = shapedCamera(from: camera, layout: layout)

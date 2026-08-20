@@ -46,7 +46,7 @@ final class MovieWriter {
         queue.sync { pausedAtTime != nil }
     }
 
-    init(outputURL: URL, video: VideoSpec?, includeMicrophone: Bool, includeSystemAudio: Bool) throws {
+    init(outputURL: URL, video: VideoSpec?, includeMicrophone: Bool, microphoneChannels: Int = 2, includeSystemAudio: Bool) throws {
         do {
             writer = try AVAssetWriter(outputURL: outputURL, fileType: .mov)
         } catch {
@@ -79,30 +79,31 @@ final class MovieWriter {
             videoInput = input
         }
 
-        func makeAudioInput() -> AVAssetWriterInput {
+        func makeAudioInput(channels: Int) -> AVAssetWriterInput {
             var layout = AudioChannelLayout()
-            layout.mChannelLayoutTag = kAudioChannelLayoutTag_Stereo
+            layout.mChannelLayoutTag = channels == 1 ? kAudioChannelLayoutTag_Mono : kAudioChannelLayoutTag_Stereo
             let settings: [String: Any] = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVSampleRateKey: 48_000,
-                AVNumberOfChannelsKey: 2,
-                AVEncoderBitRateKey: 160_000,
+                AVNumberOfChannelsKey: channels,
+                AVEncoderBitRateKey: channels == 1 ? 96_000 : 160_000,
                 AVChannelLayoutKey: Data(bytes: &layout, count: MemoryLayout<AudioChannelLayout>.size),
             ]
-            // AVAssetWriterInput convierte internamente el PCM de entrada
-            // (mono/estéreo, cualquier sample rate) al formato AAC pedido.
+            // AVAssetWriterInput convierte internamente el PCM de entrada al
+            // formato AAC pedido. La pista respeta los canales NATIVOS de la
+            // fuente: un mic mono forzado a estéreo se escucha bajo/ladeado.
             let input = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
             input.expectsMediaDataInRealTime = true
             return input
         }
 
         if includeMicrophone {
-            let input = makeAudioInput()
+            let input = makeAudioInput(channels: microphoneChannels)
             writer.add(input)
             micInput = input
         }
         if includeSystemAudio {
-            let input = makeAudioInput()
+            let input = makeAudioInput(channels: 2) // SCStream entrega 48 kHz estéreo
             writer.add(input)
             systemAudioInput = input
         }
