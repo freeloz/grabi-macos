@@ -21,6 +21,59 @@ public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// Forma de la cámara en el video (según el sistema de diseño: círculo,
+/// cuadrado o rectángulo 3:2; cuadrado y rectángulo con esquinas redondeadas).
+public enum CameraShape: String, CaseIterable, Identifiable, Sendable {
+    case circle
+    case square
+    case rectangle
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .circle: return "Círculo"
+        case .square: return "Cuadrado"
+        case .rectangle: return "Rectángulo"
+        }
+    }
+
+    /// Relación ancho/alto de la forma (del prototipo: rect = 1,5 × alto).
+    public var aspectRatio: CGFloat {
+        self == .rectangle ? 1.5 : 1.0
+    }
+}
+
+/// Posición/tamaño/forma de la cámara sobre el lienzo, en coordenadas
+/// normalizadas (0–1) para que la misma configuración sirva en la vista
+/// previa y en el video grabado. Modificable EN VIVO durante la grabación.
+public struct CameraLayout: Equatable, Sendable {
+    public var shape: CameraShape
+    /// Esquina superior izquierda, normalizada: x sobre el ancho del lienzo,
+    /// y sobre el alto.
+    public var origin: CGPoint
+    /// Alto normalizado sobre el alto del lienzo. El ancho se deriva de la forma.
+    public var height: CGFloat
+
+    /// Valor por defecto del prototipo aprobado: círculo, abajo a la derecha
+    /// (cam {x:486, y:206, s:130} sobre un lienzo de 640×360).
+    public static let `default` = CameraLayout(
+        shape: .circle,
+        origin: CGPoint(x: 486.0 / 640.0, y: 206.0 / 360.0),
+        height: 130.0 / 360.0)
+
+    public init(shape: CameraShape, origin: CGPoint, height: CGFloat) {
+        self.shape = shape
+        self.origin = origin
+        self.height = height
+    }
+
+    /// Radio de esquina relativo al alto (del prototipo: radius 12 con s=130).
+    public var cornerRadiusFraction: CGFloat {
+        shape == .circle ? 0.5 : 12.0 / 130.0
+    }
+}
+
 /// Configuración de una grabación. Cada fuente es un toggle independiente;
 /// la única restricción es que al menos una esté activa.
 public struct RecordingConfiguration: Sendable {
@@ -39,8 +92,10 @@ public struct RecordingConfiguration: Sendable {
     public var framesPerSecond: Int
     public var videoBitrate: Int
 
-    /// Pantalla a grabar; nil → pantalla principal.
-    public var displayID: CGDirectDisplayID?
+    /// Qué capturar: pantalla completa, ventana o región.
+    public var target: CaptureTarget
+    /// Forma/posición/tamaño de la cámara (PiP). Modificable en vivo.
+    public var cameraLayout: CameraLayout
     /// uniqueID de AVCaptureDevice; nil → dispositivo por defecto.
     public var cameraDeviceID: String?
     public var microphoneDeviceID: String?
@@ -60,7 +115,8 @@ public struct RecordingConfiguration: Sendable {
         targetWidth: Int = 1920,
         framesPerSecond: Int = 30,
         videoBitrate: Int = 8_000_000,
-        displayID: CGDirectDisplayID? = nil,
+        target: CaptureTarget = .mainDisplay,
+        cameraLayout: CameraLayout = .default,
         cameraDeviceID: String? = nil,
         microphoneDeviceID: String? = nil
     ) {
@@ -72,7 +128,8 @@ public struct RecordingConfiguration: Sendable {
         self.targetWidth = targetWidth
         self.framesPerSecond = framesPerSecond
         self.videoBitrate = videoBitrate
-        self.displayID = displayID
+        self.target = target
+        self.cameraLayout = cameraLayout
         self.cameraDeviceID = cameraDeviceID
         self.microphoneDeviceID = microphoneDeviceID
     }

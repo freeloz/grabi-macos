@@ -8,6 +8,9 @@ public enum RecordingError: LocalizedError, Equatable {
     case permisoMicrofonoDenegado
     case camaraNoDisponible
     case microfonoNoDisponible
+    case pantallaNoEncontrada
+    case ventanaNoEncontrada
+    case regionInvalida
     case capturaInterrumpida(String)
     case escrituraFallida(String)
     case nadaGrabado
@@ -27,6 +30,12 @@ public enum RecordingError: LocalizedError, Equatable {
             return "No se encontró ninguna cámara conectada. Desactiva la cámara para grabar sin ella."
         case .microfonoNoDisponible:
             return "No se encontró ningún micrófono. Desactiva el micrófono para grabar sin él."
+        case .pantallaNoEncontrada:
+            return "No se encontró la pantalla seleccionada. ¿Se desconectó? Elige otra pantalla e inténtalo de nuevo."
+        case .ventanaNoEncontrada:
+            return "No se encontró la ventana seleccionada. Puede que se haya cerrado — elige otra ventana."
+        case .regionInvalida:
+            return "La región seleccionada es demasiado pequeña. Dibuja un recuadro de al menos 16×16 puntos."
         case .capturaInterrumpida(let detalle):
             return "La captura se interrumpió: \(detalle). La grabación se detuvo y se intentó guardar lo capturado hasta ese momento."
         case .escrituraFallida(let detalle):

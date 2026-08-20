@@ -3,72 +3,108 @@ import ScreenCaptureKit
 import AVFoundation
 import CoreGraphics
 
-/// Captura pantalla y/o audio del sistema con ScreenCaptureKit (SCStream).
+/// Captura pantalla/ventana/región y/o audio del sistema con ScreenCaptureKit.
 ///
-/// Nota: el audio del sistema se captura con el MISMO SCStream que el video.
-/// Cuando solo se pide audio del sistema (sin pantalla), igualmente hay que
-/// crear el stream con un filtro de pantalla; simplemente no registramos la
-/// salida de video y pedimos frames mínimos para no gastar recursos.
+/// Uso: `prepare(...)` resuelve el filtro y devuelve el tamaño de salida
+/// (el motor lo necesita ANTES de crear el writer/compositor); `start()`
+/// arranca el stream.
+///
+/// Notas:
+/// - El audio del sistema se captura con el MISMO SCStream que el video.
+///   Cuando solo se pide audio, no registramos la salida de video y pedimos
+///   frames mínimos.
+/// - Las ventanas de la propia app (controles flotantes, vista previa) se
+///   excluyen de la captura de pantalla/región vía `excludingApplications`.
+///   En captura de ventana no aplica: solo se ve la ventana elegida.
 final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
     var onVideoFrame: ((CVPixelBuffer, CMTime) -> Void)?
     var onSystemAudio: ((CMSampleBuffer) -> Void)?
-    /// El stream se detuvo solo (p. ej. permiso revocado a mitad de grabación).
+    /// El stream se detuvo solo (p. ej. permiso revocado o ventana cerrada).
     var onFatalError: ((Error) -> Void)?
 
     private var stream: SCStream?
+    private var filter: SCContentFilter?
+    private var configuration: SCStreamConfiguration?
     private let videoQueue = DispatchQueue(label: "record.screen.video")
     private let audioQueue = DispatchQueue(label: "record.screen.audio")
     private var stopping = false
 
-    /// Tamaño de salida (par, respetando el aspecto real de la pantalla) que
-    /// tendrá el video para un ancho objetivo dado. El motor lo usa para crear
-    /// el writer ANTES de arrancar el stream.
-    static func outputSize(displayID: CGDirectDisplayID?, targetWidth: Int) -> (width: Int, height: Int) {
-        let id = displayID ?? CGMainDisplayID()
-        let bounds = CGDisplayBounds(id)
-        guard bounds.width > 0, bounds.height > 0 else { return (targetWidth, targetWidth * 9 / 16) }
-        let aspect = bounds.height / bounds.width
-        var height = Int((CGFloat(targetWidth) * aspect).rounded())
-        height -= height % 2 // los encoders quieren dimensiones pares
-        return (targetWidth, height)
-    }
+    private(set) var outputSize: (width: Int, height: Int) = (2, 2)
 
-    func start(displayID: CGDirectDisplayID?,
-               targetWidth: Int,
-               fps: Int,
-               captureVideo: Bool,
-               captureAudio: Bool) async throws {
+    /// Resuelve el target contra el contenido compartible, arma filtro y
+    /// configuración, y devuelve el tamaño de salida del video.
+    func prepare(target: CaptureTarget,
+                 targetWidth: Int,
+                 fps: Int,
+                 captureVideo: Bool,
+                 captureAudio: Bool) async throws -> (width: Int, height: Int) {
         let content: SCShareableContent
         do {
             content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
         } catch {
-            // SCShareableContent falla típicamente por falta de permiso.
             throw RecordingError.permisoPantallaDenegado
         }
 
-        let wantedID = displayID ?? CGMainDisplayID()
-        guard let display = content.displays.first(where: { $0.displayID == wantedID }) ?? content.displays.first else {
-            throw RecordingError.capturaInterrumpida("no se encontró ninguna pantalla para capturar")
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        let ownApps = content.applications.filter { $0.processID == ownPID }
+
+        func resolveDisplay(_ id: CGDirectDisplayID?) throws -> SCDisplay {
+            let wanted = id ?? CGMainDisplayID()
+            guard let display = content.displays.first(where: { $0.displayID == wanted }) ?? content.displays.first else {
+                throw RecordingError.pantallaNoEncontrada
+            }
+            return display
         }
 
-        let filter = SCContentFilter(display: display, excludingWindows: [])
-        let config = SCStreamConfiguration()
+        /// Tamaño par que respeta el aspecto, con `targetWidth` como ancho
+        /// máximo (contenido más angosto se captura a 2x nativo por nitidez).
+        func fittedSize(pointWidth: CGFloat, pointHeight: CGFloat) -> (Int, Int) {
+            guard pointWidth > 0, pointHeight > 0 else { return (targetWidth, targetWidth * 9 / 16) }
+            let pixelWidth = min(CGFloat(targetWidth), pointWidth * 2)
+            var w = Int(pixelWidth.rounded()); w -= w % 2
+            var h = Int((pixelWidth * pointHeight / pointWidth).rounded()); h -= h % 2
+            return (max(w, 2), max(h, 2))
+        }
 
+        let filter: SCContentFilter
+        var size = (width: 2, height: 2)
+
+        switch target {
+        case .display(let id):
+            let display = try resolveDisplay(id)
+            filter = SCContentFilter(display: display, excludingApplications: ownApps, exceptingWindows: [])
+            size = fittedSize(pointWidth: CGFloat(display.width), pointHeight: CGFloat(display.height))
+        case .window(let windowID):
+            guard let window = content.windows.first(where: { $0.windowID == windowID }) else {
+                throw RecordingError.ventanaNoEncontrada
+            }
+            filter = SCContentFilter(desktopIndependentWindow: window)
+            size = fittedSize(pointWidth: window.frame.width, pointHeight: window.frame.height)
+        case .region(let id, let rect):
+            guard rect.width >= 16, rect.height >= 16 else { throw RecordingError.regionInvalida }
+            let display = try resolveDisplay(id)
+            filter = SCContentFilter(display: display, excludingApplications: ownApps, exceptingWindows: [])
+            size = fittedSize(pointWidth: rect.width, pointHeight: rect.height)
+        }
+
+        let config = SCStreamConfiguration()
         if captureVideo {
-            let size = Self.outputSize(displayID: display.displayID, targetWidth: targetWidth)
             config.width = size.width
             config.height = size.height
             config.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(fps))
             config.pixelFormat = kCVPixelFormatType_32BGRA
             config.showsCursor = true
             config.queueDepth = 6
+            if case .region(_, let rect) = target {
+                config.sourceRect = rect
+            }
         } else {
             // Solo audio del sistema: stream de video mínimo que ignoramos.
             config.width = 2
             config.height = 2
             config.minimumFrameInterval = CMTime(value: 1, timescale: 5)
+            size = (2, 2)
         }
-
         if captureAudio {
             config.capturesAudio = true
             config.sampleRate = 48_000
@@ -76,14 +112,25 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
             config.excludesCurrentProcessAudio = true
         }
 
-        let stream = SCStream(filter: filter, configuration: config, delegate: self)
+        self.filter = filter
+        self.configuration = config
+        self.outputSize = size
+        return size
+    }
+
+    /// Arranca la captura. Requiere `prepare(...)` previo.
+    func start(captureVideo: Bool, captureAudio: Bool) async throws {
+        guard let filter, let configuration else {
+            throw RecordingError.estadoInvalido("ScreenCapturer.start sin prepare previo")
+        }
+        stopping = false
+        let stream = SCStream(filter: filter, configuration: configuration, delegate: self)
         if captureVideo {
             try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: videoQueue)
         }
         if captureAudio {
             try stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: audioQueue)
         }
-
         do {
             try await stream.startCapture()
         } catch {

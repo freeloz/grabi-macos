@@ -80,6 +80,9 @@ struct ContentView: View {
                 Spacer()
                 Text(AppModel.formatElapsed(model.elapsed))
                     .font(.system(.title3, design: .monospaced))
+            case .paused:
+                Circle().fill(.orange).frame(width: 10, height: 10)
+                Text("En pausa")
             case .stopping:
                 ProgressView().controlSize(.small)
                 Text("Guardando…")

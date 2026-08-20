@@ -1,30 +1,42 @@
 import Foundation
 import CoreImage
 import CoreVideo
+import CoreGraphics
 import Metal
 
-/// Compone la cámara como picture-in-picture sobre el frame de pantalla,
-/// en GPU vía Core Image + Metal (nunca ventanas superpuestas).
+/// Compone la cámara sobre el frame de pantalla en GPU (Core Image + Metal),
+/// con la forma (círculo / cuadrado / rectángulo redondeado), posición y
+/// tamaño definidos por un `CameraLayout` que puede cambiar EN VIVO.
 ///
 /// Modelo de sincronización: los frames de PANTALLA marcan el ritmo del video.
-/// La cámara solo va actualizando "su último frame" (ver `LatestFrameBox` en
-/// el motor), y aquí se estampa el más reciente sobre cada frame de pantalla.
-/// El desfase máximo es ~1 frame de cámara (~33 ms), imperceptible, y evita
-/// tener que re-muestrear dos streams de video a un reloj común.
+/// La cámara solo va actualizando "su último frame" y aquí se estampa el más
+/// reciente sobre cada frame de pantalla. El desfase máximo es ~1 frame de
+/// cámara (~33 ms), imperceptible, y evita re-muestrear dos streams de video.
 final class PiPCompositor {
     private let ciContext: CIContext
     private var pool: CVPixelBufferPool?
-    private let width: Int
-    private let height: Int
+    let width: Int
+    let height: Int
     private let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
-    /// Fracción del ancho total que ocupa el PiP.
-    private let pipWidthFraction: CGFloat = 0.22
-    private let pipMargin: CGFloat = 24
+    // El layout lo escribe la UI (vía el motor) y lo lee la cola de video de
+    // SCStream en cada frame: un lock corto es suficiente y sin contención.
+    private let layoutLock = NSLock()
+    private var _layout: CameraLayout
 
-    init(width: Int, height: Int) {
+    var layout: CameraLayout {
+        get { layoutLock.lock(); defer { layoutLock.unlock() }; return _layout }
+        set { layoutLock.lock(); defer { layoutLock.unlock() }; _layout = newValue }
+    }
+
+    // Máscara cacheada: regenerarla solo cuando cambian forma o tamaño en px.
+    private var cachedMask: CIImage?
+    private var cachedMaskKey: String = ""
+
+    init(width: Int, height: Int, layout: CameraLayout) {
         self.width = width
         self.height = height
+        self._layout = layout
         if let device = MTLCreateSystemDefaultDevice() {
             ciContext = CIContext(mtlDevice: device)
         } else {
@@ -41,9 +53,7 @@ final class PiPCompositor {
         CVPixelBufferPoolCreate(nil, nil, poolAttrs as CFDictionary, &pool)
     }
 
-    /// Devuelve un buffer nuevo con la pantalla y, si hay, la cámara en la
-    /// esquina inferior derecha. Si `camera` es nil (aún no llegó el primer
-    /// frame de cámara), devuelve la pantalla sola.
+    /// Pantalla + cámara (si hay) → buffer nuevo listo para encoder/preview.
     func compose(screen: CVPixelBuffer, camera: CVPixelBuffer?) -> CVPixelBuffer? {
         guard let pool else { return nil }
         var outBuffer: CVPixelBuffer?
@@ -51,19 +61,17 @@ final class PiPCompositor {
         guard let outBuffer else { return nil }
 
         var image = CIImage(cvPixelBuffer: screen)
+        // Si el frame de pantalla no coincide con el lienzo (p. ej. una
+        // ventana que cambió de tamaño), se escala para llenar el ancho.
+        if Int(image.extent.width) != width || Int(image.extent.height) != height {
+            let sx = CGFloat(width) / image.extent.width
+            let sy = CGFloat(height) / image.extent.height
+            let s = min(sx, sy)
+            image = image.transformed(by: CGAffineTransform(scaleX: s, y: s))
+        }
 
         if let camera {
-            let cam = CIImage(cvPixelBuffer: camera)
-            let targetWidth = CGFloat(width) * pipWidthFraction
-            let scale = targetWidth / cam.extent.width
-            let scaled = cam.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
-            // Coordenadas Core Image: origen abajo-izquierda → esquina
-            // inferior derecha con margen.
-            let x = CGFloat(width) - scaled.extent.width - pipMargin
-            let y = pipMargin
-            let placed = scaled.transformed(by: CGAffineTransform(
-                translationX: x - scaled.extent.origin.x,
-                y: y - scaled.extent.origin.y))
+            let placed = shapedCamera(from: camera, layout: layout)
             image = placed.composited(over: image)
         }
 
@@ -73,5 +81,78 @@ final class PiPCompositor {
             bounds: CGRect(x: 0, y: 0, width: width, height: height),
             colorSpace: colorSpace)
         return outBuffer
+    }
+
+    /// Cámara → recorte centrado al aspecto de la forma, escala al tamaño del
+    /// layout, máscara de forma y traslado a su posición (coordenadas CI:
+    /// origen abajo-izquierda; el layout usa arriba-izquierda como la UI).
+    private func shapedCamera(from camera: CVPixelBuffer, layout: CameraLayout) -> CIImage {
+        let cam = CIImage(cvPixelBuffer: camera)
+
+        let pipHeight = max(16, CGFloat(height) * layout.height)
+        let pipWidth = pipHeight * layout.shape.aspectRatio
+
+        // Recorte centrado (aspect-fill) al aspecto de la forma.
+        let sourceAspect = cam.extent.width / cam.extent.height
+        let targetAspect = pipWidth / pipHeight
+        var crop = cam.extent
+        if sourceAspect > targetAspect {
+            let newWidth = cam.extent.height * targetAspect
+            crop.origin.x += (cam.extent.width - newWidth) / 2
+            crop.size.width = newWidth
+        } else {
+            let newHeight = cam.extent.width / targetAspect
+            crop.origin.y += (cam.extent.height - newHeight) / 2
+            crop.size.height = newHeight
+        }
+        var image = cam.cropped(to: crop)
+
+        let scale = pipWidth / crop.width
+        image = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+
+        // A origen (0,0) para aplicar la máscara y luego colocar.
+        image = image.transformed(by: CGAffineTransform(
+            translationX: -image.extent.origin.x,
+            y: -image.extent.origin.y))
+
+        let mask = shapeMask(width: pipWidth, height: pipHeight, layout: layout)
+        if let masked = CIFilter(name: "CIBlendWithMask", parameters: [
+            kCIInputImageKey: image,
+            kCIInputMaskImageKey: mask,
+        ])?.outputImage {
+            image = masked.cropped(to: CGRect(x: 0, y: 0, width: pipWidth, height: pipHeight))
+        }
+
+        let x = CGFloat(width) * layout.origin.x
+        let yTop = CGFloat(height) * layout.origin.y
+        let y = CGFloat(height) - yTop - pipHeight // inversión de eje Y
+        return image.transformed(by: CGAffineTransform(translationX: x, y: y))
+    }
+
+    /// Máscara blanca sobre transparente con la forma del layout, cacheada.
+    private func shapeMask(width w: CGFloat, height h: CGFloat, layout: CameraLayout) -> CIImage {
+        let key = "\(layout.shape.rawValue)-\(Int(w))x\(Int(h))"
+        if key == cachedMaskKey, let cachedMask { return cachedMask }
+
+        let size = CGSize(width: w, height: h)
+        let radius = h * layout.cornerRadiusFraction
+        let context = CGContext(
+            data: nil, width: Int(w), height: Int(h),
+            bitsPerComponent: 8, bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceGray(),
+            bitmapInfo: CGImageAlphaInfo.none.rawValue)!
+        context.setFillColor(gray: 1, alpha: 1)
+        let rect = CGRect(origin: .zero, size: size)
+        if layout.shape == .circle {
+            context.fillEllipse(in: rect)
+        } else {
+            context.addPath(CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil))
+            context.fillPath()
+        }
+        guard let cgImage = context.makeImage() else { return CIImage.empty() }
+        let mask = CIImage(cgImage: cgImage)
+        cachedMask = mask
+        cachedMaskKey = key
+        return mask
     }
 }

@@ -8,51 +8,99 @@ public enum RecordingState: Equatable {
     case idle
     case starting
     case recording
+    case paused
     case stopping
     case stopped(URL)
     case failed(RecordingError)
 
     public var isActive: Bool {
         switch self {
-        case .starting, .recording, .stopping: return true
+        case .starting, .recording, .paused, .stopping: return true
         default: return false
         }
     }
 }
 
-/// Caja thread-safe para "el último frame de cámara". La cola de la cámara
-/// escribe y la cola de pantalla lee (para el compositing PiP); un NSLock
-/// basta porque solo guardamos una referencia.
-private final class LatestFrameBox {
-    private let lock = NSLock()
-    private var buffer: CVPixelBuffer?
-
-    var value: CVPixelBuffer? {
-        get { lock.lock(); defer { lock.unlock() }; return buffer }
-        set { lock.lock(); defer { lock.unlock() }; buffer = newValue }
-    }
-}
-
 /// Fachada pública del motor de grabación.
 ///
-/// Uso: `Preflight.check()` para saber qué fuentes son usables (la UI avisa
-/// al usuario ANTES de iniciar), luego `start(configuration:)` / `stop()`.
+/// Flujo: `Preflight.check()` → (opcional) `startPreview(configuration:)`
+/// para ver el lienzo compuesto en vivo → `start(configuration:)` →
+/// `pause()`/`resume()` → `stop()`. La vista previa y la grabación comparten
+/// el mismo pipeline de captura: iniciar la grabación con la misma
+/// configuración no reinicia cámaras ni streams.
 public final class RecordingEngine: ObservableObject {
     @Published public private(set) var state: RecordingState = .idle
+    /// true mientras el pipeline emite frames de vista previa.
+    @Published public private(set) var isPreviewing = false
 
-    private var screenCapturer: ScreenCapturer?
-    private var cameraCapturer: CameraCapturer?
+    /// Frames compuestos (pantalla+cámara tal como se graban), BGRA.
+    /// Se invoca en una cola de captura: la UI debe saltar a main si toca vistas.
+    public var onPreviewFrame: ((CVPixelBuffer) -> Void)? {
+        didSet { pipeline?.onPreviewFrame = onPreviewFrame }
+    }
+
+    private var pipeline: CapturePipeline?
     private var micCapturer: MicrophoneCapturer?
     private var writer: MovieWriter?
 
     public init() {}
+
+    // MARK: - Descubrimiento
 
     /// Chequeo previo: qué fuentes están disponibles y con permiso.
     public static func preflight(requestingAccess: Bool = true) async -> PreflightReport {
         await Preflight.check(requestingAccess: requestingAccess)
     }
 
-    // MARK: - Start
+    /// Pantallas y ventanas disponibles para capturar.
+    public static func availableContent() async throws -> ShareableContent {
+        try await ShareableContent.current()
+    }
+
+    // MARK: - Vista previa
+
+    /// Arranca el pipeline de captura sin escribir a disco. La UI recibe los
+    /// frames por `onPreviewFrame`. Si ya hay una vista previa con otra
+    /// configuración, se reinicia con la nueva.
+    public func startPreview(configuration config: RecordingConfiguration) async throws {
+        guard !state.isActive else {
+            throw RecordingError.estadoInvalido("no se puede cambiar la vista previa durante una grabación")
+        }
+        if let pipeline, pipeline.isCompatible(with: config) {
+            pipeline.updateCameraLayout(config.cameraLayout)
+            setPreviewing(true)
+            return
+        }
+        await teardownPipeline()
+        guard config.hasVideo else { return } // sin video no hay nada que previsualizar
+        let pipeline = CapturePipeline(config: config)
+        pipeline.onPreviewFrame = onPreviewFrame
+        pipeline.onFatalError = { [weak self] error in
+            Task { await self?.handleFatalError(error) }
+        }
+        do {
+            try await pipeline.start()
+        } catch {
+            await pipeline.stop()
+            throw (error as? RecordingError) ?? .capturaInterrumpida(error.localizedDescription)
+        }
+        self.pipeline = pipeline
+        setPreviewing(true)
+    }
+
+    /// Detiene la vista previa (si no se está grabando, apaga la captura).
+    public func stopPreview() async {
+        setPreviewing(false)
+        guard !state.isActive else { return } // el pipeline sigue: está grabando
+        await teardownPipeline()
+    }
+
+    /// Cambia forma/posición/tamaño de la cámara EN VIVO (vista previa y grabación).
+    public func updateCameraLayout(_ layout: CameraLayout) {
+        pipeline?.updateCameraLayout(layout)
+    }
+
+    // MARK: - Grabación
 
     public func start(configuration config: RecordingConfiguration) async throws {
         guard !state.isActive else {
@@ -64,20 +112,22 @@ public final class RecordingEngine: ObservableObject {
         setState(.starting)
 
         do {
-            try await startPipeline(config: config)
+            try await startRecordingPipeline(config: config)
             setState(.recording)
         } catch {
-            // Limpieza total: nada debe quedar corriendo ni archivos a medias.
-            await teardownCapturers()
+            // Limpieza total: nada debe quedar corriendo ni archivos a medias
+            // (salvo la vista previa, que se conserva si estaba activa).
+            await stopMic()
             writer?.cancel()
             writer = nil
+            if !isPreviewing { await teardownPipeline() }
             let recError = (error as? RecordingError) ?? .capturaInterrumpida(error.localizedDescription)
             setState(.failed(recError))
             throw recError
         }
     }
 
-    private func startPipeline(config: RecordingConfiguration) async throws {
+    private func startRecordingPipeline(config: RecordingConfiguration) async throws {
         // Re-validar permisos justo antes de empezar: nunca fallar a mitad de
         // grabación por algo detectable ahora.
         let report = await Preflight.check(requestingAccess: true)
@@ -99,126 +149,83 @@ public final class RecordingEngine: ObservableObject {
             }
         }
 
-        // 1. Configurar la cámara primero (sin arrancarla) para conocer sus
-        //    dimensiones: en modo cámara-sola definen el tamaño del video.
-        var camera: CameraCapturer?
-        if config.capturesCamera {
-            let cam = CameraCapturer()
-            try cam.configure(deviceID: config.cameraDeviceID)
-            camera = cam
+        // Pipeline: reusar el de la vista previa si es compatible (la captura
+        // ya está corriendo); si no, construir uno nuevo.
+        let pipeline: CapturePipeline
+        if let existing = self.pipeline, existing.isCompatible(with: config) {
+            pipeline = existing
+            pipeline.updateCameraLayout(config.cameraLayout)
+        } else {
+            await teardownPipeline()
+            pipeline = CapturePipeline(config: config)
+            pipeline.onPreviewFrame = onPreviewFrame
+            pipeline.onFatalError = { [weak self] error in
+                Task { await self?.handleFatalError(error) }
+            }
+            try await pipeline.start()
+            self.pipeline = pipeline
         }
 
-        // 2. Tamaño del video de salida.
+        // Writer con SOLO las pistas de las fuentes activadas.
         var videoSpec: MovieWriter.VideoSpec?
-        if config.capturesScreen {
-            let size = ScreenCapturer.outputSize(displayID: config.displayID, targetWidth: config.targetWidth)
+        if let size = pipeline.canvasSize, config.hasVideo {
             videoSpec = .init(width: size.width, height: size.height,
                               bitrate: config.videoBitrate, fps: config.framesPerSecond)
-        } else if let camera {
-            videoSpec = .init(width: camera.dimensions.width, height: camera.dimensions.height,
-                              bitrate: config.videoBitrate, fps: config.framesPerSecond)
         }
-        // Sin video (solo audio) → videoSpec nil: el .mov sale solo con pistas de audio.
-
-        // 3. Writer con SOLO las pistas de las fuentes activadas.
         let writer = try MovieWriter(
             outputURL: config.outputURL,
             video: videoSpec,
             includeMicrophone: config.capturesMicrophone,
             includeSystemAudio: config.capturesSystemAudio)
 
-        // 4. Cablear el pipeline. Las closures capturan writer/compositor
-        //    directamente (no self) para que las colas de captura no toquen
-        //    estado del motor.
-        let usePiP = config.capturesScreen && config.capturesCamera
-        let latestCameraFrame = LatestFrameBox()
-
-        if let camera {
-            if usePiP {
-                camera.onFrame = { pixelBuffer, _ in
-                    // En PiP la cámara no marca el ritmo: solo deja su frame
-                    // más reciente para que lo estampe el frame de pantalla.
-                    latestCameraFrame.value = pixelBuffer
-                }
-            } else {
-                // Cámara sin pantalla → la cámara ES el video (pantalla completa).
-                camera.onFrame = { pixelBuffer, pts in
-                    writer.appendVideo(pixelBuffer: pixelBuffer, presentationTime: pts)
-                }
-            }
-        }
-
-        var screen: ScreenCapturer?
-        if config.capturesScreen || config.capturesSystemAudio {
-            let scr = ScreenCapturer()
-            if config.capturesScreen {
-                if usePiP, let spec = videoSpec {
-                    let compositor = PiPCompositor(width: spec.width, height: spec.height)
-                    scr.onVideoFrame = { screenBuffer, pts in
-                        // Composición en la cola de video de SCStream (GPU);
-                        // el append se serializa dentro del writer.
-                        if let composed = compositor.compose(screen: screenBuffer, camera: latestCameraFrame.value) {
-                            writer.appendVideo(pixelBuffer: composed, presentationTime: pts)
-                        }
-                    }
-                } else {
-                    scr.onVideoFrame = { screenBuffer, pts in
-                        writer.appendVideo(pixelBuffer: screenBuffer, presentationTime: pts)
-                    }
-                }
-            }
-            if config.capturesSystemAudio {
-                scr.onSystemAudio = { sample in
-                    writer.appendSystemAudio(sample)
-                }
-            }
-            scr.onFatalError = { [weak self] error in
-                Task { await self?.handleFatalError(error) }
-            }
-            screen = scr
-        }
-
-        var mic: MicrophoneCapturer?
+        // Micrófono: solo durante la grabación.
         if config.capturesMicrophone {
-            let m = MicrophoneCapturer()
-            try m.configure(deviceID: config.microphoneDeviceID)
-            m.onAudio = { sample in
+            let mic = MicrophoneCapturer()
+            try mic.configure(deviceID: config.microphoneDeviceID)
+            mic.onAudio = { sample in
                 writer.appendMicrophone(sample)
             }
-            mic = m
+            micCapturer = mic
+            await mic.start()
         }
 
-        // 5. Arrancar todo. Si algo falla aquí, el catch de start() limpia.
         self.writer = writer
-        self.cameraCapturer = camera
-        self.micCapturer = mic
-        self.screenCapturer = screen
+        pipeline.attachWriter(writer)
+    }
 
-        await mic?.start()
-        await camera?.start()
-        if let screen {
-            try await screen.start(
-                displayID: config.displayID,
-                targetWidth: config.targetWidth,
-                fps: config.framesPerSecond,
-                captureVideo: config.capturesScreen,
-                captureAudio: config.capturesSystemAudio)
-        }
+    // MARK: - Pausa
+
+    public func pause() {
+        guard case .recording = state else { return }
+        writer?.pause()
+        setState(.paused)
+    }
+
+    public func resume() {
+        guard case .paused = state else { return }
+        writer?.resume()
+        setState(.recording)
     }
 
     // MARK: - Stop
 
     /// Detiene la grabación y devuelve la URL del archivo finalizado.
+    /// La vista previa (si estaba activa) sigue corriendo.
     @discardableResult
     public func stop() async throws -> URL {
-        guard case .recording = state else {
-            throw RecordingError.estadoInvalido("no hay ninguna grabación en curso")
+        switch state {
+        case .recording, .paused: break
+        default: throw RecordingError.estadoInvalido("no hay ninguna grabación en curso")
         }
         setState(.stopping)
 
-        // Orden: primero paran las fuentes (dejan de llegar buffers), después
-        // se finaliza el writer — así el archivo queda siempre reproducible.
-        await teardownCapturers()
+        // Orden: primero dejan de llegar buffers al writer, después se
+        // finaliza — así el archivo queda siempre reproducible.
+        pipeline?.detachWriter()
+        await stopMic()
+        if !isPreviewing {
+            await teardownPipeline()
+        }
 
         guard let writer else {
             setState(.failed(.estadoInvalido("no había writer activo")))
@@ -236,25 +243,36 @@ public final class RecordingEngine: ObservableObject {
         }
     }
 
+    // MARK: - Interno
+
     private func handleFatalError(_ error: Error) async {
-        guard case .recording = state else { return }
-        setState(.stopping)
-        await teardownCapturers()
-        // Intentar salvar lo grabado hasta ahora: el archivo queda finalizado.
-        if let writer {
-            self.writer = nil
-            _ = try? await writer.finish()
+        switch state {
+        case .recording, .paused:
+            setState(.stopping)
+            await stopMic()
+            await teardownPipeline()
+            setPreviewing(false)
+            // Intentar salvar lo grabado hasta ahora: el archivo queda finalizado.
+            if let writer {
+                self.writer = nil
+                _ = try? await writer.finish()
+            }
+            setState(.failed(.capturaInterrumpida(error.localizedDescription)))
+        default:
+            // Falló la vista previa (sin grabación): apagar en silencio.
+            await teardownPipeline()
+            setPreviewing(false)
         }
-        setState(.failed(.capturaInterrumpida(error.localizedDescription)))
     }
 
-    private func teardownCapturers() async {
-        await screenCapturer?.stop()
-        await cameraCapturer?.stop()
+    private func stopMic() async {
         await micCapturer?.stop()
-        screenCapturer = nil
-        cameraCapturer = nil
         micCapturer = nil
+    }
+
+    private func teardownPipeline() async {
+        await pipeline?.stop()
+        pipeline = nil
     }
 
     private func setState(_ newState: RecordingState) {
@@ -262,6 +280,14 @@ public final class RecordingEngine: ObservableObject {
             state = newState
         } else {
             DispatchQueue.main.sync { self.state = newState }
+        }
+    }
+
+    private func setPreviewing(_ value: Bool) {
+        if Thread.isMainThread {
+            isPreviewing = value
+        } else {
+            DispatchQueue.main.sync { self.isPreviewing = value }
         }
     }
 }
