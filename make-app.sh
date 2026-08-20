@@ -23,7 +23,16 @@ cp ".build/$CONFIG/RecordApp" "$APP/Contents/MacOS/RecordApp"
 cp Support/Info.plist "$APP/Contents/Info.plist"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
-codesign --force --sign - "$APP"
+# Firma: con la identidad local estable "Grabi Dev" si existe (los permisos
+# de TCC sobreviven a las recompilaciones); si no, ad-hoc (los permisos de
+# pantalla se pierden en cada build nuevo).
+if security find-identity -v -p codesigning 2>/dev/null | grep -q "Grabi Dev"; then
+  codesign --force --sign "Grabi Dev" "$APP"
+  echo "Firmada con identidad estable: Grabi Dev"
+else
+  codesign --force --sign - "$APP"
+  echo "⚠️  Firma ad-hoc: macOS pedirá el permiso de pantalla tras cada rebuild"
+fi
 
 echo "✅ Listo: $APP"
 echo "Ábrela con: open $APP"
