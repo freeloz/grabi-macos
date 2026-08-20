@@ -19,6 +19,7 @@ struct PanelView: View {
                 set: { newMode in
                     model.captureMode = newMode
                     if newMode == .region, model.regionRect == nil { model.pickRegion() }
+                    if newMode == .ventana, model.selectedWindow == nil { model.pickCaptureSource() }
                 }
             ))
             .disabled(model.isActive)
@@ -109,25 +110,10 @@ struct PanelView: View {
         switch model.captureMode {
         case .pantalla:
             if model.availableDisplays.count > 1 {
-                detailMenu(label: model.captureLabel) {
-                    ForEach(model.availableDisplays) { display in
-                        Button(display.name) {
-                            model.selectedDisplayID = display.isMain ? nil : display.id
-                        }
-                    }
-                }
+                changeRow(label: model.captureLabel)
             }
         case .ventana:
-            detailMenu(label: model.captureLabel) {
-                if model.availableWindows.isEmpty {
-                    Button("No hay ventanas para capturar") {}.disabled(true)
-                }
-                ForEach(model.availableWindows) { window in
-                    Button("\(window.appName) — \(String(window.title.prefix(40)))") {
-                        model.selectedWindow = window
-                    }
-                }
-            }
+            changeRow(label: model.captureLabel)
         case .region:
             HStack(spacing: GrabiSpace.s2) {
                 Text(model.captureLabel)
@@ -143,19 +129,22 @@ struct PanelView: View {
         }
     }
 
-    private func detailMenu(label: String, @ViewBuilder items: () -> some View) -> some View {
-        Menu {
-            items()
-        } label: {
-            HStack {
-                Text(label)
-                    .font(GrabiFont.caption)
-                Spacer()
-            }
+    /// Fila de selección con «Cambiar…» que abre el selector visual de
+    /// miniaturas (pantallas y ventanas).
+    private func changeRow(label: String) -> some View {
+        HStack(spacing: GrabiSpace.s2) {
+            Text(label)
+                .font(GrabiFont.caption)
+                .foregroundStyle(GrabiColor.textSecondary)
+                .lineLimit(1)
+            Spacer()
+            Button("Cambiar…") { model.pickCaptureSource() }
+                .font(GrabiFont.caption)
+                .buttonStyle(.link)
+                .tint(GrabiColor.brandStrong)
         }
-        .menuStyle(.borderlessButton)
-        .disabled(model.isActive)
         .padding(.horizontal, 4)
+        .disabled(model.isActive)
     }
 
     private var footer: some View {

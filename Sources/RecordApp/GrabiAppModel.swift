@@ -67,6 +67,7 @@ final class GrabiAppModel: ObservableObject {
     let onboardingController = OnboardingWindowController()
     let settingsController = SettingsWindowController()
     let regionController = RegionPickerController()
+    let capturePickerController = WindowPickerController()
     let permissionController = PermissionWindowController()
 
     private let hotkeys = HotkeyManager()
@@ -457,6 +458,11 @@ final class GrabiAppModel: ObservableObject {
 
     func pickRegion() {
         regionController.show(model: self)
+    }
+
+    /// Selector visual de pantallas y ventanas (miniaturas).
+    func pickCaptureSource() {
+        capturePickerController.show(model: self)
     }
 
     func quit() {

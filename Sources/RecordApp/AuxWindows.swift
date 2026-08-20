@@ -7,9 +7,9 @@ import RecordUI
 /// Ventana titulada simple reutilizable.
 @MainActor
 class TitledWindowController: NSObject, NSWindowDelegate {
-    fileprivate var window: NSWindow?
+    var window: NSWindow?
 
-    fileprivate func present<Content: View>(title: String, size: NSSize, content: Content) {
+    func present<Content: View>(title: String, size: NSSize, content: Content) {
         if window == nil {
             let win = NSWindow(
                 contentRect: NSRect(origin: .zero, size: size),
