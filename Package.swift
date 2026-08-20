@@ -11,10 +11,15 @@ let package = Package(
         .target(
             name: "RecordEngine"
         ),
-        // App SwiftUI mínima que consume el motor.
+        // Sistema de diseño Grabi: tokens, íconos, mascota y componentes SwiftUI.
+        .target(
+            name: "RecordUI",
+            dependencies: ["RecordEngine"]
+        ),
+        // La app.
         .executableTarget(
             name: "RecordApp",
-            dependencies: ["RecordEngine"],
+            dependencies: ["RecordEngine", "RecordUI"],
             linkerSettings: [
                 // Incrusta el Info.plist en el binario (sección __info_plist)
                 // para que los diálogos de permisos funcionen también al

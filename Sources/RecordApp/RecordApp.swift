@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import RecordUI
 
 /// Al lanzarse como ejecutable de Swift Package (fuera de un bundle normal),
 /// hay que pedir explícitamente política de app regular para que la ventana
@@ -25,5 +26,10 @@ struct RecordApp: App {
             ContentView(model: model)
         }
         .windowResizability(.contentSize)
+
+        // Galería del sistema de diseño (solo debug/verificación).
+        Window("Galería Grabi", id: "gallery") {
+            GrabiGallery()
+        }
     }
 }
