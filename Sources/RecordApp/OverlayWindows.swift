@@ -95,7 +95,11 @@ final class CameraWindowController: NSObject {
             let p = makeFloatingPanel(level: .statusBar)
             p.isMovableByWindowBackground = true
             p.hasShadow = true
-            p.contentView = NSHostingView(rootView: CameraFloatView(model: model, renderView: renderView))
+            p.contentView = NSHostingView(rootView: CameraFloatView(
+                model: model,
+                renderView: renderView,
+                onResizeBegan: { [weak self] in self?.beginResize() },
+                onResizeChanged: { [weak self] delta in self?.resize(by: delta) }))
             panel = p
             moveObserver = NotificationCenter.default.addObserver(
                 forName: NSWindow.didMoveNotification, object: p, queue: .main
@@ -183,6 +187,37 @@ final class CameraWindowController: NSObject {
         }
     }
 
+    // MARK: Redimensionar desde la manija (esquina inferior derecha)
+
+    private var resizeStartHeight: CGFloat?
+
+    private func beginResize() {
+        resizeStartHeight = panel?.frame.height
+    }
+
+    /// Cambia el tamaño manteniendo fija la esquina superior izquierda; en
+    /// modo mapeado actualiza `cameraLayout.height` → el PiP grabado cambia
+    /// de tamaño en vivo.
+    private func resize(by delta: CGFloat) {
+        guard let startHeight = resizeStartHeight, let model else { return }
+        if let base = baseRect {
+            let newHeight = (startHeight + delta) / base.height
+            // Mismo rango que la vista previa (prototipo: s 80–210 sobre 360).
+            model.cameraLayout.height = min(max(newHeight, 80.0 / 360.0), 210.0 / 360.0)
+            // applyLayout() llega vía la suscripción a $cameraLayout.
+        } else if let panel {
+            // Cámara-sola: solo cambia la ventana flotante.
+            let h = min(max(startHeight + delta, 140), 420)
+            let w = h * model.cameraLayout.shape.aspectRatio
+            var f = panel.frame
+            f.origin.y = f.maxY - h // esquina superior fija
+            f.size = NSSize(width: w, height: h)
+            programmaticMove = true
+            panel.setFrame(f, display: true)
+            programmaticMove = false
+        }
+    }
+
     /// El usuario arrastró el recuadro → mover el PiP grabado en vivo.
     private func windowMoved() {
         guard !programmaticMove, let panel, let base = baseRect, let model else { return }
@@ -203,6 +238,11 @@ final class CameraWindowController: NSObject {
 private struct CameraFloatView: View {
     @ObservedObject var model: GrabiAppModel
     let renderView: PixelBufferNSView
+    let onResizeBegan: () -> Void
+    let onResizeChanged: (CGFloat) -> Void
+
+    @State private var hovering = false
+    @State private var resizing = false
 
     var body: some View {
         let layout = model.cameraLayout
@@ -218,6 +258,31 @@ private struct CameraFloatView: View {
                         Button(shape.displayName) { model.cameraLayout.shape = shape }
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    // Manija de tamaño: visible al pasar el cursor (o mientras
+                    // se arrastra), área de golpeo de 30 px.
+                    Circle()
+                        .fill(Color.white)
+                        .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
+                        .frame(width: 13, height: 13)
+                        .opacity(hovering || resizing ? 1 : 0)
+                        .frame(width: 30, height: 30)
+                        .contentShape(Circle())
+                        .padding(layout.shape == .circle ? geo.size.height * 0.10 : 4)
+                        .gesture(
+                            DragGesture(coordinateSpace: .global)
+                                .onChanged { value in
+                                    if !resizing {
+                                        resizing = true
+                                        onResizeBegan()
+                                    }
+                                    onResizeChanged(max(value.translation.width, value.translation.height))
+                                }
+                                .onEnded { _ in resizing = false }
+                        )
+                }
+                .onHover { hovering = $0 }
+                .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
         }
         .ignoresSafeArea()
     }
@@ -273,36 +338,50 @@ private struct CountdownView: View {
 
 @MainActor
 final class RegionPickerController: NSObject {
-    private var panel: NSPanel?
+    private var panels: [NSPanel] = []
     private var keyMonitor: Any?
     private weak var model: GrabiAppModel?
 
+    /// Un overlay POR PANTALLA: el usuario dibuja en la que quiera y esa
+    /// pantalla queda seleccionada. Los paneles se crean de cero en cada
+    /// apertura para que el arrastre anterior no contamine el nuevo (el
+    /// estado del gesto vive en la vista).
     func show(model: GrabiAppModel) {
         self.model = model
-        guard let screen = NSScreen.main else { return }
-        if panel == nil {
-            let p = makeFloatingPanel(level: .screenSaver)
-            p.contentView = NSHostingView(rootView: RegionPickView(
-                onDone: { [weak self] rect in self?.finish(rect: rect) },
-                onCancel: { [weak self] in self?.finish(rect: nil) }))
-            panel = p
+        closePanels()
+
+        for screen in NSScreen.screens {
+            let displayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
+            let panel = makeFloatingPanel(level: .screenSaver)
+            panel.contentView = NSHostingView(rootView: RegionPickView(
+                onDone: { [weak self] rect in self?.finish(rect: rect, displayID: displayID) },
+                onCancel: { [weak self] in self?.finish(rect: nil, displayID: nil) }))
+            panel.setFrame(screen.frame, display: true)
+            panel.orderFrontRegardless()
+            panels.append(panel)
         }
-        panel?.setFrame(screen.frame, display: true)
-        panel?.orderFrontRegardless()
         // Esc cancela.
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == 53 { self?.finish(rect: nil); return nil }
+            if event.keyCode == 53 { self?.finish(rect: nil, displayID: nil); return nil }
             return event
         }
     }
 
-    private func finish(rect: CGRect?) {
+    private func closePanels() {
+        panels.forEach { $0.orderOut(nil) }
+        panels = []
         if let keyMonitor { NSEvent.removeMonitor(keyMonitor) }
         keyMonitor = nil
-        panel?.orderOut(nil)
+    }
+
+    private func finish(rect: CGRect?, displayID: CGDirectDisplayID?) {
+        closePanels()
         guard let model else { return }
         if let rect {
             model.regionRect = rect
+            if let displayID {
+                model.selectedDisplayID = displayID == CGMainDisplayID() ? nil : displayID
+            }
             model.captureMode = .region
         } else if model.regionRect == nil, model.captureMode == .region {
             model.captureMode = .pantalla
