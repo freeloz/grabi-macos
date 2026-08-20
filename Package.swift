@@ -14,7 +14,18 @@ let package = Package(
         // App SwiftUI mínima que consume el motor.
         .executableTarget(
             name: "RecordApp",
-            dependencies: ["RecordEngine"]
+            dependencies: ["RecordEngine"],
+            linkerSettings: [
+                // Incrusta el Info.plist en el binario (sección __info_plist)
+                // para que los diálogos de permisos funcionen también al
+                // ejecutar con `swift run`, fuera del bundle .app.
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", "Support/Info.plist",
+                ])
+            ]
         ),
     ]
 )
