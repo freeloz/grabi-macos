@@ -32,5 +32,11 @@ let package = Package(
                 ])
             ]
         ),
+        // Verificador de integración del motor (CLT no incluye XCTest):
+        // `swift run EngineChecks` — fuentes sintéticas, sin permisos de TCC.
+        .executableTarget(
+            name: "EngineChecks",
+            dependencies: ["RecordEngine"]
+        ),
     ]
 )
