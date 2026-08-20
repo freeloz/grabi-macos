@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:ital,wght@0,400..700;1,400&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#FAF7F1; color:#26221C; font-family:'Instrument Sans',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#C93A32; } a:hover { color:#8F2E22; }
+  @keyframes recPulse { 0% { opacity:.55; } 50% { opacity:.08; } 100% { opacity:.55; } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</helmet>
+<div style="max-width:1180px; margin:0 auto; padding:72px 40px 120px; display:flex; flex-direction:column; gap:88px">
+
+  <header style="display:flex; flex-direction:column; gap:16px" data-screen-label="Portada">
+    <div style="display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:0.14em; font-weight:600; color:#C93A32">
+      <span style="width:10px; height:10px; border-radius:50%; background:#E5483F"></span>
+      FASE 2 · SISTEMA DE DISEÑO
+    </div>
+    <h1 style="font-family:'Bricolage Grotesque',sans-serif; font-size:52px; line-height:1.05; font-weight:760; margin:0">Sistema de diseño Grabi</h1>
+    <p style="font-size:17px; line-height:1.6; color:#5C5548; margin:0; max-width:740px; text-wrap:pretty">Tokens y componentes con todos sus estados, listos para implementar en SwiftUI y web. Todo hereda del <a href="Fase 1 — Manual de Marca Grabi.dc.html">manual de marca</a>: los colores semánticos, el semáforo del punto y la escala tipográfica ya están definidos y verificados ahí.</p>
+  </header>
+
+  <!-- 01 TOKENS -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="01 Tokens">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">01</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Tokens base</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">Color y tipografía viven en el manual (Fase 1). Aquí: espaciado, radios, elevación y movimiento — más los tokens de interacción del rojo.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Espaciado — escala de 4 px</strong>
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.1 · 4</span><span style="height:12px; width:4px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.2 · 8</span><span style="height:12px; width:8px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.3 · 12</span><span style="height:12px; width:12px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.4 · 16</span><span style="height:12px; width:16px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.6 · 24</span><span style="height:12px; width:24px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.8 · 32</span><span style="height:12px; width:32px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.12 · 48</span><span style="height:12px; width:48px; background:#C93A32; border-radius:2px"></span></div>
+          <div style="display:flex; align-items:center; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:80px">space.16 · 64</span><span style="height:12px; width:64px; background:#C93A32; border-radius:2px"></span></div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Regla: padding interno de componentes ≤ space.4; separación entre bloques ≥ space.6. Nada fuera de la escala.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px">
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+          <strong style="font-size:14px">Radios</strong>
+          <div style="display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><span style="width:44px; height:44px; background:#F3EEE3; border:1.5px solid #D8CDB8; border-radius:6px"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">xs · 6</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><span style="width:44px; height:44px; background:#F3EEE3; border:1.5px solid #D8CDB8; border-radius:10px"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">sm · 10</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><span style="width:44px; height:44px; background:#F3EEE3; border:1.5px solid #D8CDB8; border-radius:14px"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">md · 14</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><span style="width:44px; height:44px; background:#F3EEE3; border:1.5px solid #D8CDB8; border-radius:20px"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">lg · 20</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><span style="width:44px; height:44px; background:#F3EEE3; border:1.5px solid #D8CDB8; border-radius:99px"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">full · 999</span></div>
+          </div>
+          <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Controles pequeños xs–sm · tarjetas y popovers md–lg · pills, switches y el botón de grabar: full.</p>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+          <strong style="font-size:14px">Elevación</strong>
+          <div style="display:flex; gap:20px; flex-wrap:wrap; padding:6px 0">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:64px; height:44px; background:#FFFFFF; border-radius:12px; box-shadow:0 1px 3px rgba(38,34,28,0.10)"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">elev.1 · reposo</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:64px; height:44px; background:#FFFFFF; border-radius:12px; box-shadow:0 6px 18px rgba(38,34,28,0.12)"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">elev.2 · popover</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px"><span style="width:64px; height:44px; background:#FFFFFF; border-radius:12px; box-shadow:0 16px 40px rgba(38,34,28,0.20)"></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">elev.3 · modal</span></div>
+          </div>
+          <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Modo oscuro: mismas geometrías con negro al 40 / 50 / 60 % + borde <span style="font-family:ui-monospace,monospace; font-size:11.5px">color.border</span> siempre visible.</p>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px">
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:12px">
+          <strong style="font-size:14px">Movimiento</strong>
+          <div style="display:flex; flex-direction:column; gap:7px; font-size:13px; color:#4A4438">
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">duration.fast · 120 ms</span><span>hover, presión</span></div>
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">duration.base · 200 ms</span><span>toggles, segmented, tooltips</span></div>
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">duration.slow · 320 ms</span><span>paneles, modales, toasts</span></div>
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">duration.pulse · 1 600 ms</span><span>pulso REC (mascota, badge, cronómetro)</span></div>
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">easing.standard</span><span>cubic-bezier(0.2, 0, 0, 1)</span></div>
+            <div style="display:flex; gap:12px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">easing.exit</span><span>cubic-bezier(0.3, 0, 1, 1)</span></div>
+          </div>
+          <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Con <span style="font-family:ui-monospace,monospace; font-size:11.5px">prefers-reduced-motion</span>: el pulso REC se vuelve estático (opacidad fija 0,55) y las transiciones bajan a 0 ms.</p>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:10px">
+          <strong style="font-size:14px">Interacción del rojo</strong>
+          <div style="display:flex; flex-direction:column; gap:7px; font-size:12.5px">
+            <div style="display:flex; align-items:center; gap:10px"><i style="width:18px; height:18px; border-radius:5px; background:#C93A32"></i><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">color.brand-strong</span><span style="color:#5C5548">#C93A32 · reposo</span></div>
+            <div style="display:flex; align-items:center; gap:10px"><i style="width:18px; height:18px; border-radius:5px; background:#B33028"></i><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">color.brand-hover</span><span style="color:#5C5548">#B33028</span></div>
+            <div style="display:flex; align-items:center; gap:10px"><i style="width:18px; height:18px; border-radius:5px; background:#9E2A23"></i><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">color.brand-active</span><span style="color:#5C5548">#9E2A23</span></div>
+            <div style="display:flex; align-items:center; gap:10px"><i style="width:18px; height:18px; border-radius:5px; background:rgba(229,72,63,0.12); border:1px solid #EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">color.tint-rec</span><span style="color:#5C5548">rgba(229,72,63,.12) · fondos de badge</span></div>
+            <div style="display:flex; align-items:center; gap:10px"><i style="width:18px; height:18px; border-radius:5px; background:#FFFFFF; border:1px solid #EAE3D6; box-shadow:0 0 0 2px #FAF7F1, 0 0 0 4px #C93A32"></i><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px">color.focus</span><span style="color:#5C5548">anillo 2 px + offset 2 px (oscuro: #FF6B5E)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 BOTONES -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="02 Botones">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">02</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Botones</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">Altura 36 px en escritorio, 44 px en táctil. Radio sm (10), tipografía 14/600, transición 120 ms. El foco es siempre anillo, nunca cambio de color solo.</p>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; overflow-x:auto">
+      <div style="display:grid; grid-template-columns:100px repeat(6,minmax(120px,1fr)); gap:14px 16px; align-items:center; min-width:920px">
+        <span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">default</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">hover</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">active</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">focus</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">disabled</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">loading</span>
+        <span style="font-size:13px; font-weight:600">Primario</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#C93A32; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Grabar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#B33028; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Grabar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#9E2A23; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; transform:scale(0.97)">Grabar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#C93A32; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32">Grabar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#C93A32; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; opacity:0.4">Grabar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#C93A32; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:fit-content"><svg viewBox="0 0 24 24" width="15" height="15" style="animation:spin 0.9s linear infinite"><circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"></circle><path d="M12 3 a9 9 0 0 1 9 9" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></path></svg>Guardando…</span>
+        <span style="font-size:13px; font-weight:600">Secundario</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#FFFFFF; border:1px solid #D8CDB8; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Compartir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#FAF7F1; border:1px solid #D8CDB8; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Compartir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#F3EEE3; border:1px solid #D8CDB8; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; transform:scale(0.97)">Compartir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#FFFFFF; border:1px solid #D8CDB8; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32">Compartir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#FFFFFF; border:1px solid #EAE3D6; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; opacity:0.4">Compartir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#FFFFFF; border:1px solid #D8CDB8; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:fit-content"><svg viewBox="0 0 24 24" width="15" height="15" style="animation:spin 0.9s linear infinite"><circle cx="12" cy="12" r="9" fill="none" stroke="#EAE3D6" stroke-width="3"></circle><path d="M12 3 a9 9 0 0 1 9 9" fill="none" stroke="#26221C" stroke-width="3" stroke-linecap="round"></path></svg>Cargando…</span>
+        <span style="font-size:13px; font-weight:600">Fantasma</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Omitir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#F3EEE3; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Omitir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#EAE3D6; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; transform:scale(0.97)">Omitir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32">Omitir</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; color:#26221C; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; opacity:0.4">Omitir</span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">—</span>
+        <span style="font-size:13px; font-weight:600">Destructivo</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#B3372B; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Descartar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#9E2F25; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content">Descartar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#8A2820; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; transform:scale(0.97)">Descartar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#B3372B; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #B3372B">Descartar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#B3372B; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; width:fit-content; opacity:0.4">Descartar</span>
+        <span style="height:36px; padding:0 16px; border-radius:10px; background:#B3372B; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:fit-content"><svg viewBox="0 0 24 24" width="15" height="15" style="animation:spin 0.9s linear infinite"><circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"></circle><path d="M12 3 a9 9 0 0 1 9 9" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"></path></svg>Borrando…</span>
+        <span style="font-size:13px; font-weight:600">Ícono</span>
+        <span style="width:36px; height:36px; border-radius:10px; background:#FFFFFF; border:1px solid #D8CDB8; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+        <span style="width:36px; height:36px; border-radius:10px; background:#FAF7F1; border:1px solid #D8CDB8; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+        <span style="width:36px; height:36px; border-radius:10px; background:#F3EEE3; border:1px solid #D8CDB8; display:inline-flex; align-items:center; justify-content:center; transform:scale(0.94)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+        <span style="width:36px; height:36px; border-radius:10px; background:#FFFFFF; border:1px solid #D8CDB8; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+        <span style="width:36px; height:36px; border-radius:10px; background:#FFFFFF; border:1px solid #EAE3D6; display:inline-flex; align-items:center; justify-content:center; opacity:0.4"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">—</span>
+      </div>
+    </div>
+    <div style="background:#26221C; border-radius:16px; padding:24px 26px; display:flex; align-items:center; gap:18px; flex-wrap:wrap">
+      <span style="font-family:ui-monospace,monospace; font-size:11px; color:#B3AA9B; width:100px">modo oscuro</span>
+      <span style="height:36px; padding:0 16px; border-radius:10px; background:#FF6B5E; color:#1B1916; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Grabar</span>
+      <span style="height:36px; padding:0 16px; border-radius:10px; background:#2E2A23; border:1px solid #4A4438; color:#F2EDE4; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Compartir</span>
+      <span style="height:36px; padding:0 16px; border-radius:10px; color:#F2EDE4; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Omitir</span>
+      <span style="height:36px; padding:0 16px; border-radius:10px; background:#F1867B; color:#1B1916; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Descartar</span>
+      <span style="font-size:12.5px; color:#B3AA9B; flex:1; min-width:220px">Mismos estados con tokens oscuros: primario #FF6B5E con texto tinta, foco #FF6B5E, hover aclara +6 %.</span>
+    </div>
+  </section>
+
+  <!-- 03 BOTON DE GRABAR -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="03 Botón de grabar">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">03</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">El botón de grabar ★</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">El componente estrella. Sigue el semáforo del manual y, al grabar, <em>se transforma en el cronómetro</em>: mismo lugar, misma forma, otro trabajo. Altura 56 px, radio full, siempre el elemento más prominente de su pantalla.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 24px 0 20px; border-radius:99px; background:#FFFFFF; border:1.5px solid #D8CDB8; display:inline-flex; align-items:center; gap:12px; box-shadow:0 1px 3px rgba(38,34,28,0.10)"><span style="width:14px; height:14px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:16px; font-weight:600">Grabar</span><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; background:#F3EEE3; border-radius:6px; padding:3px 7px">⌘⇧2</span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">listo · punto verde</span>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 24px 0 20px; border-radius:99px; background:#FAF7F1; border:1.5px solid #C4B89F; display:inline-flex; align-items:center; gap:12px; box-shadow:0 6px 18px rgba(38,34,28,0.12)"><span style="width:14px; height:14px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:16px; font-weight:600">Grabar</span><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; background:#EAE3D6; border-radius:6px; padding:3px 7px">⌘⇧2</span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">hover · elev.1 → elev.2</span>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 18px 0 22px; border-radius:99px; background:#26221C; display:inline-flex; align-items:center; gap:14px; box-shadow:0 6px 18px rgba(38,34,28,0.22)"><span style="width:13px; height:13px; border-radius:50%; background:#FF6B5E; animation:recPulse 1.6s ease-in-out infinite"></span><span style="font-size:17px; font-weight:600; color:#F2EDE4; font-variant-numeric:tabular-nums">12:34</span><span style="width:1px; height:24px; background:#3A342C"></span><span style="width:32px; height:32px; border-radius:50%; border:1.5px solid #3A342C; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#F2EDE4" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span><span style="width:32px; height:32px; border-radius:50%; background:#FF6B5E; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="7" y="7" width="10" height="10" rx="2" fill="#26221C"></rect></svg></span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">grabando · se vuelve cronómetro</span>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 18px 0 22px; border-radius:99px; background:#FFFFFF; border:1.5px solid #D8CDB8; display:inline-flex; align-items:center; gap:14px"><span style="width:13px; height:13px; border-radius:50%; background:#8A5E00"></span><span style="font-size:17px; font-weight:600; color:#9A917F; font-variant-numeric:tabular-nums">12:34</span><span style="font-size:14px; font-weight:600; color:#C93A32">Reanudar</span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">pausado · ámbar + acción</span>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 24px 0 20px; border-radius:99px; background:#FFFFFF; border:1.5px solid #D8CDB8; display:inline-flex; align-items:center; gap:12px; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32"><span style="width:14px; height:14px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:16px; font-weight:600">Grabar</span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">focus · anillo color.focus</span>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="height:56px; padding:0 24px 0 20px; border-radius:99px; background:#FFFFFF; border:1.5px solid #EAE3D6; display:inline-flex; align-items:center; gap:12px; opacity:0.45"><span style="width:14px; height:14px; border-radius:50%; background:#9A917F"></span><span style="font-size:16px; font-weight:600">Grabar</span></span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">disabled · sin fuentes activas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 INTERRUPTORES -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="04 Interruptores">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">04</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Interruptores y filas de fuente</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">El corazón de la app: las 4 fuentes. Encendido = verde (listo para grabar, coherente con el semáforo). Track 44×26, knob 20, transición 200 ms.</p>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:flex; gap:28px; flex-wrap:wrap; align-items:flex-end">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#C4B89F; position:relative; display:inline-block"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.3)"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">off</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#2E7D4C; position:relative; display:inline-block"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.3)"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">on</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#AD9F82; position:relative; display:inline-block"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#FFFFFF; box-shadow:0 2px 6px rgba(38,34,28,0.4)"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">hover off</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#2E7D4C; position:relative; display:inline-block; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#FFFFFF"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">focus</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#C4B89F; position:relative; display:inline-block; opacity:0.4"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#FFFFFF"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">disabled</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#3A342C; position:relative; display:inline-block"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#B3AA9B"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">off · oscuro</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="width:44px; height:26px; border-radius:99px; background:#6FCE96; position:relative; display:inline-block"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#1B1916"></span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">on · oscuro</span></div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Fila de fuente — los 4 estados que importan</strong>
+        <div style="border:1px solid #EAE3D6; border-radius:14px; overflow:hidden">
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #F3EEE3">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600">Pantalla</span><span style="font-size:12.5px; color:#5C5548">Pantalla completa</span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#2E7D4C; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.3)"></span></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #F3EEE3">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600">Cámara</span><span style="font-size:12.5px; color:#5C5548">Círculo · abajo a la derecha</span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#2E7D4C; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.3)"></span></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #F3EEE3; background:#FDF6E8">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#8A5E00" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600">Micrófono</span><span style="font-size:12.5px; color:#8A5E00; font-weight:500">Falta permiso · <u>Dar permiso…</u></span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#C4B89F; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#FFFFFF"></span></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; opacity:0.45">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 h3 l4 -4 v14 l-4 -4 H4 z"></path><path d="M15 9 a4.5 4.5 0 0 1 0 6"></path></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600">Audio del sistema</span><span style="font-size:12.5px; color:#5C5548">No disponible en esta versión de macOS</span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#C4B89F; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#FFFFFF"></span></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548">Estados: activa · inactiva · sin permiso (fondo tint-advertencia + enlace a Ajustes) · no disponible (45 % opacidad, switch bloqueado). Toda la fila es clicable, no solo el switch.</p>
+      </div>
+      <div style="background:#26221C; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px; color:#F2EDE4">Modo oscuro</strong>
+        <div style="border:1px solid #3A342C; border-radius:14px; overflow:hidden">
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #2E2A23">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600; color:#F2EDE4">Pantalla</span><span style="font-size:12.5px; color:#B3AA9B">Ventana: Keynote</span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#6FCE96; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:21px; width:20px; height:20px; border-radius:50%; background:#1B1916"></span></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:13px 16px">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg>
+            <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:14px; font-weight:600; color:#F2EDE4">Cámara</span><span style="font-size:12.5px; color:#B3AA9B">Apagada</span></div>
+            <span style="width:44px; height:26px; border-radius:99px; background:#3A342C; position:relative; flex-shrink:0"><span style="position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#B3AA9B"></span></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.55; color:#B3AA9B">En macOS, la app usa el switch nativo de SwiftUI teñido con <span style="font-family:ui-monospace,monospace; font-size:11.5px">color.exito</span> — este spec aplica a web, Windows y Linux.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 SELECTORES -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="05 Selectores">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">05</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Selectores</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Segmented control — forma de cámara</strong>
+        <div style="display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap">
+            <span style="display:inline-flex; background:#F3EEE3; border-radius:12px; padding:3px; gap:2px">
+              <span style="padding:7px 16px; border-radius:9px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.12); display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2"><circle cx="12" cy="12" r="8"></circle></svg>Círculo</span>
+              <span style="padding:7px 16px; border-radius:9px; display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:500; color:#5C5548"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#5C5548" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"></rect></svg>Cuadrado</span>
+              <span style="padding:7px 16px; border-radius:9px; display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:500; color:#5C5548"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#5C5548" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="3"></rect></svg>Rectángulo</span>
+            </span>
+            <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">default</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px 16px; flex-wrap:wrap">
+            <span style="display:inline-flex; background:#F3EEE3; border-radius:12px; padding:3px; gap:2px; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #C93A32">
+              <span style="padding:7px 16px; border-radius:9px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.12); font-size:13px; font-weight:600">Círculo</span>
+              <span style="padding:7px 16px; border-radius:9px; font-size:13px; font-weight:500; color:#5C5548">Cuadrado</span>
+              <span style="padding:7px 16px; border-radius:9px; font-size:13px; font-weight:500; color:#5C5548">Rectángulo</span>
+            </span>
+            <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">focus · ←→ cambia</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548">El thumb se desliza 200 ms easing.standard. Máximo 3 opciones; con más, usar dropdown. La forma elegida se refleja en vivo en la vista previa.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Dropdown — qué capturar</strong>
+        <div style="display:flex; gap:24px; flex-wrap:wrap">
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <span style="height:36px; padding:0 12px; border-radius:10px; border:1px solid #D8CDB8; background:#FFFFFF; display:inline-flex; align-items:center; gap:10px; font-size:14px; width:fit-content"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>Pantalla completa<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9A917F" stroke-width="2.5" stroke-linecap="round"><path d="M7 10 l5 5 5 -5"></path></svg></span>
+            <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">cerrado</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px">
+            <div style="display:flex; flex-direction:column; width:210px">
+              <span style="height:36px; padding:0 12px; border-radius:10px; border:1px solid #C93A32; background:#FFFFFF; display:inline-flex; align-items:center; gap:10px; font-size:14px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>Pantalla completa<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#9A917F" stroke-width="2.5" stroke-linecap="round" style="margin-left:auto; transform:rotate(180deg)"><path d="M7 10 l5 5 5 -5"></path></svg></span>
+              <div style="margin-top:6px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:12px; box-shadow:0 12px 32px rgba(38,34,28,0.14); padding:5px; display:flex; flex-direction:column">
+                <span style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; background:#FAF7F1; font-size:13.5px; font-weight:600">Pantalla completa<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#C93A32" stroke-width="3" stroke-linecap="round" style="margin-left:auto"><path d="M5 13 l4 4 10 -10"></path></svg></span>
+                <span style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13.5px; color:#4A4438">Ventana…</span>
+                <span style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13.5px; color:#4A4438">Región…</span>
+              </div>
+            </div>
+            <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">abierto · elev.2 · ✓ en brand-strong</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548">Estados del ítem: default · hover (bg color.bg) · seleccionado (check) · disabled (45 %). En macOS: menú nativo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 SUPERFICIES Y AVISOS -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="06 Superficies y avisos">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">06</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Superficies y avisos</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px">
+      <div style="display:flex; flex-direction:column; gap:16px">
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+          <strong style="font-size:14px">Toast de éxito — post-grabación</strong>
+          <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; box-shadow:0 12px 32px rgba(38,34,28,0.14); padding:14px 16px; display:flex; align-items:center; gap:14px">
+            <span style="width:56px; height:40px; border-radius:8px; background:repeating-linear-gradient(45deg, #F3EEE3, #F3EEE3 6px, #EAE3D6 6px, #EAE3D6 12px); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-family:ui-monospace,monospace; font-size:8px; color:#9A917F">miniatura</span>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px"><span style="font-size:14px; font-weight:600">¡Quedó! Tu grabación está lista</span><span style="font-size:12.5px; color:#5C5548">2:34 · 1080p · 84 MB</span></div>
+            <span style="height:32px; padding:0 14px; border-radius:9px; background:#C93A32; color:#FFFFFF; font-size:13px; font-weight:600; display:inline-flex; align-items:center; flex-shrink:0">Ver</span>
+          </div>
+          <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; box-shadow:0 12px 32px rgba(38,34,28,0.14); padding:14px 16px; display:flex; align-items:center; gap:12px">
+            <svg viewBox="0 0 96 96" width="34" height="34" style="flex-shrink:0"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><path d="M36 42 l8 7 M44 42 l-8 7" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><path d="M52 42 l8 7 M60 42 l-8 7" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><circle cx="48" cy="62" r="3.8" fill="#FFF6F0"></circle></svg>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px"><span style="font-size:14px; font-weight:600; color:#B3372B">No pude guardar el archivo</span><span style="font-size:12.5px; color:#5C5548">Queda poco espacio en disco. La grabación sigue a salvo en memoria.</span></div>
+            <span style="height:32px; padding:0 14px; border-radius:9px; border:1px solid #D8CDB8; font-size:13px; font-weight:600; display:inline-flex; align-items:center; flex-shrink:0">Reintentar</span>
+          </div>
+          <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548">Entra desde la esquina 320 ms, se va sola a los 6 s (el error no se va solo). La mascota solo aparece en errores y celebraciones — nunca en toasts rutinarios.</p>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+          <strong style="font-size:14px">Tooltip</strong>
+          <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap">
+            <span style="background:#26221C; color:#F2EDE4; font-size:12.5px; padding:6px 11px; border-radius:8px">Grabar · ⌘⇧2</span>
+            <span style="background:#26221C; color:#F2EDE4; font-size:12.5px; padding:6px 11px; border-radius:8px">Cambiar forma · clic derecho</span>
+            <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">aparece a los 500 ms · elev.1</span>
+          </div>
+        </div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Modal — solo para decisiones destructivas</strong>
+        <div style="align-self:center; width:340px; max-width:100%; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:20px; box-shadow:0 16px 40px rgba(38,34,28,0.20); padding:26px; display:flex; flex-direction:column; gap:12px">
+          <span style="font-size:18px; font-weight:700">¿Descartar la grabación?</span>
+          <span style="font-size:14px; line-height:1.55; color:#5C5548">Son 12 minutos y 34 segundos. Si la descartas, no hay forma de recuperarla.</span>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px">
+            <span style="height:36px; padding:0 16px; border-radius:10px; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Conservar</span>
+            <span style="height:36px; padding:0 16px; border-radius:10px; background:#B3372B; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center">Descartar</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548">Radio lg (20) + elev.3 + velo rgba(27,25,22,0.4). La opción segura siempre a la izquierda y como fantasma; Esc = conservar. Nunca modales para confirmar acciones reversibles.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 BADGES Y ESTADO -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="07 Badges y estado">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">07</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Badges y barras de estado</h2>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:flex; gap:26px; flex-wrap:wrap; align-items:flex-end">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="display:inline-flex; align-items:center; gap:7px; background:#26221C; border-radius:99px; padding:6px 13px"><span style="width:9px; height:9px; border-radius:50%; background:#FF6B5E; animation:recPulse 1.6s ease-in-out infinite"></span><span style="font-size:12px; font-weight:700; letter-spacing:0.08em; color:#F2EDE4">REC</span><span style="font-size:12px; font-weight:600; color:#B3AA9B; font-variant-numeric:tabular-nums">12:34</span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">badge REC · siempre visible</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="display:inline-flex; align-items:center; gap:7px; background:rgba(46,125,76,0.12); border-radius:99px; padding:6px 13px"><span style="width:9px; height:9px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:12px; font-weight:600; color:#2E7D4C">Listo</span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">tint-exito</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="display:inline-flex; align-items:center; gap:7px; background:rgba(138,94,0,0.12); border-radius:99px; padding:6px 13px"><span style="width:9px; height:9px; border-radius:2.5px; background:#8A5E00"></span><span style="font-size:12px; font-weight:600; color:#8A5E00">Pausado</span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">tint-advertencia</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="display:inline-flex; align-items:center; gap:8px; background:#F3EEE3; border-radius:99px; padding:6px 13px"><svg viewBox="0 0 24 24" width="13" height="13" style="animation:spin 0.9s linear infinite"><circle cx="12" cy="12" r="9" fill="none" stroke="#D8CDB8" stroke-width="3"></circle><path d="M12 3 a9 9 0 0 1 9 9" fill="none" stroke="#5C5548" stroke-width="3" stroke-linecap="round"></path></svg><span style="font-size:12px; font-weight:600; color:#5C5548">Exportando… 64 %</span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">progreso</span></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:10px"><span style="display:inline-flex; align-items:center; gap:7px; background:rgba(229,72,63,0.12); border-radius:99px; padding:6px 13px"><span style="font-size:12px; font-weight:600; color:#B3372B">2:34</span></span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">duración de clip</span></div>
+      <p style="margin:0; font-size:12.5px; line-height:1.55; color:#5C5548; flex-basis:100%">Regla del rojo aplicada: el punto rojo solo existe en el badge REC. El badge REC nunca desaparece mientras se graba — es la promesa de honestidad de la marca (siempre sabes que la pantalla se está viendo).</p>
+    </div>
+  </section>
+
+  <!-- 08 FORMULARIOS -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="08 Formularios">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">08</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Campos de formulario (web)</h2>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:24px">
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:13.5px; font-weight:600">Tu correo</span>
+        <span style="height:44px; border-radius:12px; border:1px solid #D8CDB8; background:#FFFFFF; padding:0 14px; font-size:15px; color:#9A917F; display:flex; align-items:center">nombre@correo.com</span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">default · placeholder text-secondary</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:13.5px; font-weight:600">Tu correo</span>
+        <span style="height:44px; border-radius:12px; border:1px solid #C93A32; background:#FFFFFF; padding:0 14px; font-size:15px; display:flex; align-items:center; box-shadow:0 0 0 3px rgba(201,58,50,0.15)">ana@escuela.</span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">focus · borde + halo brand</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:13.5px; font-weight:600">Tu correo</span>
+        <span style="height:44px; border-radius:12px; border:1.5px solid #B3372B; background:#FFFFFF; padding:0 14px; font-size:15px; display:flex; align-items:center">ana@escuela.</span>
+        <span style="font-size:12.5px; color:#B3372B">Ese correo no parece completo</span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">error · mensaje, nunca solo color</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span style="font-size:13.5px; font-weight:600; opacity:0.45">Tu correo</span>
+        <span style="height:44px; border-radius:12px; border:1px solid #EAE3D6; background:#F3EEE3; padding:0 14px; font-size:15px; color:#9A917F; display:flex; align-items:center; opacity:0.6">nombre@correo.com</span>
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">disabled</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 RESPONSIVE -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="09 Responsive">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">09</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Layout responsive</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">El mismo panel de grabación en tres contextos. Breakpoints: móvil &lt; 600 · tablet 600–1024 · escritorio &gt; 1024.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Escritorio — popover de barra de menú</strong>
+        <div style="background:#F3EEE3; border-radius:12px; padding:14px; display:flex; justify-content:flex-end; min-height:150px">
+          <div style="width:150px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:12px; box-shadow:0 6px 18px rgba(38,34,28,0.12); padding:10px; display:flex; flex-direction:column; gap:6px; height:fit-content">
+            <span style="height:8px; background:#EAE3D6; border-radius:4px; width:70%"></span>
+            <span style="height:8px; background:#EAE3D6; border-radius:4px"></span>
+            <span style="height:8px; background:#EAE3D6; border-radius:4px"></span>
+            <span style="height:8px; background:#EAE3D6; border-radius:4px; width:85%"></span>
+            <span style="height:20px; background:#C93A32; border-radius:99px; margin-top:4px"></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Ancho fijo 360 px, anclado al ícono. Densidad alta: filas de 48 px, botón 56 px.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Web / tablet — tarjeta centrada</strong>
+        <div style="background:#F3EEE3; border-radius:12px; padding:14px; display:flex; justify-content:center; min-height:150px">
+          <div style="width:180px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; box-shadow:0 6px 18px rgba(38,34,28,0.12); padding:12px; display:flex; flex-direction:column; gap:7px; height:fit-content; margin:auto">
+            <span style="height:9px; background:#EAE3D6; border-radius:4px; width:60%"></span>
+            <span style="height:9px; background:#EAE3D6; border-radius:4px"></span>
+            <span style="height:9px; background:#EAE3D6; border-radius:4px; width:90%"></span>
+            <span style="height:22px; background:#C93A32; border-radius:99px; margin-top:4px"></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Máximo 480 px centrada. Márgenes space.8; filas 52 px; áreas de toque 44 px.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Móvil — hoja inferior</strong>
+        <div style="background:#F3EEE3; border-radius:12px; padding:14px 40px 0; display:flex; justify-content:center; min-height:150px; align-items:flex-end">
+          <div style="width:110px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px 14px 0 0; box-shadow:0 -4px 14px rgba(38,34,28,0.10); padding:12px 10px 14px; display:flex; flex-direction:column; gap:7px">
+            <span style="height:3px; background:#D8CDB8; border-radius:2px; width:26px; align-self:center"></span>
+            <span style="height:9px; background:#EAE3D6; border-radius:4px"></span>
+            <span style="height:9px; background:#EAE3D6; border-radius:4px; width:80%"></span>
+            <span style="height:24px; background:#C93A32; border-radius:99px; margin-top:4px"></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:12.5px; line-height:1.5; color:#5C5548">Hoja a ancho completo. El botón de grabar crece a 64 px y se ancla abajo, bajo el pulgar. Título 32 → 28.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ACCESIBILIDAD -->
+  <section style="display:flex; flex-direction:column; gap:24px" data-screen-label="10 Accesibilidad">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">10</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Accesibilidad</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:20px 22px; font-size:13.5px; line-height:1.6; color:#4A4438"><strong style="display:block; margin-bottom:6px; color:#26221C">Toque y clic</strong>Área mínima 44×44 px en táctil, 28×28 px con puntero. Los switches y filas de fuente son clicables en toda su superficie.</div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:20px 22px; font-size:13.5px; line-height:1.6; color:#4A4438"><strong style="display:block; margin-bottom:6px; color:#26221C">Foco visible</strong>Anillo <span style="font-family:ui-monospace,monospace; font-size:12px">color.focus</span> de 2 px con offset 2 px en todo elemento interactivo. Nunca <span style="font-family:ui-monospace,monospace; font-size:12px">outline:none</span> sin reemplazo.</div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:20px 22px; font-size:13.5px; line-height:1.6; color:#4A4438"><strong style="display:block; margin-bottom:6px; color:#26221C">Contraste</strong>Texto ≥ 4,5:1 y componentes ≥ 3:1 — ya verificado por token en el manual. El estado nunca se comunica solo con color: siempre icono o texto además.</div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:20px 22px; font-size:13.5px; line-height:1.6; color:#4A4438"><strong style="display:block; margin-bottom:6px; color:#26221C">Movimiento y lectores</strong>Con reduce-motion el pulso REC queda estático. El cronómetro anuncia a VoiceOver cada minuto, no cada segundo. Toasts como <span style="font-family:ui-monospace,monospace; font-size:12px">aria-live=polite</span>; errores, <span style="font-family:ui-monospace,monospace; font-size:12px">assertive</span>.</div>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid #EAE3D6; padding-top:24px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#9A917F">
+    <span>Sistema de diseño Grabi · v1 · Fase 2</span>
+    <span>Siguiente: Fase 3 — App de macOS</span>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1260}}"></script>
+</body>
+</html>

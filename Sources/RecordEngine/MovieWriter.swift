@@ -33,6 +33,19 @@ final class MovieWriter {
     private var finished = false
     private let hasVideoTrack: Bool
 
+    // MARK: Pausa/reanudar
+    // Al pausar se dejan de aceptar buffers. Al reanudar se acumula en
+    // `timeOffset` la duración exacta de la pausa (medida con el host clock,
+    // el mismo reloj que estampa todos los buffers), y ese offset se resta
+    // del PTS de cada buffer siguiente: en el archivo final los tiempos
+    // continúan sin hueco ni salto, aunque se pause N veces.
+    private var timeOffset = CMTime.zero
+    private var pausedAtTime: CMTime?
+
+    var isPaused: Bool {
+        queue.sync { pausedAtTime != nil }
+    }
+
     init(outputURL: URL, video: VideoSpec?, includeMicrophone: Bool, includeSystemAudio: Bool) throws {
         do {
             writer = try AVAssetWriter(outputURL: outputURL, fileType: .mov)
@@ -117,14 +130,33 @@ final class MovieWriter {
         sessionStarted = true
     }
 
+    // MARK: - Pausa
+
+    func pause() {
+        queue.async { [self] in
+            guard !finished, pausedAtTime == nil else { return }
+            pausedAtTime = CMClockGetTime(CMClockGetHostTimeClock())
+        }
+    }
+
+    func resume() {
+        queue.async { [self] in
+            guard !finished, let pausedAt = pausedAtTime else { return }
+            let now = CMClockGetTime(CMClockGetHostTimeClock())
+            timeOffset = CMTimeAdd(timeOffset, CMTimeSubtract(now, pausedAt))
+            pausedAtTime = nil
+        }
+    }
+
     // MARK: - Appends (llamables desde cualquier cola)
 
     func appendVideo(pixelBuffer: CVPixelBuffer, presentationTime: CMTime) {
         queue.async { [self] in
-            guard !finished, writer.status == .writing else { return }
-            startSessionIfNeeded(at: presentationTime, isVideo: true)
+            guard !finished, writer.status == .writing, pausedAtTime == nil else { return }
+            let adjusted = CMTimeSubtract(presentationTime, timeOffset)
+            startSessionIfNeeded(at: adjusted, isVideo: true)
             guard let input = videoInput, input.isReadyForMoreMediaData else { return }
-            pixelAdaptor?.append(pixelBuffer, withPresentationTime: presentationTime)
+            pixelAdaptor?.append(pixelBuffer, withPresentationTime: adjusted)
         }
     }
 
@@ -138,11 +170,35 @@ final class MovieWriter {
 
     private func appendAudio(_ sample: CMSampleBuffer, input: @escaping () -> AVAssetWriterInput?) {
         queue.async { [self] in
-            guard !finished, writer.status == .writing else { return }
-            startSessionIfNeeded(at: CMSampleBufferGetPresentationTimeStamp(sample), isVideo: false)
+            guard !finished, writer.status == .writing, pausedAtTime == nil else { return }
+            guard let retimed = retimedForOffset(sample) else { return }
+            startSessionIfNeeded(at: CMSampleBufferGetPresentationTimeStamp(retimed), isVideo: false)
             guard sessionStarted, let input = input(), input.isReadyForMoreMediaData else { return }
-            input.append(sample)
+            input.append(retimed)
         }
+    }
+
+    /// Copia el sample buffer con los PTS desplazados por `timeOffset`.
+    /// Sin pausas acumuladas devuelve el buffer original tal cual.
+    private func retimedForOffset(_ sample: CMSampleBuffer) -> CMSampleBuffer? {
+        guard timeOffset != .zero else { return sample }
+        var timingCount = 0
+        CMSampleBufferGetSampleTimingInfoArray(sample, entryCount: 0, arrayToFill: nil, entriesNeededOut: &timingCount)
+        guard timingCount > 0 else { return sample }
+        var timings = [CMSampleTimingInfo](repeating: CMSampleTimingInfo(), count: timingCount)
+        CMSampleBufferGetSampleTimingInfoArray(sample, entryCount: timingCount, arrayToFill: &timings, entriesNeededOut: nil)
+        for i in timings.indices {
+            timings[i].presentationTimeStamp = CMTimeSubtract(timings[i].presentationTimeStamp, timeOffset)
+            if timings[i].decodeTimeStamp.isValid {
+                timings[i].decodeTimeStamp = CMTimeSubtract(timings[i].decodeTimeStamp, timeOffset)
+            }
+        }
+        var retimed: CMSampleBuffer?
+        CMSampleBufferCreateCopyWithNewTiming(
+            allocator: nil, sampleBuffer: sample,
+            sampleTimingEntryCount: timingCount, sampleTimingArray: &timings,
+            sampleBufferOut: &retimed)
+        return retimed
     }
 
     // MARK: - Finalización

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#141210; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+  a { color:#C93A32; } a:hover { color:#8F2E22; }
+  @keyframes recPulse { 0% { opacity:.55; } 50% { opacity:.08; } 100% { opacity:.55; } }
+  .proto { --desktop:linear-gradient(150deg,#F0E7D8,#E2D2BC); --menubar:rgba(250,247,241,0.8); --bg:#FAF7F1; --surface:#FFFFFF; --track:#EFE8DA; --seg:#FFFFFF; --text:#26221C; --text2:#5C5548; --border:#EAE3D6; --border2:#D8CDB8; --divider:#F3EEE3; --brand:#C93A32; --onbrand:#FFFFFF; --rec:#E5483F; --exito:#2E7D4C; --exitobg:#EDF5EE; --adv:#8A5E00; --advbg:#FDF6E8; --swoff:#C4B89F; --knobon:#FFFFFF; --chip:#F3EEE3; --shadow:rgba(38,34,28,0.2); --mascface:#FFF6F0; }
+  .proto.dark { --desktop:linear-gradient(150deg,#232019,#131110); --menubar:rgba(36,32,25,0.85); --bg:#242019; --surface:#2E2A23; --track:#1B1916; --seg:#3A342C; --text:#F2EDE4; --text2:#B3AA9B; --border:#3A342C; --border2:#4A4438; --divider:#26221C; --brand:#FF6B5E; --onbrand:#1B1916; --rec:#FF6B5E; --exito:#6FCE96; --exitobg:#243527; --adv:#E4B45C; --advbg:#332A1B; --swoff:#3A342C; --knobon:#1B1916; --chip:#1B1916; --shadow:rgba(0,0,0,0.5); --mascface:#26221C; }
+</style>
+</helmet>
+<div class="proto {{ themeClass }}" style="height:100vh; overflow:hidden; position:relative; background:var(--desktop); color:var(--text)">
+
+  <!-- BARRA DE MENU -->
+  <div style="position:absolute; top:0; left:0; right:0; box-sizing:border-box; display:flex; align-items:center; gap:16px; padding:5px 16px; background:var(--menubar); backdrop-filter:blur(10px); font-size:12.5px; z-index:6">
+    <span style="font-weight:700"></span><span style="font-weight:600">Grabi</span>
+    <span style="flex:1"></span>
+    <sc-if value="{{ menuRec }}" hint-placeholder-val="{{ false }}">
+      <span style="display:inline-flex; align-items:center; gap:6px"><span style="{{ menuDotStyle }}"></span><span style="font-weight:600; font-variant-numeric:tabular-nums">{{ time }}</span></span>
+    </sc-if>
+    <span onClick="{{ toggleTheme }}" title="Modo claro/oscuro" style="cursor:pointer; display:inline-flex; align-items:center"><svg viewBox="0 0 24 24" width="15" height="15"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M12 4 a8 8 0 0 1 0 16 z" fill="currentColor"></path></svg></span>
+    <span onClick="{{ togglePanel }}" title="Abrir Grabi" style="cursor:pointer; display:inline-flex; align-items:center"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"></circle><circle cx="12" cy="12" r="3.2" fill="currentColor"></circle></svg></span>
+    <span>mié 20 ago · 9:41</span>
+  </div>
+
+  <!-- PANEL -->
+  <sc-if value="{{ showPanel }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute; top:36px; right:12px; width:360px; background:var(--bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 16px 40px var(--shadow); padding:16px; display:flex; flex-direction:column; gap:14px; z-index:20; box-sizing:border-box">
+    <div style="display:flex; background:var(--track); border-radius:10px; padding:2.5px; gap:2px">
+      <span onClick="{{ setCapP }}" style="{{ segP }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>Pantalla</span>
+      <span onClick="{{ setCapV }}" style="{{ segV }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="14" rx="2"></rect><line x1="4" y1="9.5" x2="20" y2="9.5"></line></svg>Ventana</span>
+      <span onClick="{{ setCapR }}" style="{{ segR }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9 V6 a2 2 0 0 1 2 -2 h3"></path><path d="M15 4 h3 a2 2 0 0 1 2 2 v3"></path><path d="M20 15 v3 a2 2 0 0 1 -2 2 h-3"></path><path d="M9 20 H6 a2 2 0 0 1 -2 -2 v-3"></path></svg>Región</span>
+    </div>
+    <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface)">
+      <div onClick="{{ togglePantalla }}" style="display:flex; align-items:center; gap:11px; padding:11px 13px; border-bottom:1px solid var(--divider); cursor:pointer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>
+        <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:13px; font-weight:600">Pantalla</span><span style="font-size:11.5px; color:var(--text2)">{{ captureLabel }} · integrada</span></div>
+        <span style="{{ swPantalla }}"><span style="{{ knPantalla }}"></span></span>
+      </div>
+      <div onClick="{{ toggleCamara }}" style="display:flex; align-items:center; gap:11px; padding:11px 13px; border-bottom:1px solid var(--divider); cursor:pointer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg>
+        <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:13px; font-weight:600">Cámara</span><span style="font-size:11.5px; color:var(--text2)">{{ camShapeLabel }} · muévela en la vista previa</span></div>
+        <span style="{{ swCamara }}"><span style="{{ knCamara }}"></span></span>
+      </div>
+      <div onClick="{{ toggleMicro }}" style="{{ micRowStyle }}">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>
+        <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:13px; font-weight:600">Micrófono</span>
+          <sc-if value="{{ micMissing }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px; color:var(--adv); font-weight:500">Falta permiso · <u>Dar permiso…</u></span></sc-if>
+          <sc-if value="{{ micCeleb }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px; color:var(--exito); font-weight:600">¡Permiso concedido! Ya puedes activarlo</span></sc-if>
+          <sc-if value="{{ micNormal }}" hint-placeholder-val="{{ true }}"><span style="font-size:11.5px; color:var(--text2)">MacBook Pro</span></sc-if>
+        </div>
+        <span style="{{ swMicro }}"><span style="{{ knMicro }}"></span></span>
+      </div>
+      <div onClick="{{ toggleAudio }}" style="display:flex; align-items:center; gap:11px; padding:11px 13px; cursor:pointer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 h3 l4 -4 v14 l-4 -4 H4 z"></path><path d="M15 9 a4.5 4.5 0 0 1 0 6"></path></svg>
+        <div style="flex:1; display:flex; flex-direction:column"><span style="font-size:13px; font-weight:600">Audio del sistema</span><span style="font-size:11.5px; color:var(--text2)">{{ audioLabel }}</span></div>
+        <span style="{{ swAudio }}"><span style="{{ knAudio }}"></span></span>
+      </div>
+    </div>
+    <div onClick="{{ recBtnClick }}" style="{{ recBtnStyle }}">
+      <sc-if value="{{ recActive }}" hint-placeholder-val="{{ false }}">
+        <span style="width:12px; height:12px; border-radius:50%; background:#FF6B5E; animation:recPulse 1.6s ease-in-out infinite"></span><span style="font-size:15px; font-weight:600; color:#F2EDE4; font-variant-numeric:tabular-nums">{{ time }}</span><span style="font-size:13px; font-weight:600; color:#B3AA9B">— clic para detener</span>
+      </sc-if>
+      <sc-if value="{{ recInactive }}" hint-placeholder-val="{{ true }}">
+        <span style="{{ recDotStyle }}"></span><span style="font-size:15px; font-weight:600">Grabar</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:var(--text2); background:var(--chip); border-radius:6px; padding:3px 7px">⌘⇧2</span>
+      </sc-if>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:0 4px">
+      <span onClick="{{ openPreview }}" style="font-size:12px; font-weight:500; color:var(--brand); cursor:pointer">Vista previa en vivo</span>
+      <span onClick="{{ replayOb }}" style="font-size:12px; color:var(--text2); cursor:pointer">↺ Onboarding</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- VISTA PREVIA -->
+  <sc-if value="{{ previewOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); width:680px; max-width:94vw; background:var(--bg); border:1px solid var(--border); border-radius:12px; box-shadow:0 16px 40px var(--shadow); overflow:hidden; z-index:10">
+    <div style="display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); background:var(--track)">
+      <span onClick="{{ closePreview }}" style="width:12px; height:12px; border-radius:50%; background:#FF5F57; cursor:pointer"></span><span style="width:12px; height:12px; border-radius:50%; background:var(--border2)"></span><span style="width:12px; height:12px; border-radius:50%; background:var(--border2)"></span>
+      <span style="flex:1; text-align:center; font-size:12.5px; font-weight:600; color:var(--text2)">Vista previa — Grabi</span>
+      <span style="width:36px"></span>
+    </div>
+    <div onClick="{{ closeCtx }}" style="position:relative; width:640px; height:360px; margin:10px auto; background:repeating-linear-gradient(45deg, var(--track), var(--track) 14px, var(--border) 14px, var(--border) 28px); border-radius:8px; overflow:hidden">
+      <span style="position:absolute; top:12px; left:14px; font-family:ui-monospace,monospace; font-size:11px; color:var(--text2); background:var(--bg); padding:4px 8px; border-radius:6px; opacity:0.9">tu pantalla, en vivo</span>
+      <sc-if value="{{ camVisible }}" hint-placeholder-val="{{ true }}">
+      <div onPointerDown="{{ dragCam }}" onContextMenu="{{ openCtx }}" style="{{ camStyle }}">
+        <span style="font-family:ui-monospace,monospace; font-size:10px; color:#6B5B40; background:rgba(250,247,241,0.85); padding:3px 7px; border-radius:5px; pointer-events:none">tu cámara</span>
+        <span style="position:absolute; top:-5px; left:-5px; width:11px; height:11px; border-radius:50%; background:#FFFFFF; border:2px solid var(--brand)"></span>
+        <span style="position:absolute; top:-5px; right:-5px; width:11px; height:11px; border-radius:50%; background:#FFFFFF; border:2px solid var(--brand)"></span>
+        <span style="position:absolute; bottom:-5px; left:-5px; width:11px; height:11px; border-radius:50%; background:#FFFFFF; border:2px solid var(--brand)"></span>
+        <span onPointerDown="{{ resizeCam }}" style="position:absolute; bottom:-5px; right:-5px; width:11px; height:11px; border-radius:50%; background:#FFFFFF; border:2px solid var(--brand); cursor:nwse-resize"></span>
+      </div>
+      </sc-if>
+      <sc-if value="{{ ctxOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ ctxStyle }}">
+        <span onClick="{{ shapeCircle }}" style="{{ ctxItemC }}">Círculo</span>
+        <span onClick="{{ shapeSquare }}" style="{{ ctxItemS }}">Cuadrado</span>
+        <span onClick="{{ shapeRect }}" style="{{ ctxItemR }}">Rectángulo</span>
+        <span style="height:1px; background:var(--divider); margin:4px 6px"></span>
+        <span onClick="{{ hideCam }}" style="display:flex; padding:7px 10px; border-radius:8px; font-size:12.5px; cursor:pointer; color:var(--text)">Ocultar cámara</span>
+      </div>
+      </sc-if>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; padding:11px 16px; border-top:1px solid var(--border); background:var(--surface); flex-wrap:wrap">
+      <span style="display:inline-flex; background:var(--track); border-radius:10px; padding:2.5px; gap:2px">
+        <span onClick="{{ shapeCircle }}" style="{{ segShapeC }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"></circle></svg></span>
+        <span onClick="{{ shapeSquare }}" style="{{ segShapeS }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"></rect></svg></span>
+        <span onClick="{{ shapeRect }}" style="{{ segShapeR }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="3"></rect></svg></span>
+      </span>
+      <span style="font-size:12px; color:var(--text2)">Arrastra la cámara · esquina inferior derecha para redimensionar · clic derecho para más</span>
+      <span onClick="{{ recBtnClick }}" style="margin-left:auto; height:36px; padding:0 18px; border-radius:99px; background:var(--surface); border:1.5px solid var(--border2); display:inline-flex; align-items:center; gap:9px; font-size:13px; font-weight:600; cursor:pointer"><span style="{{ recDotStyle }}"></span>Grabar</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- CUENTA REGRESIVA -->
+  <sc-if value="{{ recCounting }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; inset:0; z-index:45; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; background:rgba(20,18,16,0.35); backdrop-filter:blur(3px)">
+    <svg viewBox="0 0 96 96" width="120" height="120"><circle cx="48" cy="50" r="42" fill="none" stroke="#E5483F" stroke-width="2.5" style="animation:recPulse 1.6s ease-in-out infinite"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><rect x="35.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="51.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="42" y="58" width="12" height="5" rx="2.5" fill="#FFF6F0"></rect></svg>
+    <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:88px; font-weight:780; color:#FAF7F1; line-height:1">{{ count }}</span>
+  </div>
+  </sc-if>
+
+  <!-- PASTILLA FLOTANTE -->
+  <sc-if value="{{ showPill }}" hint-placeholder-val="{{ false }}">
+  <div onPointerDown="{{ dragPill }}" style="{{ pillStyle }}">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="#5C5548"><circle cx="8" cy="7" r="1.6"></circle><circle cx="16" cy="7" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="17" r="1.6"></circle><circle cx="16" cy="17" r="1.6"></circle></svg>
+    <span style="{{ pillDotStyle }}"></span>
+    <span style="{{ pillTimeStyle }}">{{ time }}</span>
+    <span style="width:1px; height:22px; background:#3A342C"></span>
+    <sc-if value="{{ recRecording }}" hint-placeholder-val="{{ true }}">
+      <span onClick="{{ pauseRec }}" onPointerDown="{{ stopProp }}" style="width:30px; height:30px; border-radius:50%; border:1.5px solid #4A4438; display:inline-flex; align-items:center; justify-content:center; cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#F2EDE4" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+    </sc-if>
+    <sc-if value="{{ recPaused }}" hint-placeholder-val="{{ false }}">
+      <span onClick="{{ resumeRec }}" onPointerDown="{{ stopProp }}" style="height:30px; padding:0 14px; border-radius:99px; background:#F2EDE4; display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:#26221C; cursor:pointer"><svg viewBox="0 0 24 24" width="12" height="12" fill="#26221C"><path d="M7 5 l12 7 -12 7 z"></path></svg>Reanudar</span>
+    </sc-if>
+    <span onClick="{{ stopRec }}" onPointerDown="{{ stopProp }}" style="width:30px; height:30px; border-radius:50%; background:#FF6B5E; display:inline-flex; align-items:center; justify-content:center; cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13"><rect x="7" y="7" width="10" height="10" rx="2" fill="#26221C"></rect></svg></span>
+  </div>
+  </sc-if>
+
+  <!-- NOTIFICACION -->
+  <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; top:44px; right:14px; width:356px; background:var(--bg); border:1px solid var(--border); border-radius:18px; box-shadow:0 16px 40px var(--shadow); padding:14px 16px; display:flex; flex-direction:column; gap:12px; z-index:30; box-sizing:border-box">
+    <div style="display:flex; align-items:center; gap:12px">
+      <span style="width:38px; height:38px; border-radius:9px; background:var(--surface); border:1px solid var(--border); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0"><svg viewBox="0 0 96 96" width="26" height="26"><circle cx="48" cy="48" r="40" fill="var(--rec)"></circle><circle cx="37" cy="41" r="5.5" fill="var(--mascface)"></circle><circle cx="59" cy="41" r="5.5" fill="var(--mascface)"></circle><path d="M38 57 q10 11 20 0" fill="none" stroke="var(--mascface)" stroke-width="5" stroke-linecap="round"></path></svg></span>
+      <div style="flex:1; display:flex; flex-direction:column; gap:1px"><span style="font-size:13.5px; font-weight:700">¡Quedó! Tu grabación está lista</span><span style="font-size:12.5px; color:var(--text2)">{{ notifDur }} · 1080p · en Grabaciones</span></div>
+      <span style="width:64px; height:42px; border-radius:8px; background:repeating-linear-gradient(45deg, var(--track), var(--track) 6px, var(--border) 6px, var(--border) 12px); flex-shrink:0"></span>
+    </div>
+    <div style="display:flex; gap:9px">
+      <span onClick="{{ dismissNotif }}" style="flex:1; height:32px; border-radius:9px; background:var(--brand); color:var(--onbrand); font-size:13px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; cursor:pointer">Ver</span>
+      <span onClick="{{ dismissNotif }}" style="flex:1; height:32px; border-radius:9px; background:var(--surface); border:1px solid var(--border2); font-size:13px; font-weight:600; display:inline-flex; align-items:center; justify-content:center; cursor:pointer">Copiar enlace</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- HOJA DE PERMISOS -->
+  <sc-if value="{{ permOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute; inset:0; z-index:40; background:rgba(20,18,16,0.45); display:flex; align-items:center; justify-content:center">
+    <div style="width:400px; max-width:88vw; background:var(--bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 16px 40px var(--shadow); padding:28px; display:flex; flex-direction:column; gap:18px; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:16px">
+        <svg viewBox="0 0 96 96" width="60" height="60"><circle cx="48" cy="50" r="30" fill="var(--rec)"></circle><circle cx="40" cy="45" r="4.2" fill="var(--mascface)"></circle><circle cx="56" cy="45" r="4.2" fill="var(--mascface)"></circle><ellipse cx="48" cy="61" rx="4.5" ry="3.5" fill="var(--mascface)"></ellipse></svg>
+        <div style="display:flex; flex-direction:column; gap:3px"><span style="font-size:17px; font-weight:700">Grabi necesita tu micrófono</span><span style="font-size:13px; line-height:1.5; color:var(--text2)">Es solo para grabar. Nada sale de tu Mac.</span></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px">
+        <div style="display:flex; align-items:center; gap:12px"><span style="width:24px; height:24px; border-radius:50%; background:var(--text); color:var(--bg); font-size:12.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0">1</span><span style="font-size:13.5px">Abre <strong>Ajustes del Sistema → Privacidad y seguridad</strong></span></div>
+        <div style="display:flex; align-items:center; gap:12px"><span style="width:24px; height:24px; border-radius:50%; background:var(--text); color:var(--bg); font-size:12.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0">2</span><span style="font-size:13.5px">Entra a <strong>Micrófono</strong></span></div>
+        <div style="display:flex; align-items:center; gap:12px"><span style="width:24px; height:24px; border-radius:50%; background:var(--text); color:var(--bg); font-size:12.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0">3</span><span style="font-size:13.5px">Activa <strong>Grabi</strong> — te esperamos aquí ✓</span></div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px">
+        <span onClick="{{ closePerm }}" style="height:36px; padding:0 16px; border-radius:10px; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; color:var(--text2); cursor:pointer">Ahora no</span>
+        <span onClick="{{ grantPerm }}" style="height:36px; padding:0 16px; border-radius:10px; background:var(--brand); color:var(--onbrand); font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; cursor:pointer">Abrir Ajustes del Sistema</span>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ONBOARDING -->
+  <sc-if value="{{ isOb }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute; inset:0; z-index:50; background:rgba(20,18,16,0.45); display:flex; align-items:center; justify-content:center">
+    <div style="width:520px; max-width:92vw; min-height:440px; background:var(--bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 24px 60px rgba(0,0,0,0.4); display:flex; flex-direction:column; overflow:hidden; box-sizing:border-box">
+      <div style="display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border); background:var(--track)">
+        <span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:var(--border2)"></span><span style="width:12px; height:12px; border-radius:50%; background:var(--border2)"></span>
+        <span style="flex:1"></span>
+        <span onClick="{{ obSkip }}" style="font-size:12px; color:var(--text2); cursor:pointer">Omitir</span>
+      </div>
+      <sc-if value="{{ ob0 }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:40px 36px 30px; display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; flex:1">
+        <svg viewBox="0 0 96 96" width="116" height="116"><path d="M73 52 q13 -5 11 -20" fill="none" stroke="var(--rec)" stroke-width="7" stroke-linecap="round"></path><circle cx="84" cy="30" r="5.5" fill="var(--rec)"></circle><circle cx="48" cy="50" r="30" fill="var(--rec)"></circle><circle cx="40" cy="45" r="4.2" fill="var(--mascface)"></circle><path d="M52 45 q4 -4 8 0" fill="none" stroke="var(--mascface)" stroke-width="3.2" stroke-linecap="round"></path><path d="M39 57 q9 10 18 0" fill="none" stroke="var(--mascface)" stroke-width="4" stroke-linecap="round"></path></svg>
+        <span style="font-size:24px; font-weight:800; letter-spacing:-0.01em">Hola, soy Grabi</span>
+        <span style="font-size:14.5px; line-height:1.55; color:var(--text2); max-width:300px">Graba tu pantalla sin drama. Gratis, sin límites, sin cuenta.</span>
+        <span onClick="{{ obNext }}" style="margin-top:auto; height:42px; padding:0 24px; border-radius:99px; background:var(--brand); color:var(--onbrand); font-size:14px; font-weight:600; display:inline-flex; align-items:center; cursor:pointer">Empezar</span>
+        <div style="display:flex; gap:6px"><span style="{{ obD0 }}"></span><span style="{{ obD1 }}"></span><span style="{{ obD2 }}"></span></div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ ob1 }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:32px 34px 30px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; flex:1">
+        <svg viewBox="0 0 96 96" width="76" height="76"><circle cx="48" cy="50" r="30" fill="var(--rec)"></circle><circle cx="40" cy="45" r="4.2" fill="var(--mascface)"></circle><circle cx="56" cy="45" r="4.2" fill="var(--mascface)"></circle><rect x="41" y="58" width="14" height="5.5" rx="2.75" fill="var(--mascface)"></rect></svg>
+        <span style="font-size:21px; font-weight:800">Dos permisos y ya</span>
+        <span style="font-size:13.5px; color:var(--text2)">Solo para grabar. Nada sale de tu Mac.</span>
+        <div style="width:100%; display:flex; flex-direction:column; gap:8px; text-align:left; box-sizing:border-box">
+          <div style="display:flex; align-items:center; gap:11px; border:1px solid var(--border); border-radius:12px; padding:11px 13px; background:var(--exitobg)">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--exito)" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>
+            <span style="flex:1; font-size:13px; font-weight:600">Pantalla</span><span style="font-size:12px; font-weight:600; color:var(--exito)">Concedido ✓</span>
+          </div>
+          <sc-if value="{{ obMicPending }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:11px; border:1px solid var(--border); border-radius:12px; padding:11px 13px">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>
+            <span style="flex:1; font-size:13px; font-weight:600">Micrófono</span>
+            <span onClick="{{ obMicAllow }}" style="height:28px; padding:0 13px; border-radius:8px; background:var(--brand); color:var(--onbrand); font-size:12px; font-weight:600; display:inline-flex; align-items:center; cursor:pointer">Permitir</span>
+          </div>
+          </sc-if>
+          <sc-if value="{{ obMicDone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; gap:11px; border:1px solid var(--border); border-radius:12px; padding:11px 13px; background:var(--exitobg)">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--exito)" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>
+            <span style="flex:1; font-size:13px; font-weight:600">Micrófono</span><span style="font-size:12px; font-weight:600; color:var(--exito)">Concedido ✓</span>
+          </div>
+          </sc-if>
+        </div>
+        <span onClick="{{ obNext }}" style="margin-top:auto; height:42px; padding:0 24px; border-radius:99px; background:var(--brand); color:var(--onbrand); font-size:14px; font-weight:600; display:inline-flex; align-items:center; cursor:pointer">Continuar</span>
+        <span onClick="{{ obNext }}" style="font-size:12.5px; color:var(--text2); cursor:pointer">Puedes darlos después</span>
+        <div style="display:flex; gap:6px"><span style="{{ obD0 }}"></span><span style="{{ obD1 }}"></span><span style="{{ obD2 }}"></span></div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ ob2 }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:32px 34px 30px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; flex:1">
+        <svg viewBox="0 0 96 96" width="86" height="86"><circle cx="48" cy="50" r="42" fill="none" stroke="var(--rec)" stroke-width="2.5" style="animation:recPulse 1.6s ease-in-out infinite"></circle><circle cx="48" cy="50" r="30" fill="var(--rec)"></circle><rect x="35.5" y="43" width="9" height="4.5" rx="2.25" fill="var(--mascface)"></rect><rect x="51.5" y="43" width="9" height="4.5" rx="2.25" fill="var(--mascface)"></rect><rect x="42" y="58" width="12" height="5" rx="2.5" fill="var(--mascface)"></rect></svg>
+        <span style="font-size:21px; font-weight:800">Tu primera grabación</span>
+        <span style="font-size:13.5px; line-height:1.55; color:var(--text2); max-width:290px">Presiona grabar y di hola a la cámara. Diez segundos bastan — te espero.</span>
+        <span onClick="{{ obFinish }}" style="margin-top:auto; height:48px; padding:0 26px; border-radius:99px; background:var(--surface); border:1.5px solid var(--border2); box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--brand); display:inline-flex; align-items:center; gap:10px; font-size:14px; font-weight:600; cursor:pointer"><span style="width:12px; height:12px; border-radius:50%; background:var(--exito)"></span>Grabar mi prueba</span>
+        <div style="display:flex; gap:6px"><span style="{{ obD0 }}"></span><span style="{{ obD1 }}"></span><span style="{{ obD2 }}"></span></div>
+      </div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- AYUDA -->
+  <div style="position:absolute; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(38,34,28,0.85); color:#D8D2C6; font-family:ui-monospace,monospace; font-size:11px; padding:7px 14px; border-radius:99px; z-index:4; white-space:nowrap">prototipo clicable · panel ▸ fuentes ▸ vista previa ▸ grabar ▸ pausar ▸ detener · ◐ cambia el modo</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800}}">
+class Component extends DCLogic {
+  state = {
+    theme:'light', screen:'onboarding', obStep:0, obMic:false,
+    panelOpen:true, capture:'Pantalla completa',
+    src:{pantalla:true, camara:true, micro:false, audio:false},
+    micPerm:'missing', micCeleb:false, permOpen:false,
+    previewOpen:false, camShape:'circle', cam:{x:486,y:206,s:130}, ctx:null,
+    rec:'idle', count:3, secs:0, pill:{x:120,y:44}, notif:null,
+  };
+  componentDidMount(){ this.setState({pill:{x:Math.max(20,(window.innerWidth-320)/2), y:44}}); }
+  componentWillUnmount(){ clearInterval(this._t); clearInterval(this._c); clearTimeout(this._n); clearTimeout(this._p); clearTimeout(this._p2); }
+  fmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  clamp(v,a,b){ return Math.min(Math.max(v,a),b); }
+  camW(st){ const s=(st||this.state).cam.s; return (st||this.state).camShape==='rect'? Math.round(s*1.5): s; }
+  startRec(){
+    if(this.state.rec!=='idle') return;
+    const anyOn = Object.values(this.state.src).some(Boolean);
+    if(!anyOn) return;
+    this.setState({rec:'countdown', count:3, panelOpen:false, previewOpen:false, notif:null});
+    this._c = setInterval(()=>{
+      if(this.state.count<=1){ clearInterval(this._c); this.setState({rec:'recording', secs:0}); this._startTick(); }
+      else this.setState({count:this.state.count-1});
+    }, 700);
+  }
+  _startTick(){ clearInterval(this._t); this._t=setInterval(()=>this.setState(s=>({secs:s.secs+1})),1000); }
+  _drag(e, getPos, setPos, maxX, maxY){
+    e.preventDefault();
+    const start = getPos(), sx=e.clientX, sy=e.clientY;
+    const move = ev => setPos(this.clamp(start.x+ev.clientX-sx,0,maxX()), this.clamp(start.y+ev.clientY-sy,0,maxY()));
+    const up = () => { window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+  }
+  renderVals(){
+    const st=this.state, src=st.src;
+    const isOb = st.screen==='onboarding';
+    const anyOn = Object.values(src).some(Boolean);
+    const recActive = st.rec==='recording'||st.rec==='paused';
+    const camw=this.camW(), camh=st.cam.s;
+    const seg = sel => ({flex:1,padding:'6px 0',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:12.5,cursor:'pointer',fontWeight:sel?600:500,color:sel?'var(--text)':'var(--text2)',background:sel?'var(--seg)':'transparent',boxShadow:sel?'0 1px 3px var(--shadow)':'none'});
+    const segIcon = sel => ({padding:'5px 12px',borderRadius:8,display:'inline-flex',alignItems:'center',cursor:'pointer',color:sel?'var(--text)':'var(--text2)',background:sel?'var(--seg)':'transparent',boxShadow:sel?'0 1px 3px var(--shadow)':'none'});
+    const sw = on => ({width:40,height:24,borderRadius:99,background:on?'var(--exito)':'var(--swoff)',position:'relative',flexShrink:0,transition:'background .2s',display:'inline-block'});
+    const kn = on => ({position:'absolute',top:2.5,left:on?18.5:2.5,width:19,height:19,borderRadius:'50%',background:on?'var(--knobon)':'#FFFFFF',boxShadow:'0 1px 3px rgba(0,0,0,0.3)',transition:'left .2s'});
+    const ctxItem = sel => ({display:'flex',alignItems:'center',padding:'7px 10px',borderRadius:8,fontSize:12.5,cursor:'pointer',fontWeight:sel?600:400,background:sel?'var(--track)':'transparent',color:'var(--text)'});
+    const obD = i => ({width:7,height:7,borderRadius:'50%',background:i===st.obStep?'var(--brand)':'var(--border)',display:'inline-block'});
+    const toggle = k => () => {
+      if(st.rec!=='idle') return;
+      if(k==='micro' && st.micPerm!=='granted'){ this.setState({permOpen:true}); return; }
+      this.setState({src:{...this.state.src,[k]:!this.state.src[k]}});
+    };
+    const setShape = sh => () => {
+      const s=this.state, w = sh==='rect'? Math.round(s.cam.s*1.5) : s.cam.s;
+      this.setState({camShape:sh, ctx:null, cam:{...s.cam, x:this.clamp(s.cam.x,0,640-w), y:this.clamp(s.cam.y,0,360-s.cam.s)}});
+    };
+    return {
+      themeClass: st.theme==='dark'?'dark':'',
+      toggleTheme: ()=>this.setState({theme:this.state.theme==='dark'?'light':'dark'}),
+      togglePanel: ()=>this.setState({panelOpen:!this.state.panelOpen}),
+      isOb, ob0:isOb&&st.obStep===0, ob1:isOb&&st.obStep===1, ob2:isOb&&st.obStep===2,
+      obD0:obD(0), obD1:obD(1), obD2:obD(2),
+      obMicPending:!st.obMic, obMicDone:st.obMic,
+      obNext: ()=>this.setState({obStep:Math.min(2,this.state.obStep+1)}),
+      obSkip: ()=>this.setState({screen:'desktop'}),
+      obMicAllow: ()=>this.setState({obMic:true, micPerm:'granted', src:{...this.state.src,micro:true}}),
+      obFinish: ()=>{ this.setState({screen:'desktop'}); setTimeout(()=>this.startRec(),200); },
+      replayOb: ()=>this.setState({screen:'onboarding', obStep:0}),
+      showPanel: st.panelOpen && !isOb,
+      segP:seg(st.capture==='Pantalla completa'), segV:seg(st.capture==='Ventana: Keynote'), segR:seg(st.capture==='Región'),
+      setCapP:()=>this.setState({capture:'Pantalla completa'}), setCapV:()=>this.setState({capture:'Ventana: Keynote'}), setCapR:()=>this.setState({capture:'Región'}),
+      captureLabel: st.capture,
+      swPantalla:sw(src.pantalla), knPantalla:kn(src.pantalla), togglePantalla:toggle('pantalla'),
+      swCamara:sw(src.camara), knCamara:kn(src.camara), toggleCamara:toggle('camara'),
+      swMicro:sw(src.micro), knMicro:kn(src.micro), toggleMicro:toggle('micro'),
+      swAudio:sw(src.audio), knAudio:kn(src.audio), toggleAudio:toggle('audio'),
+      audioLabel: src.audio?'Encendido':'Apagado',
+      micMissing: st.micPerm==='missing', micCeleb: st.micCeleb, micNormal: st.micPerm==='granted' && !st.micCeleb,
+      micRowStyle: {display:'flex',alignItems:'center',gap:11,padding:'11px 13px',borderBottom:'1px solid var(--divider)',cursor:'pointer',background: st.micPerm==='missing'?'var(--advbg)': st.micCeleb?'var(--exitobg)':'transparent',transition:'background .3s'},
+      permOpen: st.permOpen,
+      closePerm: ()=>this.setState({permOpen:false}),
+      grantPerm: ()=>{ this.setState({permOpen:false}); this._p=setTimeout(()=>{ this.setState({micPerm:'granted',micCeleb:true,src:{...this.state.src,micro:true}}); this._p2=setTimeout(()=>this.setState({micCeleb:false}),2500); },900); },
+      recActive, recInactive:!recActive,
+      recCounting: st.rec==='countdown', count:st.count,
+      recRecording: st.rec==='recording', recPaused: st.rec==='paused',
+      recBtnClick: ()=>{ if(recActive){ this._stop(); } else this.startRec(); },
+      recBtnStyle: {height:52,borderRadius:99,border: recActive?'none':'1.5px solid var(--border2)',background: recActive?'#26221C':'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center',gap:11,cursor: anyOn?'pointer':'default',opacity: anyOn||recActive?1:0.45,boxShadow:'0 1px 3px var(--shadow)'},
+      recDotStyle: {width:13,height:13,borderRadius:'50%',background: anyOn?'var(--exito)':'var(--swoff)',display:'inline-block'},
+      time: this.fmt(st.secs),
+      menuRec: recActive,
+      menuDotStyle: {width:9,height:9,borderRadius: st.rec==='paused'?2.5:'50%',background: st.rec==='paused'?'var(--adv)':'var(--rec)',display:'inline-block',animation: st.rec==='recording'?'recPulse 1.6s ease-in-out infinite':'none'},
+      showPill: recActive,
+      pillStyle: {position:'absolute',left:st.pill.x,top:st.pill.y,zIndex:25,display:'inline-flex',alignItems:'center',gap:13,background:'rgba(38,34,28,0.92)',backdropFilter:'blur(8px)',borderRadius:99,padding:'10px 18px 10px 12px',boxShadow:'0 12px 32px rgba(0,0,0,0.4)',cursor:'grab',touchAction:'none',userSelect:'none'},
+      pillDotStyle: {width:11,height:11,borderRadius: st.rec==='paused'?2.5:'50%',background: st.rec==='paused'?'#E4B45C':'#FF6B5E',animation: st.rec==='recording'?'recPulse 1.6s ease-in-out infinite':'none',display:'inline-block'},
+      pillTimeStyle: {fontSize:17,fontWeight:600,color: st.rec==='paused'?'#B3AA9B':'#F2EDE4',fontVariantNumeric:'tabular-nums'},
+      dragPill: e=>this._drag(e, ()=>({...this.state.pill}), (x,y)=>this.setState({pill:{x,y}}), ()=>window.innerWidth-300, ()=>window.innerHeight-70),
+      pauseRec: ()=>{ clearInterval(this._t); this.setState({rec:'paused'}); },
+      resumeRec: ()=>{ this.setState({rec:'recording'}); this._startTick(); },
+      stopRec: ()=>this._stop(),
+      stopProp: e=>e.stopPropagation(),
+      notifOpen: !!st.notif, notifDur: st.notif? st.notif.dur:'',
+      dismissNotif: ()=>{ clearTimeout(this._n); this.setState({notif:null}); },
+      previewOpen: st.previewOpen && !isOb,
+      openPreview: ()=>this.setState({previewOpen:true}),
+      closePreview: ()=>this.setState({previewOpen:false, ctx:null}),
+      camVisible: src.camara,
+      camStyle: {position:'absolute',left:st.cam.x,top:st.cam.y,width:camw,height:camh,borderRadius: st.camShape==='circle'?'50%':12,background:'repeating-linear-gradient(-45deg, #D8C4A8, #D8C4A8 8px, #CDB693 8px, #CDB693 16px)',border:'2.5px solid var(--brand)',boxShadow:'0 8px 24px var(--shadow)',cursor:'grab',touchAction:'none',display:'flex',alignItems:'center',justifyContent:'center',userSelect:'none'},
+      dragCam: e=>this._drag(e, ()=>({...this.state.cam}), (x,y)=>this.setState({cam:{...this.state.cam,x,y}}), ()=>640-this.camW(), ()=>360-this.state.cam.s),
+      resizeCam: e=>{ e.stopPropagation(); e.preventDefault();
+        const start={...this.state.cam}, sx=e.clientX;
+        const move=ev=>{ const ns=this.clamp(start.s+(ev.clientX-sx),80,210); const w=this.state.camShape==='rect'?Math.round(ns*1.5):ns;
+          this.setState({cam:{s:ns, x:this.clamp(start.x,0,640-w), y:this.clamp(start.y,0,360-ns)}}); };
+        const up=()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+        window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); },
+      openCtx: e=>{ e.preventDefault(); const s=this.state; this.setState({ctx:{x:this.clamp(s.cam.x+this.camW()+8,0,640-180), y:this.clamp(s.cam.y,0,360-165)}}); },
+      closeCtx: ()=>{ if(this.state.ctx) this.setState({ctx:null}); },
+      ctxOpen: !!st.ctx,
+      ctxStyle: st.ctx? {position:'absolute',left:st.ctx.x,top:st.ctx.y,zIndex:15,background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,boxShadow:'0 12px 32px var(--shadow)',padding:5,display:'flex',flexDirection:'column',minWidth:170}:{display:'none'},
+      ctxItemC:ctxItem(st.camShape==='circle'), ctxItemS:ctxItem(st.camShape==='square'), ctxItemR:ctxItem(st.camShape==='rect'),
+      segShapeC:segIcon(st.camShape==='circle'), segShapeS:segIcon(st.camShape==='square'), segShapeR:segIcon(st.camShape==='rect'),
+      shapeCircle:setShape('circle'), shapeSquare:setShape('square'), shapeRect:setShape('rect'),
+      hideCam: ()=>this.setState({src:{...this.state.src,camara:false}, ctx:null}),
+      camShapeLabel: ({circle:'Círculo',square:'Cuadrado',rect:'Rectángulo'})[st.camShape],
+    };
+  }
+  _stop(){
+    clearInterval(this._t); clearInterval(this._c);
+    const dur=this.fmt(this.state.secs);
+    this.setState({rec:'idle', notif:{dur}, secs:0});
+    clearTimeout(this._n);
+    this._n=setTimeout(()=>this.setState({notif:null}), 9000);
+  }
+}
+</script>
+</body>
+</html>

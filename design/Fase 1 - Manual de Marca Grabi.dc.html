@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:ital,wght@0,400..700;1,400&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#FAF7F1; color:#26221C; font-family:'Instrument Sans',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#C93A32; } a:hover { color:#8F2E22; }
+  @keyframes recPulse { 0% { opacity:.55; } 50% { opacity:.08; } 100% { opacity:.55; } }
+</style>
+</helmet>
+<div style="max-width:1080px; margin:0 auto; padding:72px 40px 120px; display:flex; flex-direction:column; gap:88px">
+
+  <header style="display:flex; flex-direction:column; gap:18px">
+    <div style="display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:0.14em; font-weight:600; color:#C93A32">
+      <span style="width:10px; height:10px; border-radius:50%; background:#E5483F"></span>
+      FASE 1 · MANUAL DE MARCA
+    </div>
+    <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap">
+      <svg viewBox="0 0 96 96" width="88" height="88" aria-label="Grabi"><circle cx="48" cy="48" r="36" fill="#E5483F"></circle><circle cx="38" cy="42" r="5" fill="#FFF6F0"></circle><circle cx="58" cy="42" r="5" fill="#FFF6F0"></circle><rect x="39" y="57" width="18" height="6.5" rx="3.25" fill="#FFF6F0"></rect></svg>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif; font-size:64px; line-height:1; font-weight:780; margin:0">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></h1>
+    </div>
+    <p style="font-size:17px; line-height:1.6; color:#5C5548; margin:0; max-width:700px; text-wrap:pretty"><strong style="color:#26221C">Grabi</strong> graba tu pantalla sin drama: abres, presionas el punto rojo, listo. La marca es esa misma promesa hecha forma — un punto rojo con cara, tipografía cálida y cero jerga. Este manual define logo, mascota, color, tipografía, voz e iconografía para macOS, Windows, Linux, web y marketing.</p>
+  </header>
+
+  <!-- 01 LOGO -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">01</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Logo</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:680px">Tres versiones. La mascota <em>es</em> el símbolo: el punto rojo de grabar, con cara. En el wordmark, la tilde de la «i» es siempre el punto rojo.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <div style="height:110px; display:flex; align-items:center; justify-content:center; gap:14px">
+          <svg viewBox="0 0 96 96" width="52" height="52"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg>
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:42px; font-weight:780; line-height:1">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></span>
+        </div>
+        <div style="font-size:13.5px; line-height:1.55; color:#5C5548"><strong style="color:#26221C">Principal (mascota + wordmark).</strong> Sitio web, cabeceras de documentos, pantallas de bienvenida. Alto mínimo: 28 px.</div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <div style="height:110px; display:flex; align-items:center; justify-content:center">
+          <svg viewBox="0 0 96 96" width="64" height="64"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg>
+        </div>
+        <div style="font-size:13.5px; line-height:1.55; color:#5C5548"><strong style="color:#26221C">Solo mascota.</strong> Ícono de app, favicon, avatar. Tamaño mínimo: 16 px — a ese tamaño la cara se simplifica (ojos más grandes, sin boca si hace falta).</div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <div style="height:110px; display:flex; align-items:center; justify-content:center">
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:46px; font-weight:780; line-height:1">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></span>
+        </div>
+        <div style="font-size:13.5px; line-height:1.55; color:#5C5548"><strong style="color:#26221C">Solo wordmark.</strong> Espacios estrechos y contextos formales. Siempre en minúsculas; la tilde de la «i» siempre en Rojo Grabi. Alto mínimo: 14 px.</div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Área de protección</strong>
+        <div style="display:flex; align-items:center; justify-content:center; padding:10px">
+          <div style="position:relative; border:1.5px dashed #D8CDB8; padding:26px; border-radius:8px">
+            <div style="display:flex; align-items:center; gap:9px">
+              <svg viewBox="0 0 96 96" width="34" height="34"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg>
+              <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:27px; font-weight:780">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></span>
+            </div>
+            <span style="position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:#FFFFFF; padding:0 8px; font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">1P</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:13.5px; line-height:1.55; color:#5C5548">Margen libre en todos los lados = <strong style="color:#26221C">1P</strong> (un diámetro de la mascota). Nada entra en esa zona: ni texto, ni otros logos, ni bordes.</p>
+      </div>
+      <div style="background:#26221C; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px; color:#F2EDE4">Sobre fondo oscuro</strong>
+        <div style="height:80px; display:flex; align-items:center; justify-content:center; gap:11px">
+          <svg viewBox="0 0 96 96" width="40" height="40"><circle cx="48" cy="48" r="40" fill="#FF6B5E"></circle><circle cx="37" cy="41" r="5.5" fill="#26221C"></circle><circle cx="59" cy="41" r="5.5" fill="#26221C"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#26221C"></rect></svg>
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:32px; font-weight:780; color:#F2EDE4">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#FF6B5E"></span></span></span>
+        </div>
+        <p style="margin:0; font-size:13.5px; line-height:1.55; color:#B3AA9B">En oscuro, el rojo sube a <span style="font-family:ui-monospace,monospace">#FF6B5E</span> y la cara toma el color del fondo. El wordmark pasa a marfil <span style="font-family:ui-monospace,monospace">#F2EDE4</span>.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:14px">
+        <strong style="font-size:14px">Usos incorrectos</strong>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#FAF7F1; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="30" height="30"><circle cx="48" cy="48" r="40" fill="#4B7BD4"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Recolorear</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#FAF7F1; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="30" height="30"><circle cx="48" cy="48" r="37" fill="none" stroke="#E5483F" stroke-width="5"></circle><circle cx="37" cy="41" r="5.5" fill="#E5483F"></circle><circle cx="59" cy="41" r="5.5" fill="#E5483F"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#E5483F"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Contornos</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#FAF7F1; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="30" height="30"><defs><linearGradient id="gbad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A5E"></stop><stop offset="1" stop-color="#C0328F"></stop></linearGradient></defs><circle cx="48" cy="48" r="40" fill="url(#gbad)"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Degradados</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#FAF7F1; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="42" height="26" preserveAspectRatio="none"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Deformar</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#FAF7F1; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="30" height="30" style="filter:drop-shadow(3px 5px 3px rgba(0,0,0,0.45))"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Sombras</span></div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:6px"><div style="width:64px; height:52px; background:#E5483F; border-radius:8px; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="30" height="30"><circle cx="48" cy="48" r="40" fill="#C93A32"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div><span style="font-size:11.5px; color:#B3372B; font-weight:600">✕ Fondo rojo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 MASCOTA -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">02</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">La mascota: Grabi</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:680px">Grabi es el punto rojo de grabar, con cara. No es «un personaje junto al producto»: es el botón que presionas, vivo. Círculo perfecto, colores planos, expresión mínima.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px">
+        <svg viewBox="0 0 96 96" width="84" height="84"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><rect x="41" y="58" width="14" height="5.5" rx="2.75" fill="#FFF6F0"></rect></svg>
+        <div style="text-align:center"><strong style="font-size:14px">Neutral</strong><p style="margin:2px 0 0; font-size:12.5px; color:#5C5548; line-height:1.45">Reposo. UI, ícono, marketing.</p></div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px">
+        <svg viewBox="0 0 96 96" width="84" height="84"><circle cx="48" cy="50" r="42" fill="none" stroke="#E5483F" stroke-width="2.5" style="animation:recPulse 1.6s ease-in-out infinite"></circle><circle cx="48" cy="50" r="36" fill="none" stroke="#E5483F" stroke-width="2.5" opacity="0.35"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><rect x="35.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="51.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="42" y="58" width="12" height="5" rx="2.5" fill="#FFF6F0"></rect></svg>
+        <div style="text-align:center"><strong style="font-size:14px">Grabando</strong><p style="margin:2px 0 0; font-size:12.5px; color:#5C5548; line-height:1.45">Concentrado + ondas que pulsan (1,6 s).</p></div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px">
+        <svg viewBox="0 0 96 96" width="84" height="84"><circle cx="24" cy="18" r="3" fill="#E8B23A"></circle><circle cx="72" cy="14" r="3.5" fill="#E5483F"></circle><circle cx="80" cy="34" r="2.5" fill="#E8B23A"></circle><circle cx="16" cy="38" r="2.5" fill="#E5483F"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><path d="M35 45 q5 -7 10 0" fill="none" stroke="#FFF6F0" stroke-width="3.5" stroke-linecap="round"></path><path d="M51 45 q5 -7 10 0" fill="none" stroke="#FFF6F0" stroke-width="3.5" stroke-linecap="round"></path><path d="M39 57 q9 11 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+        <div style="text-align:center"><strong style="font-size:14px">Éxito</strong><p style="margin:2px 0 0; font-size:12.5px; color:#5C5548; line-height:1.45">Grabación lista, exportación, logros.</p></div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px">
+        <svg viewBox="0 0 96 96" width="84" height="84"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><path d="M36 42 l8 7 M44 42 l-8 7" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><path d="M52 42 l8 7 M60 42 l-8 7" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><circle cx="48" cy="62" r="3.8" fill="#FFF6F0"></circle><circle cx="73" cy="30" r="4" fill="#F2D8D2"></circle></svg>
+        <div style="text-align:center"><strong style="font-size:14px">Error</strong><p style="margin:2px 0 0; font-size:12.5px; color:#5C5548; line-height:1.45">Algo falló. Siempre junto a una solución.</p></div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:12px">
+        <svg viewBox="0 0 96 96" width="84" height="84"><path d="M73 52 q13 -5 11 -20" fill="none" stroke="#E5483F" stroke-width="7" stroke-linecap="round"></path><circle cx="84" cy="30" r="5.5" fill="#E5483F"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M52 45 q4 -4 8 0" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+        <div style="text-align:center"><strong style="font-size:14px">Saludando</strong><p style="margin:2px 0 0; font-size:12.5px; color:#5C5548; line-height:1.45">Onboarding, bienvenida, estados vacíos.</p></div>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:22px 24px; font-size:14px; line-height:1.6; color:#4A4438">
+        <strong style="display:block; margin-bottom:8px; color:#26221C">Reglas de uso</strong>
+        · El cuerpo es siempre un círculo perfecto en Rojo Grabi.<br>
+        · Cara con máximo 3 elementos: dos ojos y una boca. Brazos solo en ilustraciones grandes (≥ 64 px).<br>
+        · Las ondas de pulso solo cuando <em>realmente</em> se está grabando.<br>
+        · A 16 px: solo ojos, sin boca ni brazos.<br>
+        · Una sola mascota por pantalla.
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:22px 24px; font-size:14px; line-height:1.6; color:#4A4438">
+        <strong style="display:block; margin-bottom:8px; color:#B3372B">Nunca</strong>
+        · En marca, logo y marketing: siempre rojo. Dentro del producto, el punto es un semáforo (verde listo · rojo grabando · ámbar pausado) — cualquier otro color no existe.<br>
+        · Nunca enojado, triste o sarcástico — puede preocuparse, no culpar.<br>
+        · Nunca como ícono de error del sistema (para eso está el rojo semántico de error, en texto).<br>
+        · Nunca hablando en primera persona sobre datos del usuario («vi tu pantalla»). La privacidad no es chiste.<br>
+        · Nunca con degradados, contornos, 3D ni sombras duras.
+      </div>
+    </div>
+    <div style="background:#26221C; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:18px">
+      <span style="font-size:12px; font-weight:600; letter-spacing:0.08em; color:#B3AA9B">EL SEMÁFORO · ESTADOS FUNCIONALES DEL PUNTO (SOLO DENTRO DEL PRODUCTO)</span>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px">
+        <div style="background:#2E2A23; border-radius:14px; padding:22px; display:flex; flex-direction:column; align-items:center; gap:12px">
+          <svg viewBox="0 0 96 96" width="76" height="76"><circle cx="48" cy="50" r="30" fill="#6FCE96"></circle><circle cx="40" cy="45" r="4.2" fill="#26221C"></circle><circle cx="56" cy="45" r="4.2" fill="#26221C"></circle><path d="M40 57 q8 8 16 0" fill="none" stroke="#26221C" stroke-width="3.5" stroke-linecap="round"></path></svg>
+          <div style="text-align:center"><strong style="font-size:14px; color:#F2EDE4">Listo</strong><p style="margin:3px 0 0; font-size:12.5px; color:#B3AA9B; line-height:1.5">Todo configurado, un clic y grabas.<br><span style="font-family:ui-monospace,monospace; font-size:11px">color.exito</span></p></div>
+        </div>
+        <div style="background:#2E2A23; border-radius:14px; padding:22px; display:flex; flex-direction:column; align-items:center; gap:12px">
+          <svg viewBox="0 0 96 96" width="76" height="76"><circle cx="48" cy="50" r="42" fill="none" stroke="#FF6B5E" stroke-width="2.5" style="animation:recPulse 1.6s ease-in-out infinite"></circle><circle cx="48" cy="50" r="36" fill="none" stroke="#FF6B5E" stroke-width="2.5" opacity="0.35"></circle><circle cx="48" cy="50" r="30" fill="#FF6B5E"></circle><rect x="35.5" y="43" width="9" height="4.5" rx="2.25" fill="#26221C"></rect><rect x="51.5" y="43" width="9" height="4.5" rx="2.25" fill="#26221C"></rect><rect x="42" y="58" width="12" height="5" rx="2.5" fill="#26221C"></rect></svg>
+          <div style="text-align:center"><strong style="font-size:14px; color:#F2EDE4">Grabando</strong><p style="margin:3px 0 0; font-size:12.5px; color:#B3AA9B; line-height:1.5">Concentrado, ondas pulsando (1,6 s).<br><span style="font-family:ui-monospace,monospace; font-size:11px">color.rec</span></p></div>
+        </div>
+        <div style="background:#2E2A23; border-radius:14px; padding:22px; display:flex; flex-direction:column; align-items:center; gap:12px">
+          <svg viewBox="0 0 96 96" width="76" height="76"><circle cx="48" cy="50" r="30" fill="#E4B45C"></circle><rect x="38" y="40" width="5.5" height="13" rx="2.75" fill="#26221C"></rect><rect x="52.5" y="40" width="5.5" height="13" rx="2.75" fill="#26221C"></rect><rect x="42" y="60" width="12" height="5" rx="2.5" fill="#26221C"></rect></svg>
+          <div style="text-align:center"><strong style="font-size:14px; color:#F2EDE4">Pausado</strong><p style="margin:3px 0 0; font-size:12.5px; color:#B3AA9B; line-height:1.5">Los ojos <em>son</em> el icono de pausa.<br><span style="font-family:ui-monospace,monospace; font-size:11px">color.advertencia</span></p></div>
+        </div>
+      </div>
+      <p style="margin:0; font-size:13px; line-height:1.55; color:#B3AA9B">El semáforo vive en el ícono de barra de menú, el favicon de la web app y el botón de grabar. Se lee sin texto y a cualquier tamaño. En marca y marketing, Grabi es siempre rojo — el semáforo es <em>comportamiento del producto</em>, no identidad.</p>
+    </div>
+  </section>
+
+  <!-- 03 COLOR -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">03</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Color</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:680px">Neutros cálidos + un rojo que significa una sola cosa. Todos los valores con par claro/oscuro y contraste WCAG verificado contra su fondo de uso.</p>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; overflow:hidden">
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; gap:0; padding:14px 24px; font-size:12px; font-weight:600; letter-spacing:0.06em; color:#9A917F; border-bottom:1px solid #EAE3D6">
+        <span>TOKEN</span><span>CLARO</span><span>OSCURO</span><span>USO</span><span>WCAG</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.bg</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#FAF7F1; border:1px solid #EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#FAF7F1</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#1B1916"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#1B1916</span></span><span style="color:#5C5548">Fondo de ventana / página</span><span style="color:#9A917F">—</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.surface</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#FFFFFF; border:1px solid #EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#FFFFFF</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#242019"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#242019</span></span><span style="color:#5C5548">Tarjetas, paneles, popovers</span><span style="color:#9A917F">—</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.text</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#26221C"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#26221C</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#F2EDE4; border:1px solid #EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#F2EDE4</span></span><span style="color:#5C5548">Texto principal</span><span style="color:#2E7D4C; font-weight:600">14,8 · 15,0 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.text-secondary</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#5C5548"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#5C5548</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#B3AA9B"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#B3AA9B</span></span><span style="color:#5C5548">Texto secundario, ayudas</span><span style="color:#2E7D4C; font-weight:600">6,9 · 7,6 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.border</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#EAE3D6</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#3A342C"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#3A342C</span></span><span style="color:#5C5548">Bordes y divisores</span><span style="color:#9A917F">deco.</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace"><strong>color.rec</strong></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#E5483F"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#E5483F</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#FF6B5E"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#FF6B5E</span></span><span style="color:#5C5548">Mascota, punto REC, badge grabando</span><span style="color:#2E7D4C; font-weight:600">3,7 · 6,3 ✓<span style="color:#9A917F; font-weight:400"> UI</span></span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.brand-strong</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#C93A32"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#C93A32</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#FF6B5E"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#FF6B5E</span></span><span style="color:#5C5548">Botones primarios, enlaces, texto de marca</span><span style="color:#2E7D4C; font-weight:600">4,8 · 6,3 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.on-brand</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#FFFFFF; border:1px solid #EAE3D6"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#FFFFFF</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#1B1916"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#1B1916</span></span><span style="color:#5C5548">Texto sobre brand-strong</span><span style="color:#2E7D4C; font-weight:600">5,1 · 6,3 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.exito</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#2E7D4C"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#2E7D4C</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#6FCE96"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#6FCE96</span></span><span style="color:#5C5548">Guardado, permisos OK, punto «listo»</span><span style="color:#2E7D4C; font-weight:600">4,7 · 9,1 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px; border-bottom:1px solid #F3EEE3"><span style="font-family:ui-monospace,monospace">color.advertencia</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#8A5E00"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#8A5E00</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#E4B45C"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#E4B45C</span></span><span style="color:#5C5548">Poco espacio, micro en silencio, punto «pausado»</span><span style="color:#2E7D4C; font-weight:600">5,3 · 9,2 ✓</span></div>
+      <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 1.6fr 0.9fr; align-items:center; padding:12px 24px; font-size:13.5px"><span style="font-family:ui-monospace,monospace">color.error</span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#B3372B"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#B3372B</span></span><span style="display:flex; align-items:center; gap:8px"><i style="width:20px; height:20px; border-radius:6px; background:#F1867B"></i><span style="font-family:ui-monospace,monospace; font-size:12px">#F1867B</span></span><span style="color:#5C5548">Fallos, permisos denegados</span><span style="color:#2E7D4C; font-weight:600">5,6 · 7,1 ✓</span></div>
+    </div>
+    <div style="background:#FFF9EE; border:1px solid #EAD9BC; border-radius:16px; padding:22px 26px; font-size:14px; line-height:1.6; color:#4A4438; max-width:100%">
+      <strong style="color:#26221C">La regla del rojo.</strong> En Grabi hay dos rojos y nunca se cruzan: <span style="font-family:ui-monospace,monospace; font-size:12.5px">color.rec</span> aparece solo como <em>forma</em> (el punto, el badge ● REC, la mascota) y significa «grabando»; <span style="font-family:ui-monospace,monospace; font-size:12.5px">color.error</span> aparece solo como <em>texto con icono</em> en toasts y formularios y significa «algo falló». Un error nunca es un punto; una grabación nunca es un mensaje rojo. Ratios WCAG: primer valor = modo claro sobre su fondo, segundo = modo oscuro; «UI» = componente gráfico (mínimo 3:1), el resto texto (mínimo 4,5:1).
+    </div>
+  </section>
+
+  <!-- 04 TIPOGRAFIA -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">04</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Tipografía</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:680px">Dos familias variables, open source (OFL): <strong style="color:#26221C">Instrument Sans</strong> para UI y texto — humanista, neutra pero cálida, se siente nativa junto a SF Pro y Segoe — y <strong style="color:#26221C">Bricolage Grotesque</strong> para titulares de marketing.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:16px">
+        <div style="display:flex; flex-direction:column; gap:2px">
+          <span style="font-size:12px; font-weight:600; letter-spacing:0.08em; color:#9A917F">ESCALA UI · INSTRUMENT SANS</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px">
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.title-1 · 32/38 · 700</span><span style="font-size:32px; font-weight:700; line-height:1.2">Graba tu pantalla</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.title-2 · 24/30 · 600</span><span style="font-size:24px; font-weight:600">Fuentes de captura</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.title-3 · 20/26 · 600</span><span style="font-size:20px; font-weight:600">Cámara selfie</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.body-lg · 16/24 · 400</span><span style="font-size:16px">Todo lo que grabas se queda en tu equipo.</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.body · 14/21 · 400</span><span style="font-size:14px">Base de la UI de escritorio. Etiquetas, listas, ajustes.</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.caption · 13/18 · 400</span><span style="font-size:13px; color:#5C5548">Texto de ayuda bajo un control.</span></div>
+          <div style="display:flex; align-items:baseline; gap:16px"><span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F; width:150px; flex-shrink:0">type.micro · 12/16 · 500</span><span style="font-size:12px; font-weight:500; color:#5C5548">BADGES · ATAJOS · ⌘⇧2</span></div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px">
+        <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:12px; flex:1">
+          <span style="font-size:12px; font-weight:600; letter-spacing:0.08em; color:#9A917F">DISPLAY MARKETING · BRICOLAGE GROTESQUE</span>
+          <div style="font-family:'Bricolage Grotesque',sans-serif; font-size:44px; font-weight:780; line-height:1.05; text-wrap:pretty">Grabar no debería ser difícil.</div>
+          <span style="font-family:ui-monospace,monospace; font-size:11.5px; color:#9A917F">type.display · 40–64/1.05 · 780 · solo marketing, nunca en la app</span>
+        </div>
+        <div style="background:#FFF9EE; border:1px solid #EAD9BC; border-radius:16px; padding:22px 24px; font-size:13.5px; line-height:1.6; color:#4A4438">
+          <strong style="color:#26221C">Nota HIG:</strong> en la app de macOS la UI usa <strong>SF Pro del sistema</strong> con esta misma escala y pesos — es lo que las HIG piden y lo que se siente nativo. Instrument Sans cubre Windows, Linux, web y todo el marketing. Números tabulares (<span style="font-family:ui-monospace,monospace; font-size:12px">tnum</span>) obligatorios en el cronómetro.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 VOZ Y TONO -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">05</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Voz y tono</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:680px">Grabi habla como una persona que te ayuda, no como un software que te informa. Cuatro reglas: tutea y habla claro; cero jerga técnica; celebra corto, sin exclamaciones dobles; sobre privacidad, honestidad literal — nunca humor.</p>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; overflow:hidden">
+      <div style="display:flex; padding:14px 24px; font-size:12px; font-weight:600; letter-spacing:0.06em; color:#9A917F; border-bottom:1px solid #EAE3D6; gap:16px">
+        <span style="width:170px; flex-shrink:0">CONTEXTO</span><span style="flex:1">ESPAÑOL</span>
+        <sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1">ENGLISH</span></sc-if>
+      </div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Botón principal</span><span style="flex:1; font-weight:600">Grabar</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">Record</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Detener</span><span style="flex:1; font-weight:600">Detener</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">Stop</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Notificación de éxito</span><span style="flex:1">¡Quedó! Tu grabación está lista · 2:34</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">Done! Your recording is ready · 2:34</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Pedir permiso de pantalla</span><span style="flex:1">Grabi necesita permiso para ver tu pantalla. Es solo para grabar — nada sale de tu equipo.</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">Grabi needs permission to see your screen. It's only for recording — nothing leaves your computer.</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Error de dispositivo</span><span style="flex:1">No encuentro tu micrófono. ¿Está conectado?</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">Can't find your microphone. Is it plugged in?</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; border-bottom:1px solid #F3EEE3; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Estado vacío</span><span style="flex:1">Aún no hay grabaciones. La primera está a un clic.</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#5C5548">No recordings yet. Your first one is a click away.</span></sc-if></div>
+      <div style="display:flex; padding:14px 24px; font-size:13.5px; line-height:1.5; gap:16px"><span style="width:170px; flex-shrink:0; color:#5C5548">Nunca decimos</span><span style="flex:1; color:#B3372B">«Error 0x80042» · «Operación fallida» · «¡¡Increíble!!» · «Upgrade a Pro» (no existe Pro)</span><sc-if value="{{ ingles }}" hint-placeholder-val="{{ true }}"><span style="flex:1; color:#B3372B">"Error 0x80042" · "Operation failed" · "Amazing!!" · "Upgrade to Pro"</span></sc-if></div>
+    </div>
+  </section>
+
+  <!-- 06 ICONOGRAFIA -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">06</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Iconografía</h2>
+      <p style="margin:0; font-size:15px; color:#5C5548; max-width:720px">Base: <strong style="color:#26221C">Lucide</strong> (licencia ISC, retícula 24 px, trazo 2 px, remates redondos — cálido y con ~1 500 iconos). Se evaluó Phosphor (6 pesos: flexibilidad que no necesitamos y un riesgo de inconsistencia) y Heroicons (estética más dura, menos cobertura). Los custom siguen la retícula y el trazo de Lucide.</p>
+    </div>
+    <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:18px">
+      <span style="font-size:12px; font-weight:600; letter-spacing:0.08em; color:#9A917F">ÍCONOS CUSTOM · 24 PX · TRAZO 2 · CURRENTCOLOR</span>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:14px">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4" fill="#E5483F" stroke="none"></circle></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">grabar</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">pausa</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2.5"></rect></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">detener</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">pantalla</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="14" rx="2"></rect><line x1="4" y1="9.5" x2="20" y2="9.5"></line><circle cx="7" cy="7.3" r="0.5" fill="#26221C"></circle></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">ventana</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><path d="M4 9 V6 a2 2 0 0 1 2 -2 h3"></path><path d="M15 4 h3 a2 2 0 0 1 2 2 v3"></path><path d="M20 15 v3 a2 2 0 0 1 -2 2 h-3"></path><path d="M9 20 H6 a2 2 0 0 1 -2 -2 v-3"></path></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">región</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">micrófono</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 h3 l4 -4 v14 l-4 -4 H4 z"></path><path d="M15 9 a4.5 4.5 0 0 1 0 6"></path><path d="M18 6.5 a8.5 8.5 0 0 1 0 11"></path></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">audio-sistema</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">cam-círculo</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"></rect><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18.5 a5.5 5.5 0 0 1 9 0"></path></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">cam-cuadrado</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"></rect><circle cx="12" cy="10.5" r="2"></circle><path d="M8.5 16 a4.5 4.5 0 0 1 7 0"></path></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">cam-rect</span></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px 6px; background:#FAF7F1; border-radius:12px"><svg viewBox="0 0 40 24" width="46" height="28" fill="none"><circle cx="7" cy="12" r="4.5" fill="#E5483F"></circle><text x="14" y="15.5" font-family="Instrument Sans,sans-serif" font-size="9" font-weight="700" fill="#26221C">REC</text></svg><span style="font-family:ui-monospace,monospace; font-size:11px; color:#5C5548">badge-rec</span></div>
+      </div>
+      <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">Reglas: el relleno rojo solo existe en <span style="font-family:ui-monospace,monospace; font-size:12px">grabar</span> y <span style="font-family:ui-monospace,monospace; font-size:12px">badge-rec</span>; todo lo demás hereda <span style="font-family:ui-monospace,monospace; font-size:12px">currentColor</span>. Área de toque mínima 44×44 px aunque el glifo mida 24.</p>
+    </div>
+  </section>
+
+  <!-- 07 APLICACIONES -->
+  <section style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:6px">
+      <span style="font-family:ui-monospace,monospace; font-size:13px; color:#9A917F">07</span>
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; margin:0">Aplicaciones</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Ícono de app macOS (squircle)</strong>
+        <div style="display:flex; align-items:flex-end; gap:18px">
+          <div style="width:96px; height:96px; border-radius:22px; background:#FFF6F0; border:1px solid #EAE3D6; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="62" height="62"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div>
+          <div style="width:48px; height:48px; border-radius:11px; background:#FFF6F0; border:1px solid #EAE3D6; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="32" height="32"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg></div>
+          <div style="width:24px; height:24px; border-radius:6px; background:#FFF6F0; border:1px solid #EAE3D6; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="17" height="17"><circle cx="48" cy="48" r="42" fill="#E5483F"></circle><circle cx="36" cy="44" r="7" fill="#FFF6F0"></circle><circle cx="60" cy="44" r="7" fill="#FFF6F0"></circle></svg></div>
+        </div>
+        <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">Fondo marfil cálido <span style="font-family:ui-monospace,monospace; font-size:12px">#FFF6F0</span>, mascota al 65% del lienzo. En la barra de menú: versión plantilla monocroma del sistema.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Avatar redes sociales</strong>
+        <div style="display:flex; align-items:center; gap:18px">
+          <div style="width:84px; height:84px; border-radius:50%; background:#E5483F; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="84" height="84"><circle cx="37" cy="43" r="6" fill="#FFF6F0"></circle><circle cx="59" cy="43" r="6" fill="#FFF6F0"></circle><rect x="38" y="59" width="20" height="7.5" rx="3.75" fill="#FFF6F0"></rect></svg></div>
+          <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">El círculo del avatar <em>es</em> el cuerpo de Grabi — la cara va directa sobre el rojo, sin logo dentro de logo.</p>
+        </div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Favicon — la pestaña como indicador</strong>
+        <div style="display:flex; flex-direction:column; gap:10px">
+          <div style="display:flex; align-items:center; gap:9px; background:#F3EEE3; border:1px solid #EAE3D6; border-bottom:none; border-radius:10px 10px 0 0; padding:8px 14px; width:fit-content; max-width:100%">
+            <svg viewBox="0 0 96 96" width="16" height="16"><circle cx="48" cy="48" r="42" fill="#E5483F"></circle><circle cx="36" cy="44" r="7" fill="#FFF6F0"></circle><circle cx="60" cy="44" r="7" fill="#FFF6F0"></circle></svg>
+            <span style="font-size:12.5px; color:#4A4438">grabi — graba tu pantalla gratis</span><span style="font-size:12px; color:#9A917F">×</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; background:#F3EEE3; border:1px solid #EAE3D6; border-bottom:none; border-radius:10px 10px 0 0; padding:8px 14px; width:fit-content; max-width:100%">
+            <svg viewBox="0 0 96 96" width="16" height="16"><circle cx="48" cy="48" r="42" fill="#2E7D4C"></circle><circle cx="36" cy="44" r="7" fill="#FFF6F0"></circle><circle cx="60" cy="44" r="7" fill="#FFF6F0"></circle></svg>
+            <span style="font-size:12.5px; color:#4A4438">grabi · listo para grabar</span><span style="font-size:12px; color:#9A917F">×</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:9px; background:#F3EEE3; border:1px solid #EAE3D6; border-bottom:none; border-radius:10px 10px 0 0; padding:8px 14px; width:fit-content; max-width:100%">
+            <span style="width:14px; height:14px; border-radius:50%; background:#E5483F; flex-shrink:0; animation:recPulse 1.6s ease-in-out infinite"></span>
+            <span style="font-size:12.5px; color:#4A4438; font-weight:600">grabando · 02:14</span><span style="font-size:12px; color:#9A917F">×</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">El favicon no es decoración: en la web app sigue el semáforo. Verde = listo, rojo pulsando = grabando — sabes desde cualquier pestaña si sigues grabando. A 16 px la cara son solo ojos.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Cronómetro flotante (adelanto Fase 2)</strong>
+        <div style="display:flex; flex-direction:column; gap:14px; align-items:center; padding:10px 0">
+          <div style="display:flex; align-items:center; gap:14px; background:#26221C; border-radius:99px; padding:10px 18px 10px 20px; box-shadow:0 8px 24px rgba(38,34,28,0.28)">
+            <span style="width:11px; height:11px; border-radius:50%; background:#FF6B5E; animation:recPulse 1.6s ease-in-out infinite"></span>
+            <span style="font-size:20px; font-weight:600; color:#F2EDE4; font-variant-numeric:tabular-nums; letter-spacing:0.02em">12:34</span>
+            <span style="width:1px; height:22px; background:#3A342C"></span>
+            <span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #3A342C; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#F2EDE4" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+            <span style="width:30px; height:30px; border-radius:50%; background:#FF6B5E; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="7" y="7" width="10" height="10" rx="2" fill="#26221C"></rect></svg></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:99px; padding:10px 18px 10px 20px; box-shadow:0 6px 18px rgba(38,34,28,0.10)">
+            <span style="width:11px; height:11px; border-radius:50%; background:#E5483F; animation:recPulse 1.6s ease-in-out infinite"></span>
+            <span style="font-size:20px; font-weight:600; color:#26221C; font-variant-numeric:tabular-nums; letter-spacing:0.02em">12:34</span>
+            <span style="width:1px; height:22px; background:#EAE3D6"></span>
+            <span style="width:30px; height:30px; border-radius:50%; border:1.5px solid #EAE3D6; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#26221C" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+            <span style="width:30px; height:30px; border-radius:50%; background:#C93A32; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14"><rect x="7" y="7" width="10" height="10" rx="2" fill="#FFFFFF"></rect></svg></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">Números tabulares (<span style="font-family:ui-monospace,monospace; font-size:12px">tnum</span>), punto pulsando en sincronía con la mascota (1,6 s), arrastrable. El componente completo, con todos sus estados, se especifica en la Fase 2.</p>
+      </div>
+      <div style="grid-column:1/-1; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Banner (redes / cabecera web)</strong>
+        <div style="border-radius:12px; background:#FAF7F1; border:1px solid #EAE3D6; padding:36px 40px; display:flex; align-items:center; justify-content:space-between; gap:24px; overflow:hidden; position:relative">
+          <div style="display:flex; flex-direction:column; gap:10px; position:relative; z-index:1">
+            <div style="display:flex; align-items:center; gap:10px">
+              <svg viewBox="0 0 96 96" width="34" height="34"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg>
+              <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:26px; font-weight:780">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></span>
+            </div>
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:30px; font-weight:720; line-height:1.1">Graba tu pantalla. Gratis, sin límites.</span>
+          </div>
+          <div style="display:flex; gap:14px; align-items:center; flex-shrink:0">
+            <span style="width:14px; height:14px; border-radius:50%; background:#E5483F; opacity:0.25"></span>
+            <span style="width:22px; height:22px; border-radius:50%; background:#E5483F; opacity:0.45"></span>
+            <span style="width:34px; height:34px; border-radius:50%; background:#E5483F; opacity:0.7"></span>
+            <svg viewBox="0 0 96 96" width="56" height="56"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><path d="M38 57 q10 11 20 0" fill="none" stroke="#FFF6F0" stroke-width="5" stroke-linecap="round"></path></svg>
+          </div>
+        </div>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Plantilla PDF promocional</strong>
+        <div style="width:232px; background:#FAF7F1; border:1px solid #EAE3D6; border-radius:8px; padding:20px 18px; display:flex; flex-direction:column; gap:12px; align-self:center">
+          <div style="display:flex; align-items:center; gap:6px">
+            <svg viewBox="0 0 96 96" width="16" height="16"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="6" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="6" fill="#FFF6F0"></circle></svg>
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:12px; font-weight:780">grabi</span>
+          </div>
+          <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:16px; font-weight:720; line-height:1.15">Grabi para educadores</span>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <span style="height:5px; background:#EAE3D6; border-radius:3px; width:100%"></span>
+            <span style="height:5px; background:#EAE3D6; border-radius:3px; width:92%"></span>
+            <span style="height:5px; background:#EAE3D6; border-radius:3px; width:96%"></span>
+            <span style="height:5px; background:#EAE3D6; border-radius:3px; width:60%"></span>
+          </div>
+          <div style="display:flex; gap:8px">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px"><span style="height:4px; background:#EAE3D6; border-radius:3px"></span><span style="height:4px; background:#EAE3D6; border-radius:3px; width:80%"></span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px"><span style="height:4px; background:#EAE3D6; border-radius:3px"></span><span style="height:4px; background:#EAE3D6; border-radius:3px; width:70%"></span></div>
+          </div>
+          <div style="margin-top:4px; background:#26221C; border-radius:5px; padding:7px 10px; display:flex; align-items:center; justify-content:space-between">
+            <span style="font-size:8px; color:#F2EDE4; font-weight:600">grabi.app · gratis para siempre</span>
+            <span style="width:7px; height:7px; border-radius:50%; background:#FF6B5E"></span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">Carta/A4: cabecera con logo pequeño, titular Bricolage, cuerpo Instrument Sans, pie oscuro con dominio.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px">
+        <strong style="font-size:14px">Ad (cuadrado 1:1)</strong>
+        <div style="width:232px; aspect-ratio:1; background:#FFF6F0; border:1px solid #EAE3D6; border-radius:8px; padding:22px; display:flex; flex-direction:column; justify-content:space-between; align-self:center">
+          <svg viewBox="0 0 96 96" width="48" height="48"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M40 57 q8 9 16 0" fill="none" stroke="#FFF6F0" stroke-width="3.5" stroke-linecap="round"></path></svg>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:19px; font-weight:780; line-height:1.1">Grabar no debería ser difícil.</span>
+            <span style="font-size:11px; color:#5C5548">Gratis. Sin límites. Sin cuenta.</span>
+            <span style="align-self:flex-start; background:#C93A32; color:#FFFFFF; font-size:11px; font-weight:600; padding:7px 14px; border-radius:99px">Descargar grabi</span>
+          </div>
+        </div>
+        <p style="margin:0; font-size:13px; line-height:1.55; color:#5C5548">Fórmula del ad: mascota + una frase Bricolage + tres palabras de prueba + botón. Nada más.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="border-top:1px solid #EAE3D6; padding-top:24px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#9A917F">
+    <span>Manual de marca Grabi · v1 · Fase 1</span>
+    <span>Siguiente: Fase 2 — Sistema de diseño y tokens</span>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180},&quot;mostrarIngles&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Microcopy&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { ingles: this.props.mostrarIngles ?? true };
+  }
+}
+</script>
+</body>
+</html>
