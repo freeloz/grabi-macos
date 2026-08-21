@@ -41,6 +41,25 @@ shasum -a 256 Grabi-*.dmg   # must match the published .sha256
 > Apple notarization yet). The first time, right-click → Open. The official
 > site is [grabi.net](https://grabi.net).
 
+## Updates
+
+From 0.1.4 on, Grabi updates itself with [Sparkle](https://sparkle-project.org):
+a quiet daily check against the EdDSA-signed feed at
+`https://dl.grabi.net/macos/appcast.xml`, plus a manual "Check for updates…"
+in Settings. Release architecture (one-command publishing, feed layout, key
+custody): [docs/RELEASING.md](docs/RELEASING.md). Homebrew packaging is
+prepared in [packaging/homebrew/](packaging/homebrew/) (publishes after
+notarization).
+
+## Reporting problems
+
+Settings → "Report a problem…" opens a pre-filled GitHub issue with your app
+version, macOS version, chip and language (nothing else). Updater events are
+logged to `~/Library/Logs/Grabi/updater.log` — short lines, no personal data —
+attach it if your report is about updates. Or just open an
+[issue](https://github.com/freeloz/grabi-macos/issues/new/choose) — any
+language is welcome.
+
 ## Build and run
 
 Requirements: macOS 13+, Swift 5.9+ (the Command Line Tools are enough), no
