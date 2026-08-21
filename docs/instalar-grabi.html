@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo instalar Grabi (beta)</title>
+<style>
+  /* Tokens del manual de marca Grabi (Fase 1) */
+  body { margin:0; background:#FAF7F1; color:#26221C;
+         font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         -webkit-font-smoothing:antialiased; line-height:1.6; }
+  .page { max-width:640px; margin:0 auto; padding:48px 24px 80px; }
+  h1 { font-size:28px; font-weight:800; margin:16px 0 6px; }
+  h2 { font-size:18px; font-weight:700; margin:36px 0 10px; }
+  p { margin:0 0 12px; font-size:15px; }
+  .sub { color:#5C5548; }
+  .card { background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px;
+          padding:16px 20px; margin:10px 0; }
+  .step { display:flex; gap:14px; align-items:flex-start; }
+  .num { flex-shrink:0; width:26px; height:26px; border-radius:50%;
+         background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700;
+         display:flex; align-items:center; justify-content:center; margin-top:2px; }
+  .honest { background:#FFF9EE; border:1px solid #EAD9BC; border-radius:14px;
+            padding:14px 18px; font-size:14px; color:#4A4438; }
+  kbd, .ui { background:#F3EEE3; border-radius:6px; padding:1px 7px;
+             font-size:13px; font-weight:600; white-space:nowrap; }
+  .mascota { width:72px; height:72px; }
+  footer { margin-top:44px; padding-top:18px; border-top:1px solid #EAE3D6;
+           font-size:13px; color:#9A917F; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <svg class="mascota" viewBox="0 0 96 96" aria-hidden="true">
+    <path d="M73 52 q13 -5 11 -20" fill="none" stroke="#E5483F" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="84" cy="30" r="5.5" fill="#E5483F"/>
+    <circle cx="48" cy="50" r="30" fill="#E5483F"/>
+    <circle cx="40" cy="45" r="4.2" fill="#FFF6F0"/>
+    <path d="M52 45 q4 -4 8 0" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+
+  <h1>Hola, soy Grabi</h1>
+  <p class="sub">Gracias por probar la beta. Instalar toma dos minutos — y la
+  primera vez macOS te pedirá un paso extra. Aquí va todo, sin drama.</p>
+
+  <div class="honest">
+    <strong>¿Por qué macOS muestra un aviso al abrirla?</strong> Grabi está
+    en beta y todavía no tiene la certificación de Apple (llegará con la
+    versión pública). El aviso es normal y esperado: macOS solo te pide
+    confirmar que confías en nosotros. Nada sale de tu Mac — Grabi no usa
+    internet.
+  </div>
+
+  <h2>1 · Instalar</h2>
+  <div class="card step"><span class="num">1</span><p>Abre el archivo
+    <span class="ui">Grabi-0.1.1.dmg</span> que te enviamos.</p></div>
+  <div class="card step"><span class="num">2</span><p>En la ventana que
+    aparece, <strong>arrastra Grabi a la carpeta Aplicaciones</strong>
+    (la flecha te lo indica). Ya puedes expulsar el disco.</p></div>
+
+  <h2>2 · El primer arranque (el paso extra)</h2>
+  <div class="card step"><span class="num">1</span><p>Abre <strong>Grabi</strong>
+    desde Aplicaciones. macOS mostrará un aviso tipo
+    <em>«Apple no pudo verificar que "Grabi" esté libre de software
+    malicioso»</em> y no la abrirá. Pulsa <span class="ui">OK</span> /
+    <span class="ui">Listo</span> — <strong>no</strong> elijas «Trasladar a
+    la papelera».</p></div>
+  <div class="card step"><span class="num">2</span><p>Abre
+    <span class="ui">Ajustes del Sistema → Privacidad y seguridad</span> y
+    baja hasta la sección <strong>Seguridad</strong>: verás
+    <em>«Se bloqueó "Grabi" para proteger tu Mac»</em>. Pulsa
+    <span class="ui">Abrir de todos modos</span>.</p></div>
+  <div class="card step"><span class="num">3</span><p>macOS pedirá tu
+    contraseña o Touch ID y una última confirmación:
+    <span class="ui">Abrir de todos modos</span>. Esto se hace
+    <strong>una sola vez</strong> — a partir de aquí, Grabi abre normal.</p></div>
+
+  <h2>3 · Los permisos de grabación</h2>
+  <div class="card step"><span class="num">1</span><p>Grabi vive en la
+    <strong>barra de menú</strong> (el punto con anillo, arriba a la
+    derecha) — no aparece en el Dock. Al abrirla, te saluda y te guía.</p></div>
+  <div class="card step"><span class="num">2</span><p>Acepta los permisos de
+    <strong>Cámara</strong> y <strong>Micrófono</strong> cuando macOS los
+    pida.</p></div>
+  <div class="card step"><span class="num">3</span><p>Para la
+    <strong>Grabación de pantalla</strong>, macOS te lleva a
+    <span class="ui">Ajustes del Sistema → Privacidad y seguridad →
+    Grabación de pantalla y audio del sistema</span>: activa
+    <strong>Grabi</strong> y vuelve a abrirla. Es solo para grabar — nada
+    sale de tu Mac.</p></div>
+
+  <h2>¿Y para desinstalar?</h2>
+  <p class="sub">Arrastra <strong>Grabi</strong> de Aplicaciones a la
+  papelera. Tus grabaciones se quedan contigo en
+  <span class="ui">Película​s → Grabaciones</span> (o la carpeta que hayas
+  elegido en Ajustes). Si quieres borrar también las preferencias:
+  <span class="ui">~/Library/Preferences/com.ivan.recordapp.plist</span>.</p>
+
+  <footer>Grabi 0.1.1 beta · gratis, sin límites, sin cuenta ·
+  ¿Algo no salió como aquí dice? Escríbenos y lo arreglamos.</footer>
+
+</div>
+</body>
+</html>
