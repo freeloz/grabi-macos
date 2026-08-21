@@ -133,7 +133,7 @@ public final class RecordingEngine: ObservableObject {
             self?.onSystemAudioLevel?(level)
         }
         pipeline.onFatalError = { [weak self] error in
-            Task { await self?.handleFatalError(error) }
+            Task { [weak self] in await self?.handleFatalError(error) }
         }
         do {
             try await pipeline.start()
@@ -221,7 +221,7 @@ public final class RecordingEngine: ObservableObject {
                 self?.onSystemAudioLevel?(level)
             }
             pipeline.onFatalError = { [weak self] error in
-                Task { await self?.handleFatalError(error) }
+                Task { [weak self] in await self?.handleFatalError(error) }
             }
             try await pipeline.start()
             self.pipeline = pipeline
