@@ -98,6 +98,23 @@ para verificar fidelidad.
   calidad por píxel, con tope de 32 Mbps). El aspecto siempre se conserva.
 - **Carpeta de grabaciones** y **atajos globales** (⌘⇧2 · ⌘⇧P).
 
+## Idiomas
+
+Grabi habla **inglés** (idioma por defecto), **español**, **portugués**,
+**francés** y **alemán**, siguiendo automáticamente el idioma del sistema
+(sin selector propio). Los mensajes de permisos usan las rutas reales de
+Ajustes del Sistema en cada idioma. La carpeta (`~/Movies/Grabi`) y los
+nombres de archivo (`Grabi 2026-08-20 18.30.45.mov`) son neutros a
+propósito: no cambian si cambias de idioma.
+
+**Contribuir una traducción**: cada target tiene sus catálogos en
+`Sources/<Target>/Resources/<idioma>.lproj/Localizable.strings` (más
+`Support/InfoPlist/` para los diálogos de permisos). Copia la carpeta `en.lproj`
+al código de tu idioma, traduce con la voz de la marca (cercana, simple,
+honesta — ver `design/`), respeta los marcadores `%@`/`%d`, y verifica el
+resultado con la herramienta de capturas:
+`.build/debug/RecordApp --capturas /tmp/i18n -AppleLanguages "(xx)"`.
+
 ## Permisos
 
 Grabi necesita Grabación de Pantalla (incluye el audio del sistema), Cámara

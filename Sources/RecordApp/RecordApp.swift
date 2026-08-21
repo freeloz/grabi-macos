@@ -10,6 +10,12 @@ enum AppShared {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Verificación i18n: renderizar superficies a PNG y salir.
+        if let idx = CommandLine.arguments.firstIndex(of: "--capturas"),
+           CommandLine.arguments.count > idx + 1 {
+            Capturas.renderAll(to: CommandLine.arguments[idx + 1], model: AppShared.model)
+            exit(0)
+        }
         NSApp.setActivationPolicy(.accessory)
         // Primer arranque: onboarding de 3 pantallas que termina grabando.
         let model = AppShared.model

@@ -41,7 +41,7 @@ final class OnboardingWindowController: TitledWindowController {
     }
 }
 
-private struct OnboardingView: View {
+struct OnboardingView: View {
     @ObservedObject var model: GrabiAppModel
     let controller: OnboardingWindowController
     @State private var step = 0
@@ -305,12 +305,12 @@ final class SettingsWindowController: TitledWindowController {
     private let gallery = GalleryWindowController()
 
     func show(model: GrabiAppModel) {
-        present(title: L("app.ajustes.titulo"), size: NSSize(width: 420, height: 430),
+        present(title: L("app.ajustes.titulo"), size: NSSize(width: 420, height: 470),
                 content: SettingsView(model: model, gallery: gallery))
     }
 }
 
-private struct SettingsView: View {
+struct SettingsView: View {
     @ObservedObject var model: GrabiAppModel
     let gallery: GalleryWindowController
 
@@ -386,7 +386,7 @@ private struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 420, height: 430)
+        .frame(width: 420, height: 470)
         .background(GrabiColor.bg)
     }
 
