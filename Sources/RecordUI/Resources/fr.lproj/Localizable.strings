@@ -1,0 +1,9 @@
+"ui.grabar" = "Enregistrer";
+"ui.pausar" = "Pause";
+"ui.detener" = "Arrêter";
+"ui.reanudar" = "Reprendre";
+"ui.faltaPermiso" = "Autorisation requise ·";
+"ui.darPermiso" = "Autoriser…";
+"ui.a11y.grabando" = "Enregistrement, %@";
+"ui.a11y.pausado" = "En pause, %@. Reprendre";
+"ui.a11y.pillPausa" = "Enregistrement en pause, %@";

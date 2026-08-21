@@ -1,0 +1,9 @@
+"ui.grabar" = "Record";
+"ui.pausar" = "Pause";
+"ui.detener" = "Stop";
+"ui.reanudar" = "Resume";
+"ui.faltaPermiso" = "Permission needed ·";
+"ui.darPermiso" = "Grant permission…";
+"ui.a11y.grabando" = "Recording, %@";
+"ui.a11y.pausado" = "Paused, %@. Resume";
+"ui.a11y.pillPausa" = "Recording paused, %@";

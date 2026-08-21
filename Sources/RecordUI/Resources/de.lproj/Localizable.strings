@@ -1,0 +1,9 @@
+"ui.grabar" = "Aufnehmen";
+"ui.pausar" = "Pause";
+"ui.detener" = "Stopp";
+"ui.reanudar" = "Fortsetzen";
+"ui.faltaPermiso" = "Berechtigung fehlt ·";
+"ui.darPermiso" = "Erlauben…";
+"ui.a11y.grabando" = "Aufnahme, %@";
+"ui.a11y.pausado" = "Pausiert, %@. Fortsetzen";
+"ui.a11y.pillPausa" = "Aufnahme pausiert, %@";

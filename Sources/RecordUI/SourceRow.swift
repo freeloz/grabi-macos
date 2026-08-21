@@ -88,8 +88,8 @@ public struct SourceRow: View {
         switch status {
         case .sinPermiso:
             HStack(spacing: 3) {
-                Text("Falta permiso ·")
-                Text("Dar permiso…").underline()
+                Text(L("ui.faltaPermiso"))
+                Text(L("ui.darPermiso")).underline()
             }
             .font(.system(size: 11.5, weight: .medium))
             .foregroundStyle(GrabiColor.advertencia)

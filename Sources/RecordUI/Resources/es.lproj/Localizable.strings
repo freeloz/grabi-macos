@@ -1,0 +1,9 @@
+"ui.grabar" = "Grabar";
+"ui.pausar" = "Pausar";
+"ui.detener" = "Detener";
+"ui.reanudar" = "Reanudar";
+"ui.faltaPermiso" = "Falta permiso ·";
+"ui.darPermiso" = "Dar permiso…";
+"ui.a11y.grabando" = "Grabando, %@";
+"ui.a11y.pausado" = "En pausa, %@. Reanudar";
+"ui.a11y.pillPausa" = "Grabación en pausa, %@";

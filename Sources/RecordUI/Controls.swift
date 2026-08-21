@@ -93,7 +93,7 @@ public struct RecBadge: View {
         .padding(.horizontal, 13)
         .padding(.vertical, 6)
         .background(Capsule().fill(GrabiColor.inkFixed))
-        .accessibilityLabel("Grabando, \(elapsed)")
+        .accessibilityLabel(String(format: L("ui.a11y.grabando"), elapsed))
     }
 }
 
