@@ -5,50 +5,50 @@ import AVFoundation
 import RecordEngine
 import RecordUI
 
-/// Modo de captura elegido en el segmented del panel.
+/// Capture mode chosen in the panel's segmented control.
 enum CaptureMode: String, CaseIterable {
-    case pantalla, ventana, region
+    case screen, window, region
 }
 
-/// Calidad de grabación (Ajustes, v0.1.1). "Estándar" es el comportamiento
-/// de v0.1; "Nítida" captura a la resolución nativa de la fuente (hasta 4K)
-/// y el motor escala el bitrate por área para mantener la calidad por píxel.
+/// Recording quality (Settings, v0.1.1). "Standard" is the v0.1 behavior;
+/// "Sharp" captures at the source's native resolution (up to 4K) and the
+/// engine scales the bitrate by area to keep the per-pixel quality.
 enum RecordingQuality: String, CaseIterable, Identifiable {
-    case estandar, nitida
+    case standard, sharp
 
     var id: String { rawValue }
 
     var displayName: String {
         switch self {
-        case .estandar: return L("app.quality.standard")
-        case .nitida: return L("app.quality.sharp")
+        case .standard: return L("app.quality.standard")
+        case .sharp: return L("app.quality.sharp")
         }
     }
 
-    /// Pista honesta del costo (medido: ~2,9 GB/h en 1080p con contenido en
-    /// movimiento; en nítida depende de la fuente — cifra por validar).
+    /// Honest hint about the cost (measured: ~2.9 GB/h at 1080p with moving
+    /// content; in sharp it depends on the source — figure pending validation).
     var hint: String {
         switch self {
-        case .estandar: return L("app.quality.standard.hint")
-        case .nitida: return L("app.quality.sharp.hint")
+        case .standard: return L("app.quality.standard.hint")
+        case .sharp: return L("app.quality.sharp.hint")
         }
     }
 
-    /// Tope de ancho en píxeles; el aspecto siempre se conserva.
+    /// Width cap in pixels; the aspect ratio is always preserved.
     var targetWidth: Int {
         switch self {
-        case .estandar: return 1920
-        case .nitida: return 3840
+        case .standard: return 1920
+        case .sharp: return 3840
         }
     }
 }
 
-/// Estado de la UI de Grabi: fuentes, captura, cámara, grabación y ventanas.
+/// Grabi UI state: sources, capture, camera, recording, and windows.
 @MainActor
 final class GrabiAppModel: ObservableObject {
     let engine = RecordingEngine()
 
-    // MARK: Fuentes
+    // MARK: Sources
     @Published var screenEnabled = true { didSet { sourcesChanged() } }
     @Published var cameraEnabled = true { didSet { sourcesChanged() } }
     @Published var micEnabled = true { didSet { sourcesChanged() } }
@@ -57,15 +57,15 @@ final class GrabiAppModel: ObservableObject {
     @Published private(set) var preflight: PreflightReport?
     @Published private(set) var celebrating: Set<RecordingSource> = []
 
-    // MARK: Captura
-    @Published var captureMode: CaptureMode = .pantalla { didSet { sourcesChanged() } }
+    // MARK: Capture
+    @Published var captureMode: CaptureMode = .screen { didSet { sourcesChanged() } }
     @Published private(set) var availableDisplays: [DisplayInfo] = []
     @Published private(set) var availableWindows: [WindowInfo] = []
     @Published var selectedDisplayID: CGDirectDisplayID? { didSet { sourcesChanged() } }
     @Published var selectedWindow: WindowInfo? { didSet { sourcesChanged() } }
     @Published var regionRect: CGRect? { didSet { sourcesChanged() } }
 
-    // MARK: Cámara (persistida entre sesiones)
+    // MARK: Camera (persisted across sessions)
     @Published var cameraLayout: CameraLayout = GrabiAppModel.loadCameraLayout() {
         didSet {
             engine.updateCameraLayout(cameraLayout)
@@ -73,7 +73,7 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    // MARK: Estado de grabación
+    // MARK: Recording state
     @Published private(set) var engineState: RecordingState = .idle
     @Published private(set) var elapsed: TimeInterval = 0
     @Published private(set) var countdown: Int?
@@ -83,11 +83,11 @@ final class GrabiAppModel: ObservableObject {
     @Published private(set) var systemLevel: Double = 0
     @Published var showUnavailableDialog = false
     @Published private(set) var unavailableSources: [RecordingSource] = []
-    /// Controles en vivo durante la grabación (pastilla flotante).
+    /// Live controls during recording (floating pill).
     @Published private(set) var micMuted = false
     @Published private(set) var cameraHidden = false
 
-    // MARK: Preferencias
+    // MARK: Preferences
     @Published var destinationFolder: URL {
         didSet { UserDefaults.standard.set(destinationFolder.path, forKey: "destinationFolder") }
     }
@@ -97,11 +97,11 @@ final class GrabiAppModel: ObservableObject {
     @Published var quality: RecordingQuality {
         didSet {
             UserDefaults.standard.set(quality.rawValue, forKey: "recordingQuality")
-            sourcesChanged() // la vista previa se reinicia a la nueva resolución
+            sourcesChanged() // the preview restarts at the new resolution
         }
     }
 
-    // Ventanas gestionadas
+    // Managed windows
     let previewController = PreviewWindowController()
     let pillController = PillWindowController()
     let cameraWindowController = CameraWindowController()
@@ -137,7 +137,7 @@ final class GrabiAppModel: ObservableObject {
             destinationFolder = defaultFolder
         }
         onboardingDone = UserDefaults.standard.bool(forKey: "onboardingDone")
-        quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .estandar
+        quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .standard
 
         engine.$state
             .receive(on: DispatchQueue.main)
@@ -151,7 +151,7 @@ final class GrabiAppModel: ObservableObject {
             DispatchQueue.main.async { self?.systemLevel = level }
         }
 
-        // Atajos globales: ⌘⇧2 grabar/detener · ⌘⇧P pausar/reanudar.
+        // Global shortcuts: ⌘⇧2 record/stop · ⌘⇧P pause/resume.
         hotkeys.onToggleRecord = { [weak self] in
             Task { @MainActor in self?.toggleRecording() }
         }
@@ -162,8 +162,8 @@ final class GrabiAppModel: ObservableObject {
 
         NotificationManager.shared.configure(model: self)
 
-        // Al volver de Ajustes del Sistema, re-chequear permisos y celebrar
-        // los recién concedidos (Fase 3 §04).
+        // On returning from System Settings, re-check permissions and
+        // celebrate the newly granted ones (Phase 3 §04).
         NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -173,7 +173,7 @@ final class GrabiAppModel: ObservableObject {
         Task { await refreshAll(applyDefaults: true) }
     }
 
-    // MARK: - Preflight y contenido
+    // MARK: - Preflight and content
 
     func refreshAll(applyDefaults: Bool = false) async {
         let old = preflight
@@ -187,7 +187,7 @@ final class GrabiAppModel: ObservableObject {
             systemAudioEnabled = report.systemAudio.isUsable
         }
 
-        // Celebración 2 s cuando un permiso pasa de denegado a concedido.
+        // 2 s celebration when a permission goes from denied to granted.
         if let old {
             for source in RecordingSource.allCases {
                 if !old.status(for: source).isUsable, report.status(for: source).isUsable {
@@ -222,16 +222,16 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    // MARK: - Nombres para subtítulos
+    // MARK: - Names for subtitles
 
     var captureLabel: String {
         switch captureMode {
-        case .pantalla:
+        case .screen:
             if let id = selectedDisplayID, let d = availableDisplays.first(where: { $0.id == id }), !d.isMain {
                 return d.name
             }
             return L("app.capture.fullScreen")
-        case .ventana:
+        case .window:
             if let w = selectedWindow { return LF("app.capture.window", w.appName) }
             return L("app.capture.chooseWindow")
         case .region:
@@ -249,13 +249,13 @@ final class GrabiAppModel: ObservableObject {
         AVCaptureDevice.default(for: .audio)?.localizedName ?? RecordingSource.microphone.displayName
     }
 
-    // MARK: - Configuración
+    // MARK: - Configuration
 
     private var currentTarget: CaptureTarget {
         switch captureMode {
-        case .pantalla:
+        case .screen:
             return .display(selectedDisplayID)
-        case .ventana:
+        case .window:
             if let w = selectedWindow { return .window(w.id) }
             return .display(selectedDisplayID)
         case .region:
@@ -266,9 +266,9 @@ final class GrabiAppModel: ObservableObject {
 
     private func buildConfiguration() throws -> RecordingConfiguration {
         try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
-        // Nombre neutro con marca, idéntico en todos los idiomas (decisión
-        // v0.1.2): formato fijo, calendario/locale POSIX para que no cambie
-        // con la configuración regional.
+        // Neutral branded name, identical in every language (v0.1.2
+        // decision): fixed format, POSIX calendar/locale so it doesn't
+        // change with the regional settings.
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
@@ -284,7 +284,7 @@ final class GrabiAppModel: ObservableObject {
             cameraLayout: cameraLayout)
     }
 
-    // MARK: - Vista previa
+    // MARK: - Preview
 
     func openPreview() {
         previewController.show(model: self)
@@ -312,7 +312,7 @@ final class GrabiAppModel: ObservableObject {
         restartPreviewIfNeeded()
     }
 
-    // MARK: - Monitoreo de mic (panel abierto)
+    // MARK: - Mic monitoring (panel open)
 
     func panelAppeared() {
         Task {
@@ -330,7 +330,7 @@ final class GrabiAppModel: ObservableObject {
         Task { await engine.stopMicrophoneMonitoring() }
     }
 
-    // MARK: - Grabar
+    // MARK: - Record
 
     func toggleRecording() {
         if isActive {
@@ -340,15 +340,15 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    /// Silenciar/activar el micrófono en vivo (la pista sigue continua: se
-    /// escribe silencio real).
+    /// Mute/unmute the microphone live (the track stays continuous: real
+    /// silence is written).
     func toggleMicMuted() {
         guard isActive, micEnabled else { return }
         micMuted.toggle()
         engine.setMicrophoneMuted(micMuted)
     }
 
-    /// Apagar/encender la cámara en vivo (solo PiP; la luz se apaga de verdad).
+    /// Turn the camera off/on live (PiP only; the light actually goes off).
     func toggleCameraHidden() {
         guard isActive, cameraEnabled, screenEnabled else { return }
         cameraHidden.toggle()
@@ -390,7 +390,7 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    /// El usuario aceptó grabar sin las fuentes no disponibles.
+    /// The user agreed to record without the unavailable sources.
     func startWithoutUnavailable() {
         for source in unavailableSources {
             switch source {
@@ -407,7 +407,7 @@ final class GrabiAppModel: ObservableObject {
         startCountdown()
     }
 
-    /// Cuenta regresiva 3·2·1 con la mascota concentrándose (Fase 4: 700 ms).
+    /// 3·2·1 countdown with the mascot concentrating (Phase 4: 700 ms).
     private func startCountdown() {
         guard countdown == nil else { return }
         countdown = 3
@@ -451,14 +451,14 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    // MARK: - Interno
+    // MARK: - Internal
 
     private func engineStateChanged(_ state: RecordingState) {
         engineState = state
         switch state {
         case .recording:
             if segmentStart == nil {
-                if accumulated == 0 { elapsed = 0 } // arranque nuevo
+                if accumulated == 0 { elapsed = 0 } // fresh start
                 segmentStart = Date()
                 startTimer()
             }
@@ -466,7 +466,7 @@ final class GrabiAppModel: ObservableObject {
             if cameraEnabled { cameraWindowController.show(model: self) }
             if screenEnabled, let area = captureAreaFrame() { borderController.show(frame: area) }
         case .paused:
-            // Acumular el tramo grabado; el cronómetro se congela.
+            // Accumulate the recorded segment; the stopwatch freezes.
             if let start = segmentStart {
                 accumulated += Date().timeIntervalSince(start)
                 segmentStart = nil
@@ -510,7 +510,7 @@ final class GrabiAppModel: ObservableObject {
         return String(format: "%02d:%02d", total / 60, total % 60)
     }
 
-    // MARK: - Acciones varias
+    // MARK: - Miscellaneous actions
 
     func openRecordingsFolder() {
         NSWorkspace.shared.open(destinationFolder)
@@ -534,7 +534,7 @@ final class GrabiAppModel: ObservableObject {
         regionController.show(model: self)
     }
 
-    /// Selector visual de pantallas y ventanas (miniaturas).
+    /// Visual picker of displays and windows (thumbnails).
     func pickCaptureSource() {
         capturePickerController.show(model: self)
     }
@@ -546,9 +546,9 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    /// Área capturada en coordenadas de pantalla NS (origen abajo-izquierda,
-    /// globales). La usan el borde de grabación y el recuadro selfie flotante.
-    /// nil → no se captura pantalla (modo cámara-sola).
+    /// Captured area in NS screen coordinates (bottom-left origin, global).
+    /// Used by the recording border and the floating selfie frame.
+    /// nil → no screen is captured (camera-only mode).
     func captureAreaFrame() -> NSRect? {
         guard screenEnabled else { return nil }
 
@@ -560,22 +560,22 @@ final class GrabiAppModel: ObservableObject {
         }
 
         switch captureMode {
-        case .pantalla:
+        case .screen:
             return screen(for: selectedDisplayID)?.frame
         case .region:
             guard let rect = regionRect, let scr = screen(for: selectedDisplayID) else {
                 return screen(for: selectedDisplayID)?.frame
             }
-            // regionRect: puntos relativos a la pantalla, origen arriba-izquierda.
+            // regionRect: points relative to the screen, top-left origin.
             return NSRect(x: scr.frame.minX + rect.minX,
                           y: scr.frame.maxY - rect.minY - rect.height,
                           width: rect.width, height: rect.height)
-        case .ventana:
+        case .window:
             guard let window = selectedWindow, let primary = NSScreen.screens.first else {
                 return screen(for: nil)?.frame
             }
-            // SCWindow.frame: coordenadas CG (origen arriba-izquierda de la
-            // pantalla principal) → NS (abajo-izquierda).
+            // SCWindow.frame: CG coordinates (top-left origin of the main
+            // screen) → NS (bottom-left).
             let f = window.frame
             return NSRect(x: f.minX,
                           y: primary.frame.maxY - f.minY - f.height,
@@ -583,7 +583,7 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    // MARK: - Persistencia del layout de cámara
+    // MARK: - Camera layout persistence
 
     private static func loadCameraLayout() -> CameraLayout {
         let d = UserDefaults.standard

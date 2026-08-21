@@ -3,28 +3,28 @@ import ScreenCaptureKit
 import AVFoundation
 import CoreGraphics
 
-/// Captura pantalla/ventana/región y/o audio del sistema con ScreenCaptureKit.
+/// Captures display/window/region and/or system audio with ScreenCaptureKit.
 ///
-/// Uso: `prepare(...)` resuelve el filtro y devuelve el tamaño de salida
-/// (el motor lo necesita ANTES de crear el writer/compositor); `start()`
-/// arranca el stream.
+/// Usage: `prepare(...)` resolves the filter and returns the output size
+/// (the engine needs it BEFORE creating the writer/compositor); `start()`
+/// starts the stream.
 ///
-/// Notas:
-/// - El audio del sistema se captura con el MISMO SCStream que el video.
-///   Cuando solo se pide audio, no registramos la salida de video y pedimos
-///   frames mínimos.
-/// - Las ventanas de la propia app (controles flotantes, vista previa) se
-///   excluyen de la captura de pantalla/región vía `excludingApplications`.
-///   En captura de ventana no aplica: solo se ve la ventana elegida.
+/// Notes:
+/// - System audio is captured with the SAME SCStream as the video.
+///   When only audio is requested, we don't register the video output and
+///   ask for minimal frames.
+/// - The app's own windows (floating controls, preview) are excluded
+///   from display/region capture via `excludingApplications`.
+///   Not applicable to window capture: only the chosen window is visible.
 final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
-    /// (buffer, PTS, rect del contenido real en PÍXELES dentro del buffer).
-    /// En captura de ventana SCStream no siempre llena el buffer: dibuja la
-    /// ventana en una esquina y deja el resto vacío. El rect (de los
-    /// attachments contentRect × scaleFactor de cada frame) permite recortar
-    /// solo el contenido; nil → el frame llena el buffer.
+    /// (buffer, PTS, rect of the actual content in PIXELS within the buffer).
+    /// In window capture SCStream does not always fill the buffer: it draws
+    /// the window in a corner and leaves the rest empty. The rect (from each
+    /// frame's contentRect × scaleFactor attachments) allows cropping just
+    /// the content; nil → the frame fills the buffer.
     var onVideoFrame: ((CVPixelBuffer, CMTime, CGRect?) -> Void)?
     var onSystemAudio: ((CMSampleBuffer) -> Void)?
-    /// El stream se detuvo solo (p. ej. permiso revocado o ventana cerrada).
+    /// The stream stopped on its own (e.g. permission revoked or window closed).
     var onFatalError: ((Error) -> Void)?
 
     private var stream: SCStream?
@@ -36,8 +36,8 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
 
     private(set) var outputSize: (width: Int, height: Int) = (2, 2)
 
-    /// Resuelve el target contra el contenido compartible, arma filtro y
-    /// configuración, y devuelve el tamaño de salida del video.
+    /// Resolves the target against the shareable content, builds the filter
+    /// and configuration, and returns the video's output size.
     func prepare(target: CaptureTarget,
                  targetWidth: Int,
                  fps: Int,
@@ -61,8 +61,8 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
             return display
         }
 
-        /// Tamaño par que respeta el aspecto, con `targetWidth` como ancho
-        /// máximo (contenido más angosto se captura a 2x nativo por nitidez).
+        /// Even-numbered size that keeps the aspect, with `targetWidth` as max
+        /// width (narrower content is captured at 2x native for sharpness).
         func fittedSize(pointWidth: CGFloat, pointHeight: CGFloat) -> (Int, Int) {
             guard pointWidth > 0, pointHeight > 0 else { return (targetWidth, targetWidth * 9 / 16) }
             let pixelWidth = min(CGFloat(targetWidth), pointWidth * 2)
@@ -104,7 +104,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
                 config.sourceRect = rect
             }
         } else {
-            // Solo audio del sistema: stream de video mínimo que ignoramos.
+            // System audio only: minimal video stream that we ignore.
             config.width = 2
             config.height = 2
             config.minimumFrameInterval = CMTime(value: 1, timescale: 5)
@@ -123,10 +123,10 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         return size
     }
 
-    /// Arranca la captura. Requiere `prepare(...)` previo.
+    /// Starts the capture. Requires a prior `prepare(...)`.
     func start(captureVideo: Bool, captureAudio: Bool) async throws {
         guard let filter, let configuration else {
-            throw RecordingError.invalidState("ScreenCapturer.start sin prepare previo")
+            throw RecordingError.invalidState("ScreenCapturer.start without prior prepare")
         }
         stopping = false
         let stream = SCStream(filter: filter, configuration: configuration, delegate: self)
@@ -139,7 +139,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         do {
             try await stream.startCapture()
         } catch {
-            throw RecordingError.captureInterrupted("no se pudo iniciar la captura de pantalla: \(error.localizedDescription)")
+            throw RecordingError.captureInterrupted("could not start screen capture: \(error.localizedDescription)")
         }
         self.stream = stream
     }
@@ -158,8 +158,8 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         guard sampleBuffer.isValid else { return }
         switch type {
         case .screen:
-            // SCStream emite también frames "idle"/incompletos sin imagen;
-            // solo interesan los completos.
+            // SCStream also emits "idle"/incomplete frames without an image;
+            // only the complete ones matter.
             guard let attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
                   let info = attachments.first,
                   let statusRaw = info[.status] as? Int,
@@ -167,7 +167,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
                   let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
             else { return }
 
-            // Rect del contenido real, en píxeles del buffer.
+            // Rect of the actual content, in buffer pixels.
             var contentRect: CGRect?
             if let rectDict = info[.contentRect] as? NSDictionary,
                let rect = CGRect(dictionaryRepresentation: rectDict as CFDictionary),
@@ -181,7 +181,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
                                         width: CVPixelBufferGetWidth(pixelBuffer),
                                         height: CVPixelBufferGetHeight(pixelBuffer))
                 let clipped = pixelRect.intersection(bufferRect)
-                // Solo interesa si el contenido NO llena el buffer.
+                // Only relevant if the content does NOT fill the buffer.
                 if !clipped.isEmpty, clipped.size != bufferRect.size {
                     contentRect = clipped
                 }
@@ -190,7 +190,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         case .audio:
             onSystemAudio?(sampleBuffer)
         default:
-            // .microphone (macOS 15+) no se usa: el mic va por AVFoundation.
+            // .microphone (macOS 15+) is not used: the mic goes through AVFoundation.
             break
         }
     }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to install Grabi (beta)</title>
+<style>
+  /* Tokens from the Grabi brand manual (Phase 1) */
+  body { margin:0; background:#FAF7F1; color:#26221C;
+         font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         -webkit-font-smoothing:antialiased; line-height:1.6; }
+  .page { max-width:640px; margin:0 auto; padding:48px 24px 80px; }
+  h1 { font-size:28px; font-weight:800; margin:16px 0 6px; }
+  h2 { font-size:18px; font-weight:700; margin:36px 0 10px; }
+  p { margin:0 0 12px; font-size:15px; }
+  .sub { color:#5C5548; }
+  .card { background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px;
+          padding:16px 20px; margin:10px 0; }
+  .step { display:flex; gap:14px; align-items:flex-start; }
+  .num { flex-shrink:0; width:26px; height:26px; border-radius:50%;
+         background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700;
+         display:flex; align-items:center; justify-content:center; margin-top:2px; }
+  .honest { background:#FFF9EE; border:1px solid #EAD9BC; border-radius:14px;
+            padding:14px 18px; font-size:14px; color:#4A4438; }
+  kbd, .ui { background:#F3EEE3; border-radius:6px; padding:1px 7px;
+             font-size:13px; font-weight:600; white-space:nowrap; }
+  .mascota { width:72px; height:72px; }
+  footer { margin-top:44px; padding-top:18px; border-top:1px solid #EAE3D6;
+           font-size:13px; color:#9A917F; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <svg class="mascota" viewBox="0 0 96 96" aria-hidden="true">
+    <path d="M73 52 q13 -5 11 -20" fill="none" stroke="#E5483F" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="84" cy="30" r="5.5" fill="#E5483F"/>
+    <circle cx="48" cy="50" r="30" fill="#E5483F"/>
+    <circle cx="40" cy="45" r="4.2" fill="#FFF6F0"/>
+    <path d="M52 45 q4 -4 8 0" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+
+  <h1>Hi, I'm Grabi</h1>
+  <p class="sub">Thanks for trying the beta. Installing takes two minutes — and
+  the first time, macOS will ask for one extra step. Here's everything, no
+  drama.</p>
+
+  <div class="honest">
+    <strong>Why does macOS show a warning when you open it?</strong> Grabi is
+    in beta and doesn't have Apple's certification yet (it will come with
+    the public release). The warning is normal and expected: macOS is only
+    asking you to confirm that you trust us. Nothing leaves your Mac — Grabi
+    doesn't use the internet.
+  </div>
+
+  <h2>1 · Install</h2>
+  <div class="card step"><span class="num">1</span><p>Open the
+    <span class="ui">Grabi-0.1.1.dmg</span> file we sent you.</p></div>
+  <div class="card step"><span class="num">2</span><p>In the window that
+    appears, <strong>drag Grabi to the Applications folder</strong>
+    (the arrow shows you where). You can now eject the disk.</p></div>
+
+  <h2>2 · The first launch (the extra step)</h2>
+  <div class="card step"><span class="num">1</span><p>Open <strong>Grabi</strong>
+    from Applications. macOS will show a warning like
+    <em>"Apple could not verify that "Grabi" is free of malware"</em> and
+    won't open it. Click <span class="ui">OK</span> /
+    <span class="ui">Done</span> — do <strong>not</strong> choose "Move to
+    Trash".</p></div>
+  <div class="card step"><span class="num">2</span><p>Open
+    <span class="ui">System Settings → Privacy &amp; Security</span> and
+    scroll down to the <strong>Security</strong> section: you'll see
+    <em>""Grabi" was blocked to protect your Mac"</em>. Click
+    <span class="ui">Open Anyway</span>.</p></div>
+  <div class="card step"><span class="num">3</span><p>macOS will ask for your
+    password or Touch ID and one last confirmation:
+    <span class="ui">Open Anyway</span>. This happens
+    <strong>only once</strong> — from here on, Grabi opens normally.</p></div>
+
+  <h2>3 · The recording permissions</h2>
+  <div class="card step"><span class="num">1</span><p>Grabi lives in the
+    <strong>menu bar</strong> (the dot with a ring, at the top right) — it
+    doesn't appear in the Dock. When you open it, it greets you and guides
+    you.</p></div>
+  <div class="card step"><span class="num">2</span><p>Accept the
+    <strong>Camera</strong> and <strong>Microphone</strong> permissions when
+    macOS asks for them.</p></div>
+  <div class="card step"><span class="num">3</span><p>For
+    <strong>Screen Recording</strong>, macOS takes you to
+    <span class="ui">System Settings → Privacy &amp; Security →
+    Screen &amp; System Audio Recording</span>: turn on
+    <strong>Grabi</strong> and open it again. It's only for recording —
+    nothing leaves your Mac.</p></div>
+
+  <h2>And to uninstall?</h2>
+  <p class="sub">Drag <strong>Grabi</strong> from Applications to the
+  Trash. Your recordings stay with you in
+  <span class="ui">Movies → Recordings</span> (or the folder you chose in
+  Settings). If you also want to delete the preferences:
+  <span class="ui">~/Library/Preferences/com.ivan.recordapp.plist</span>.</p>
+
+  <footer>Grabi 0.1.1 beta · free, no limits, no account ·
+  Something didn't go as described here? Write to us and we'll fix it.</footer>
+
+</div>
+</body>
+</html>

@@ -2,24 +2,24 @@ import SwiftUI
 import RecordEngine
 import RecordUI
 
-/// Panel de barra de menú (Fase 3 §01): la prueba de los 5 segundos.
-/// Qué se captura arriba, qué fuentes van dentro en medio, un solo botón
-/// grande abajo. Ancho fijo 360.
+/// Menu bar panel (Phase 3 §01): the 5-second test.
+/// What gets captured at the top, which sources go into it in the middle,
+/// one single big button at the bottom. Fixed width 360.
 struct PanelView: View {
     @ObservedObject var model: GrabiAppModel
 
     var body: some View {
         VStack(spacing: 14) {
             GrabiSegmented(items: [
-                GrabiSegmentItem(CaptureMode.pantalla, label: L("app.seg.screen"), icon: .pantalla),
-                GrabiSegmentItem(CaptureMode.ventana, label: L("app.seg.window"), icon: .ventana),
+                GrabiSegmentItem(CaptureMode.screen, label: L("app.seg.screen"), icon: .screen),
+                GrabiSegmentItem(CaptureMode.window, label: L("app.seg.window"), icon: .window),
                 GrabiSegmentItem(CaptureMode.region, label: L("app.seg.region"), icon: .region),
             ], selection: Binding(
                 get: { model.captureMode },
                 set: { newMode in
                     model.captureMode = newMode
                     if newMode == .region, model.regionRect == nil { model.pickRegion() }
-                    if newMode == .ventana, model.selectedWindow == nil { model.pickCaptureSource() }
+                    if newMode == .window, model.selectedWindow == nil { model.pickCaptureSource() }
                 }
             ))
             .disabled(model.isActive)
@@ -27,7 +27,7 @@ struct PanelView: View {
             targetDetail
 
             SourceList {
-                SourceRow(icon: .pantalla, title: RecordingSource.screen.displayName, subtitle: model.captureLabel,
+                SourceRow(icon: .screen, title: RecordingSource.screen.displayName, subtitle: model.captureLabel,
                           status: model.status(for: .screen),
                           isOn: Binding(get: { model.screenEnabled }, set: { model.screenEnabled = $0 }),
                           onPermissionTap: { model.openPermissionFlow(for: .screen) })
@@ -39,14 +39,14 @@ struct PanelView: View {
                           onPermissionTap: { model.openPermissionFlow(for: .camera) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .microfono, title: RecordingSource.microphone.displayName, subtitle: model.micDeviceName,
+                SourceRow(icon: .microphone, title: RecordingSource.microphone.displayName, subtitle: model.micDeviceName,
                           status: model.status(for: .microphone),
                           isOn: Binding(get: { model.micEnabled }, set: { model.micEnabled = $0 }),
                           level: model.micLevel,
                           onPermissionTap: { model.openPermissionFlow(for: .microphone) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .audioSistema, title: RecordingSource.systemAudio.displayName,
+                SourceRow(icon: .systemAudio, title: RecordingSource.systemAudio.displayName,
                           subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
                           status: model.status(for: .systemAudio),
                           isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
@@ -98,21 +98,21 @@ struct PanelView: View {
 
     private var recordButtonState: RecordButtonState {
         switch model.engineState {
-        case .recording, .starting, .stopping: return .grabando
-        case .paused: return .pausado
-        default: return .listo
+        case .recording, .starting, .stopping: return .recording
+        case .paused: return .paused
+        default: return .ready
         }
     }
 
-    /// Selector secundario según el modo: pantalla (si hay varias), ventana o región.
+    /// Secondary picker per mode: display (if there are several), window, or region.
     @ViewBuilder
     private var targetDetail: some View {
         switch model.captureMode {
-        case .pantalla:
+        case .screen:
             if model.availableDisplays.count > 1 {
                 changeRow(label: model.captureLabel)
             }
-        case .ventana:
+        case .window:
             changeRow(label: model.captureLabel)
         case .region:
             HStack(spacing: GrabiSpace.s2) {
@@ -129,8 +129,8 @@ struct PanelView: View {
         }
     }
 
-    /// Fila de selección con «Cambiar…» que abre el selector visual de
-    /// miniaturas (pantallas y ventanas).
+    /// Selection row with "Change…" that opens the visual thumbnail
+    /// picker (displays and windows).
     private func changeRow(label: String) -> some View {
         HStack(spacing: GrabiSpace.s2) {
             Text(label)
@@ -157,12 +157,12 @@ struct PanelView: View {
             Spacer()
             HStack(spacing: 14) {
                 Button { model.openRecordingsFolder() } label: {
-                    GrabiIconView(.carpeta, size: 16, tint: GrabiColor.textSecondary)
+                    GrabiIconView(.folder, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
                 .help(L("app.openFolder"))
                 Button { model.settingsController.show(model: model) } label: {
-                    GrabiIconView(.ajustes, size: 16, tint: GrabiColor.textSecondary)
+                    GrabiIconView(.settings, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
                 .help(L("app.settings"))
@@ -181,8 +181,8 @@ struct PanelView: View {
     }
 }
 
-/// Etiqueta de la barra de menú: plantilla monocroma en reposo; punto de
-/// color + cronómetro mientras se graba (honestidad: siempre visible).
+/// Menu bar label: monochrome template when idle; colored dot + stopwatch
+/// while recording (honesty: always visible).
 struct MenuBarLabel: View {
     @ObservedObject var model: GrabiAppModel
 
@@ -200,7 +200,7 @@ struct MenuBarLabel: View {
 }
 
 enum MenuBarIcons {
-    /// El punto con anillo, como plantilla del sistema.
+    /// The dot with a ring, as a system template.
     static let templateRing: NSImage = {
         let image = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { rect in
             let ctx = NSGraphicsContext.current!.cgContext

@@ -2,17 +2,17 @@ import Foundation
 import AVFoundation
 import CoreVideo
 
-/// Escribe un único .mov en streaming directo a disco con hasta 1 pista de
-/// video (HEVC por hardware) y hasta 2 pistas de audio AAC SEPARADAS
-/// (micrófono y audio del sistema). Solo crea las pistas de las fuentes
-/// activadas.
+/// Writes a single .mov streamed straight to disk with up to 1 video
+/// track (hardware HEVC) and up to 2 SEPARATE AAC audio tracks
+/// (microphone and system audio). Only creates tracks for the enabled
+/// sources.
 ///
-/// Thread-safety: los buffers llegan desde colas distintas (SCStream, cámara,
-/// micrófono). AVAssetWriter no es thread-safe, así que TODOS los appends se
-/// serializan en `queue`, la única cola que toca el writer tras
-/// `startWriting()`. Los appends son `async` (no bloquean las colas de
-/// captura) y con `expectsMediaDataInRealTime` los frames que lleguen cuando
-/// el input no está listo simplemente se descartan — nunca se acumulan en RAM.
+/// Thread-safety: buffers arrive from different queues (SCStream, camera,
+/// microphone). AVAssetWriter is not thread-safe, so ALL appends are
+/// serialized on `queue`, the only queue that touches the writer after
+/// `startWriting()`. Appends are `async` (they don't block the capture
+/// queues) and with `expectsMediaDataInRealTime` frames arriving while the
+/// input isn't ready are simply dropped — they never pile up in RAM.
 final class MovieWriter {
     struct VideoSpec {
         let width: Int
@@ -21,12 +21,12 @@ final class MovieWriter {
         let fps: Int
     }
 
-    /// El bitrate de la configuración se interpreta como objetivo para un
-    /// lienzo de hasta 1920×1200 (el máximo de v0.1: "Estándar" queda
-    /// idéntico). Para lienzos mayores (calidad "Nítida", hasta 4K) se escala
-    /// proporcionalmente al área de píxeles — mantener la calidad POR PÍXEL,
-    /// no reciclar los 8 Mbps de 1080p en un frame 4K — con tope de 32 Mbps,
-    /// cómodo para el encoder HEVC por hardware de Apple Silicon.
+    /// The configuration's bitrate is interpreted as the target for a canvas
+    /// of up to 1920×1200 (the v0.1 maximum: "Standard" stays identical).
+    /// For larger canvases ("Sharp" quality, up to 4K) it scales
+    /// proportionally to the pixel area — keeping the quality PER PIXEL,
+    /// not recycling 1080p's 8 Mbps into a 4K frame — capped at 32 Mbps,
+    /// comfortable for Apple Silicon's hardware HEVC encoder.
     static func scaledBitrate(base: Int, width: Int, height: Int) -> Int {
         let baseArea = 1920.0 * 1200.0
         let factor = max(1.0, Double(width * height) / baseArea)
@@ -45,12 +45,12 @@ final class MovieWriter {
     private var finished = false
     private let hasVideoTrack: Bool
 
-    // MARK: Pausa/reanudar
-    // Al pausar se dejan de aceptar buffers. Al reanudar se acumula en
-    // `timeOffset` la duración exacta de la pausa (medida con el host clock,
-    // el mismo reloj que estampa todos los buffers), y ese offset se resta
-    // del PTS de cada buffer siguiente: en el archivo final los tiempos
-    // continúan sin hueco ni salto, aunque se pause N veces.
+    // MARK: Pause/resume
+    // On pause, buffers stop being accepted. On resume, the exact duration
+    // of the pause is accumulated into `timeOffset` (measured with the host
+    // clock, the same clock that stamps all the buffers), and that offset is
+    // subtracted from the PTS of every subsequent buffer: in the final file
+    // the times continue with no gap or jump, even after N pauses.
     private var timeOffset = CMTime.zero
     private var pausedAtTime: CMTime?
 
@@ -68,7 +68,7 @@ final class MovieWriter {
 
         if let video {
             let settings: [String: Any] = [
-                // HEVC: en Apple Silicon la codificación va por hardware automáticamente.
+                // HEVC: on Apple Silicon encoding goes through hardware automatically.
                 AVVideoCodecKey: AVVideoCodecType.hevc,
                 AVVideoWidthKey: video.width,
                 AVVideoHeightKey: video.height,
@@ -101,9 +101,9 @@ final class MovieWriter {
                 AVEncoderBitRateKey: channels == 1 ? 96_000 : 160_000,
                 AVChannelLayoutKey: Data(bytes: &layout, count: MemoryLayout<AudioChannelLayout>.size),
             ]
-            // AVAssetWriterInput convierte internamente el PCM de entrada al
-            // formato AAC pedido. La pista respeta los canales NATIVOS de la
-            // fuente: un mic mono forzado a estéreo se escucha bajo/ladeado.
+            // AVAssetWriterInput internally converts the incoming PCM to the
+            // requested AAC format. The track respects the source's NATIVE
+            // channels: a mono mic forced to stereo sounds quiet/lopsided.
             let input = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
             input.expectsMediaDataInRealTime = true
             return input
@@ -115,27 +115,27 @@ final class MovieWriter {
             micInput = input
         }
         if includeSystemAudio {
-            let input = makeAudioInput(channels: 2) // SCStream entrega 48 kHz estéreo
+            let input = makeAudioInput(channels: 2) // SCStream delivers 48 kHz stereo
             writer.add(input)
             systemAudioInput = input
         }
 
         guard writer.startWriting() else {
-            throw RecordingError.writeFailed(writer.error?.localizedDescription ?? "startWriting falló")
+            throw RecordingError.writeFailed(writer.error?.localizedDescription ?? "startWriting failed")
         }
     }
 
-    // MARK: - Sincronización de timestamps
+    // MARK: - Timestamp synchronization
 
-    /// SCStream y AVCaptureSession estampan sus buffers con el MISMO reloj del
-    /// sistema (host clock), así que basta con arrancar la sesión del writer en
-    /// el primer buffer recibido y AVAssetWriter alinea el resto por PTS.
+    /// SCStream and AVCaptureSession stamp their buffers with the SAME system
+    /// clock (host clock), so it's enough to start the writer's session on
+    /// the first received buffer and AVAssetWriter aligns the rest by PTS.
     ///
-    /// Si hay pista de video, la sesión arranca en el PRIMER FRAME DE VIDEO y
-    /// el audio que llegue antes se descarta: el micrófono suele arrancar
-    /// medio segundo antes que ScreenCaptureKit, y sin esto el video empezaría
-    /// con un tramo en negro. En grabaciones solo-audio arranca el primer
-    /// buffer de audio.
+    /// If there is a video track, the session starts at the FIRST VIDEO FRAME
+    /// and any audio arriving earlier is dropped: the microphone usually
+    /// starts half a second before ScreenCaptureKit, and without this the
+    /// video would open with a black stretch. Audio-only recordings start at
+    /// the first audio buffer.
     private func startSessionIfNeeded(at time: CMTime, isVideo: Bool) {
         guard !sessionStarted else { return }
         if hasVideoTrack && !isVideo { return }
@@ -143,7 +143,7 @@ final class MovieWriter {
         sessionStarted = true
     }
 
-    // MARK: - Pausa
+    // MARK: - Pause
 
     func pause() {
         queue.async { [self] in
@@ -161,7 +161,7 @@ final class MovieWriter {
         }
     }
 
-    // MARK: - Appends (llamables desde cualquier cola)
+    // MARK: - Appends (callable from any queue)
 
     func appendVideo(pixelBuffer: CVPixelBuffer, presentationTime: CMTime) {
         queue.async { [self] in
@@ -191,8 +191,8 @@ final class MovieWriter {
         }
     }
 
-    /// Copia el sample buffer con los PTS desplazados por `timeOffset`.
-    /// Sin pausas acumuladas devuelve el buffer original tal cual.
+    /// Copies the sample buffer with the PTS shifted by `timeOffset`.
+    /// With no accumulated pauses it returns the original buffer as-is.
     private func retimedForOffset(_ sample: CMSampleBuffer) -> CMSampleBuffer? {
         guard timeOffset != .zero else { return sample }
         var timingCount = 0
@@ -214,21 +214,21 @@ final class MovieWriter {
         return retimed
     }
 
-    // MARK: - Finalización
+    // MARK: - Finalization
 
-    /// Cierra el archivo dejándolo siempre bien finalizado y reproducible.
+    /// Closes the file, always leaving it properly finalized and playable.
     func finish() async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             queue.async { [self] in
                 guard !finished else {
-                    continuation.resume(throwing: RecordingError.invalidState("el writer ya se finalizó"))
+                    continuation.resume(throwing: RecordingError.invalidState("the writer was already finalized"))
                     return
                 }
                 finished = true
 
                 guard sessionStarted, writer.status == .writing else {
-                    // No llegó ningún dato (o el writer falló antes): no hay
-                    // nada que guardar. Cancelamos y borramos el archivo vacío.
+                    // No data arrived (or the writer failed earlier): there is
+                    // nothing to save. Cancel and delete the empty file.
                     let underlying = writer.error?.localizedDescription
                     writer.cancelWriting()
                     try? FileManager.default.removeItem(at: writer.outputURL)
@@ -248,14 +248,14 @@ final class MovieWriter {
                         continuation.resume(returning: writer.outputURL)
                     } else {
                         continuation.resume(throwing: RecordingError.writeFailed(
-                            writer.error?.localizedDescription ?? "finishWriting falló"))
+                            writer.error?.localizedDescription ?? "finishWriting failed"))
                     }
                 }
             }
         }
     }
 
-    /// Aborta y borra el archivo (para fallos durante el arranque).
+    /// Aborts and deletes the file (for failures during startup).
     func cancel() {
         queue.async { [self] in
             guard !finished else { return }

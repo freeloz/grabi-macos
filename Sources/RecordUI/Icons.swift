@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// Íconos custom de Grabi (Fase 1 §06): retícula 24 px, trazo 2, remates
-/// redondos, heredan el color del contexto (`foregroundStyle`). El relleno
-/// rojo solo existe en `grabar` (regla del manual).
+/// Grabi custom icons (Phase 1 §06): 24 px grid, stroke 2, round caps,
+/// they inherit the context color (`foregroundStyle`). The red fill only
+/// exists in `record` (manual rule).
 public enum GrabiIcon: String, CaseIterable, Sendable {
-    case grabar, pausa, detener, reanudar
-    case pantalla, ventana, region
-    case microfono, audioSistema
-    case camCirculo, camCuadrado, camRect
-    case carpeta
-    case ajustes
+    case record, pause, stop, resume
+    case screen, window, region
+    case microphone, systemAudio
+    case camCircle, camSquare, camRect
+    case folder
+    case settings
 }
 
 public struct GrabiIconView: View {
@@ -25,7 +25,7 @@ public struct GrabiIconView: View {
 
     public var body: some View {
         Canvas { context, canvasSize in
-            let s = canvasSize.width / 24 // escala desde la retícula 24
+            let s = canvasSize.width / 24 // scale from the 24 grid
             let stroke = StrokeStyle(lineWidth: 2 * s, lineCap: .round, lineJoin: .round)
             let color = GraphicsContext.Shading.color(tint)
 
@@ -41,22 +41,22 @@ public struct GrabiIconView: View {
             }
 
             switch icon {
-            case .grabar:
+            case .record:
                 context.stroke(circle(12, 12, 9), with: color, style: stroke)
                 context.fill(circle(12, 12, 4), with: .color(GrabiColor.rec))
-            case .pausa:
+            case .pause:
                 context.stroke(line(9, 6, 9, 18), with: color, style: stroke)
                 context.stroke(line(15, 6, 15, 18), with: color, style: stroke)
-            case .detener:
+            case .stop:
                 context.stroke(rect(6, 6, 12, 12, 2.5), with: color, style: stroke)
-            case .reanudar:
+            case .resume:
                 var p = Path()
                 p.move(to: P(8, 5.5)); p.addLine(to: P(19, 12)); p.addLine(to: P(8, 18.5)); p.closeSubpath()
                 context.fill(p, with: color)
-            case .pantalla:
+            case .screen:
                 context.stroke(rect(3, 5, 18, 12, 2), with: color, style: stroke)
                 context.stroke(line(9, 20, 15, 20), with: color, style: stroke)
-            case .ventana:
+            case .window:
                 context.stroke(rect(4, 5, 16, 14, 2), with: color, style: stroke)
                 context.stroke(line(4, 9.5, 20, 9.5), with: color, style: stroke)
                 context.fill(circle(7, 7.3, 0.8), with: color)
@@ -71,14 +71,14 @@ public struct GrabiIconView: View {
                     }
                     context.stroke(p, with: color, style: stroke)
                 }
-            case .microfono:
+            case .microphone:
                 context.stroke(rect(9, 3, 6, 11, 3), with: color, style: stroke)
                 var arc = Path()
                 arc.move(to: P(5, 11))
                 arc.addArc(center: P(12, 11), radius: 7 * s, startAngle: .degrees(180), endAngle: .degrees(0), clockwise: true)
                 context.stroke(arc, with: color, style: stroke)
                 context.stroke(line(12, 18, 12, 21), with: color, style: stroke)
-            case .audioSistema:
+            case .systemAudio:
                 var p = Path()
                 p.move(to: P(4, 9)); p.addLine(to: P(7, 9)); p.addLine(to: P(11, 5))
                 p.addLine(to: P(11, 19)); p.addLine(to: P(7, 15)); p.addLine(to: P(4, 15)); p.closeSubpath()
@@ -91,14 +91,14 @@ public struct GrabiIconView: View {
                 w2.move(to: P(18, 6.5))
                 w2.addQuadCurve(to: P(18, 17.5), control: P(23.5, 12))
                 context.stroke(w2, with: color, style: stroke)
-            case .camCirculo:
+            case .camCircle:
                 context.stroke(circle(12, 12, 8), with: color, style: stroke)
                 context.stroke(circle(12, 10.5, 2.5), with: color, style: stroke)
                 var p = Path()
                 p.move(to: P(7.5, 18))
                 p.addQuadCurve(to: P(16.5, 18), control: P(12, 13.5))
                 context.stroke(p, with: color, style: stroke)
-            case .camCuadrado:
+            case .camSquare:
                 context.stroke(rect(4, 4, 16, 16, 3), with: color, style: stroke)
                 context.stroke(circle(12, 10.5, 2.5), with: color, style: stroke)
                 var p = Path()
@@ -112,12 +112,12 @@ public struct GrabiIconView: View {
                 p.move(to: P(8.5, 16))
                 p.addQuadCurve(to: P(15.5, 16), control: P(12, 12.5))
                 context.stroke(p, with: color, style: stroke)
-            case .ajustes:
+            case .settings:
                 context.stroke(circle(12, 12, 3), with: color, style: stroke)
                 for (x1, y1, x2, y2) in [(12.0, 3.0, 12.0, 5.5), (12.0, 18.5, 12.0, 21.0), (3.0, 12.0, 5.5, 12.0), (18.5, 12.0, 21.0, 12.0), (5.6, 5.6, 7.4, 7.4), (16.6, 16.6, 18.4, 18.4), (18.4, 5.6, 16.6, 7.4), (7.4, 16.6, 5.6, 18.4)] {
                     context.stroke(line(x1, y1, x2, y2), with: color, style: stroke)
                 }
-            case .carpeta:
+            case .folder:
                 var p = Path()
                 p.move(to: P(3, 7))
                 p.addQuadCurve(to: P(5, 5), control: P(3, 5))
@@ -135,24 +135,24 @@ public struct GrabiIconView: View {
     }
 }
 
-/// Ícono de forma de cámara según `CameraShape` del motor.
+/// Camera shape icon based on the engine's `CameraShape`.
 import RecordEngine
 
 public extension GrabiIcon {
     static func forShape(_ shape: CameraShape) -> GrabiIcon {
         switch shape {
-        case .circle: return .camCirculo
-        case .square: return .camCuadrado
+        case .circle: return .camCircle
+        case .square: return .camSquare
         case .rectangle: return .camRect
         }
     }
 
     static func forSource(_ source: RecordingSource) -> GrabiIcon {
         switch source {
-        case .screen: return .pantalla
-        case .camera: return .camCirculo
-        case .microphone: return .microfono
-        case .systemAudio: return .audioSistema
+        case .screen: return .screen
+        case .camera: return .camCircle
+        case .microphone: return .microphone
+        case .systemAudio: return .systemAudio
         }
     }
 }

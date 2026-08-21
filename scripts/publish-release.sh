@@ -1,22 +1,23 @@
 #!/bin/zsh
-# Publica una release de Grabi para macOS:
-#   1. Compila y firma el DMG (make-interim-release.sh).
-#   2. Calcula el SHA-256 y lo publica junto al DMG.
-#   3. Sube todo a R2 (dl.grabi.net) de forma versionada + actualiza "latest".
-#   4. Crea la GitHub Release con el DMG y los checksums adjuntos.
+# Publishes a Grabi release for macOS:
+#   1. Builds and signs the DMG (make-interim-release.sh).
+#   2. Computes the SHA-256 and publishes it next to the DMG.
+#   3. Uploads everything to R2 (dl.grabi.net) versioned + updates "latest".
+#   4. Creates the GitHub Release with the DMG and checksums attached.
 #
-# Uso:  ./scripts/publish-release.sh
+# Usage:  ./scripts/publish-release.sh
 #
-# Requiere: identidad de firma "Grabi Dev" en el llavero, gh CLI autenticada
-# y credenciales de Cloudflare (CLOUDFLARE_API_TOKEN en el entorno, o una
-# sesión de wrangler ya iniciada). El token NUNCA se escribe en disco.
+# Requires: "Grabi Dev" signing identity in the keychain, an authenticated
+# gh CLI, and Cloudflare credentials (CLOUDFLARE_API_TOKEN in the
+# environment, or an existing wrangler session). The token is NEVER written
+# to disk.
 #
-# Estructura en el bucket (por plataforma, listo para futuras plataformas):
-#   macos/v<versión>/Grabi-<versión>.dmg          (inmutable)
-#   macos/v<versión>/Grabi-<versión>.dmg.sha256
-#   macos/v<versión>/SHA256SUMS.txt
-#   macos/latest/Grabi.dmg (+ .sha256)            (siempre la última)
-#   macos/latest.json                              (manifiesto con url+sha256)
+# Bucket layout (per platform, ready for future platforms):
+#   macos/v<version>/Grabi-<version>.dmg          (immutable)
+#   macos/v<version>/Grabi-<version>.dmg.sha256
+#   macos/v<version>/SHA256SUMS.txt
+#   macos/latest/Grabi.dmg (+ .sha256)            (always the latest)
+#   macos/latest.json                              (manifest with url+sha256)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -24,12 +25,12 @@ export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-0ef61977f8d1fc1e483034fdb
 BUCKET="grabi-releases"
 PLATFORM="macos"
 
-# 1. Build + firma
+# 1. Build + signing
 ./make-interim-release.sh
 
 V=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Support/Info.plist)
 DMG="dist/Grabi-$V.dmg"
-[ -f "$DMG" ] || { echo "No existe $DMG"; exit 1; }
+[ -f "$DMG" ] || { echo "$DMG does not exist"; exit 1; }
 
 # 2. Checksums
 SHA=$(shasum -a 256 "$DMG" | awk '{print $1}')
@@ -51,7 +52,7 @@ print(json.dumps({
 }, indent=2))
 PY
 
-# 3. Subida a R2 (dl.grabi.net)
+# 3. Upload to R2 (dl.grabi.net)
 put() { npx -y wrangler r2 object put "$BUCKET/$1" --file "$2" --content-type "$3" --remote; }
 put "$PLATFORM/v$V/Grabi-$V.dmg"        "$DMG"                       application/x-apple-diskimage
 put "$PLATFORM/v$V/Grabi-$V.dmg.sha256" "$STAGE/Grabi-$V.dmg.sha256" text/plain
@@ -60,22 +61,22 @@ put "$PLATFORM/latest/Grabi.dmg"        "$DMG"                       application
 put "$PLATFORM/latest/Grabi.dmg.sha256" "$STAGE/Grabi-$V.dmg.sha256" text/plain
 put "$PLATFORM/latest.json"             "$STAGE/latest.json"         application/json
 
-# 4. Verificación end-to-end: lo que sirve el CDN es byte a byte lo subido
+# 4. End-to-end check: what the CDN serves is byte-for-byte what was uploaded
 sleep 5
 REMOTE_SHA=$(curl -fsSL "https://dl.grabi.net/$PLATFORM/v$V/Grabi-$V.dmg" | shasum -a 256 | awk '{print $1}')
-[ "$REMOTE_SHA" = "$SHA" ] || { echo "SHA remoto NO coincide"; exit 1; }
-echo "✅ dl.grabi.net sirve v$V con SHA-256 verificado."
+[ "$REMOTE_SHA" = "$SHA" ] || { echo "Remote SHA does NOT match"; exit 1; }
+echo "✅ dl.grabi.net serves v$V with a verified SHA-256."
 
 # 5. Tag + GitHub Release
 git tag "v$V" 2>/dev/null || true
 git push origin "v$V"
 gh release create "v$V" "$DMG" "$STAGE/SHA256SUMS.txt" \
   --title "Grabi $V (macOS)" \
-  --notes "DMG firmado (identidad interina \"Grabi Dev\", hardened runtime).
+  --notes "Signed DMG (interim \"Grabi Dev\" identity, hardened runtime).
 
-**Descarga recomendada:** https://dl.grabi.net/macos/v$V/Grabi-$V.dmg
+**Recommended download:** https://dl.grabi.net/macos/v$V/Grabi-$V.dmg
 **SHA-256:** \`$SHA\`
 
-Verifica la descarga con: \`shasum -a 256 Grabi-$V.dmg\`" \
-  2>/dev/null || echo "(la release v$V ya existía en GitHub)"
-echo "✅ Release v$V publicada."
+Verify the download with: \`shasum -a 256 Grabi-$V.dmg\`" \
+  2>/dev/null || echo "(release v$V already existed on GitHub)"
+echo "✅ Release v$V published."

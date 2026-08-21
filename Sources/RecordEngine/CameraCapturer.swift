@@ -2,18 +2,18 @@ import Foundation
 import AVFoundation
 import CoreVideo
 
-/// Captura la cámara con AVFoundation y entrega píxeles BGRA sin comprimir.
+/// Captures the camera with AVFoundation and delivers uncompressed BGRA pixels.
 final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     var onFrame: ((CVPixelBuffer, CMTime) -> Void)?
 
     private let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "record.camera")
-    /// Dimensiones reales que entregará la cámara; disponibles tras `configure()`.
+    /// Actual dimensions the camera will deliver; available after `configure()`.
     private(set) var dimensions: (width: Int, height: Int) = (1280, 720)
 
-    /// Configura la sesión SIN arrancarla, para que el motor conozca las
-    /// dimensiones reales antes de crear el writer (en modo cámara-sola el
-    /// tamaño del video de salida es el de la cámara).
+    /// Configures the session WITHOUT starting it, so the engine knows the
+    /// actual dimensions before creating the writer (in camera-only mode the
+    /// output video size is the camera's).
     func configure(deviceID: String?) throws {
         let device: AVCaptureDevice?
         if let deviceID {
@@ -35,7 +35,7 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
         guard session.canAddInput(input) else { throw RecordingError.cameraUnavailable }
         session.addInput(input)
 
-        // Preferimos 1080p; si la cámara no lo soporta (FaceTime 720p), caemos a 720p.
+        // Prefer 1080p; if the camera doesn't support it (FaceTime 720p), fall back to 720p.
         if session.canSetSessionPreset(.hd1920x1080) {
             session.sessionPreset = .hd1920x1080
             dimensions = (1920, 1080)
@@ -46,15 +46,15 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
 
         let output = AVCaptureVideoDataOutput()
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
-        // Descartar frames tardíos: en PiP solo interesa el más reciente y en
-        // cámara-sola preferimos saltar un frame antes que acumular latencia.
+        // Discard late frames: in PiP only the most recent one matters, and in
+        // camera-only mode we'd rather skip a frame than accumulate latency.
         output.alwaysDiscardsLateVideoFrames = true
         output.setSampleBufferDelegate(self, queue: queue)
         guard session.canAddOutput(output) else { throw RecordingError.cameraUnavailable }
         session.addOutput(output)
     }
 
-    /// `startRunning` bloquea; se llama fuera del main thread.
+    /// `startRunning` blocks; it is called off the main thread.
     func start() async {
         await withCheckedContinuation { continuation in
             queue.async { [self] in

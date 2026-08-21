@@ -1,14 +1,14 @@
 import SwiftUI
 import RecordEngine
 
-/// Galería interna (solo debug): todos los componentes en todos sus estados,
-/// para verificar fidelidad contra el prototipo antes de armar pantallas.
+/// Internal gallery (debug only): every component in all of its states,
+/// to verify fidelity against the prototype before assembling screens.
 public struct GrabiGallery: View {
     @State private var scheme: ColorScheme = .light
     @State private var toggleOn = true
     @State private var toggleOff = false
     @State private var shape: CameraShape = .circle
-    @State private var capture = "pantalla"
+    @State private var capture = "screen"
     @State private var pillCollapsed = false
     @State private var level: Double = 0.4
 
@@ -19,32 +19,32 @@ public struct GrabiGallery: View {
             VStack(alignment: .leading, spacing: GrabiSpace.s8) {
                 header
 
-                section("Mascota — poses del manual") {
+                section("Mascot — manual poses") {
                     HStack(spacing: GrabiSpace.s6) {
                         pose("Neutral", .neutral)
-                        pose("Grabando", .grabando)
-                        pose("Éxito", .exito)
+                        pose("Recording", .recording)
+                        pose("Success", .success)
                         pose("Error", .error)
-                        pose("Saludando", .saludando)
-                        pose("Preocupado", .preocupado)
+                        pose("Waving", .waving)
+                        pose("Worried", .worried)
                     }
                     HStack(spacing: GrabiSpace.s6) {
                         VStack(spacing: 6) {
-                            MascotView(pose: .listo, size: 76, bodyColor: GrabiColor.exito, faceColor: GrabiColor.inkFixed)
-                            caption("Semáforo · listo")
+                            MascotView(pose: .ready, size: 76, bodyColor: GrabiColor.success, faceColor: GrabiColor.inkFixed)
+                            caption("Traffic light · ready")
                         }
                         VStack(spacing: 6) {
-                            MascotView(pose: .grabando, size: 76)
-                            caption("Semáforo · grabando")
+                            MascotView(pose: .recording, size: 76)
+                            caption("Traffic light · recording")
                         }
                         VStack(spacing: 6) {
-                            MascotView(pose: .pausado, size: 76, bodyColor: GrabiColor.ambarOnInk, faceColor: GrabiColor.inkFixed)
-                            caption("Semáforo · pausado")
+                            MascotView(pose: .paused, size: 76, bodyColor: GrabiColor.ambarOnInk, faceColor: GrabiColor.inkFixed)
+                            caption("Traffic light · paused")
                         }
                     }
                 }
 
-                section("Íconos custom — 24 px, trazo 2") {
+                section("Custom icons — 24 px, stroke 2") {
                     HStack(spacing: GrabiSpace.s4) {
                         ForEach(GrabiIcon.allCases, id: \.self) { icon in
                             VStack(spacing: 6) {
@@ -58,32 +58,32 @@ public struct GrabiGallery: View {
                     }
                 }
 
-                section("Botones — variantes y estados") {
+                section("Buttons — variants and states") {
                     HStack(spacing: GrabiSpace.s3) {
-                        GrabiButton("Grabar", kind: .primario) {}
-                        GrabiButton("Compartir", kind: .secundario) {}
-                        GrabiButton("Omitir", kind: .fantasma) {}
-                        GrabiButton("Descartar", kind: .destructivo) {}
-                        GrabiIconButton(.pausa, help: "Pausar") {}
+                        GrabiButton("Record", kind: .primario) {}
+                        GrabiButton("Share", kind: .secundario) {}
+                        GrabiButton("Skip", kind: .fantasma) {}
+                        GrabiButton("Discard", kind: .destructivo) {}
+                        GrabiIconButton(.pause, help: "Pause") {}
                     }
                     HStack(spacing: GrabiSpace.s3) {
-                        GrabiButton("Grabar", kind: .primario) {}.disabled(true)
-                        GrabiButton("Guardando…", kind: .primario, isLoading: true) {}
-                        GrabiButton("Compartir", kind: .secundario) {}.disabled(true)
+                        GrabiButton("Record", kind: .primario) {}.disabled(true)
+                        GrabiButton("Saving…", kind: .primario, isLoading: true) {}
+                        GrabiButton("Share", kind: .secundario) {}.disabled(true)
                     }
                 }
 
-                section("El botón de grabar ★ — semáforo") {
+                section("The record button ★ — traffic light") {
                     VStack(spacing: GrabiSpace.s3) {
-                        RecordButton(state: .listo)
-                        RecordButton(state: .listo).disabled(true)
-                        RecordButton(state: .grabando, elapsed: "12:34")
-                        RecordButton(state: .pausado, elapsed: "12:34")
+                        RecordButton(state: .ready)
+                        RecordButton(state: .ready).disabled(true)
+                        RecordButton(state: .recording, elapsed: "12:34")
+                        RecordButton(state: .paused, elapsed: "12:34")
                     }
                     .frame(width: 328)
                 }
 
-                section("Pastilla flotante") {
+                section("Floating pill") {
                     HStack(spacing: GrabiSpace.s6) {
                         FloatingPill(isPaused: false, elapsed: "12:34", collapsed: .constant(false),
                                      onPause: {}, onResume: {}, onStop: {})
@@ -92,40 +92,40 @@ public struct GrabiGallery: View {
                         FloatingPill(isPaused: false, elapsed: "12:34", collapsed: $pillCollapsed,
                                      onPause: {}, onResume: {}, onStop: {})
                     }
-                    caption("Doble clic en la tercera para colapsar/expandir")
+                    caption("Double-click the third one to collapse/expand")
                 }
 
-                section("Filas de fuente — los 4 estados") {
+                section("Source rows — all 4 states") {
                     SourceList {
-                        SourceRow(icon: .pantalla, title: "Pantalla", subtitle: "Pantalla completa · integrada",
+                        SourceRow(icon: .screen, title: "Screen", subtitle: "Full screen · built-in",
                                   isOn: $toggleOn)
                         RowDivider()
-                        SourceRow(icon: .camCirculo, title: "Cámara", subtitle: "Círculo · abajo a la derecha",
+                        SourceRow(icon: .camCircle, title: "Camera", subtitle: "Circle · bottom right",
                                   isOn: $toggleOn)
                         RowDivider()
-                        SourceRow(icon: .microfono, title: "Micrófono", subtitle: "MacBook Pro",
+                        SourceRow(icon: .microphone, title: "Microphone", subtitle: "MacBook Pro",
                                   status: .sinPermiso, isOn: $toggleOff, onPermissionTap: {})
                         RowDivider()
-                        SourceRow(icon: .audioSistema, title: "Audio del sistema",
-                                  subtitle: "No disponible en esta versión de macOS",
+                        SourceRow(icon: .systemAudio, title: "System audio",
+                                  subtitle: "Not available on this version of macOS",
                                   status: .noDisponible, isOn: $toggleOff)
                         RowDivider()
-                        SourceRow(icon: .camCirculo, title: "Cámara", subtitle: "¡Permiso concedido! Ya puedes activarla",
+                        SourceRow(icon: .camCircle, title: "Camera", subtitle: "Permission granted! You can turn it on now",
                                   status: .celebracion, isOn: $toggleOff)
                         RowDivider()
-                        SourceRow(icon: .microfono, title: "Micrófono", subtitle: "MacBook Pro",
+                        SourceRow(icon: .microphone, title: "Microphone", subtitle: "MacBook Pro",
                                   isOn: $toggleOn, level: level)
                     }
                     .frame(width: 328)
-                    Slider(value: $level, in: 0...1) { Text("Nivel") }
+                    Slider(value: $level, in: 0...1) { Text("Level") }
                         .frame(width: 200)
                 }
 
-                section("Segmented — captura y forma de cámara") {
+                section("Segmented — capture and camera shape") {
                     GrabiSegmented(items: [
-                        GrabiSegmentItem("pantalla", label: "Pantalla", icon: .pantalla),
-                        GrabiSegmentItem("ventana", label: "Ventana", icon: .ventana),
-                        GrabiSegmentItem("region", label: "Región", icon: .region),
+                        GrabiSegmentItem("screen", label: "Screen", icon: .screen),
+                        GrabiSegmentItem("window", label: "Window", icon: .window),
+                        GrabiSegmentItem("region", label: "Region", icon: .region),
                     ], selection: $capture)
                     .frame(width: 328)
                     GrabiSegmented(items: CameraShape.allCases.map {
@@ -136,35 +136,35 @@ public struct GrabiGallery: View {
                 section("Badges") {
                     HStack(spacing: GrabiSpace.s4) {
                         RecBadge(elapsed: "12:34")
-                        StatusBadge(.listo, text: "Listo")
-                        StatusBadge(.pausado, text: "Pausado")
+                        StatusBadge(.ready, text: "Ready")
+                        StatusBadge(.paused, text: "Paused")
                         StatusBadge(.duracion, text: "2:34")
                     }
                 }
 
                 section("Toasts") {
-                    GrabiToast(title: "¡Quedó! Tu grabación está lista",
-                               kind: .exito(thumbnail: nil, meta: "2:34 · 1080p · 84 MB", actionLabel: "Ver", action: {}))
+                    GrabiToast(title: "Done! Your recording is ready",
+                               kind: .success(thumbnail: nil, meta: "2:34 · 1080p · 84 MB", actionLabel: "View", action: {}))
                         .frame(width: 420)
-                    GrabiToast(title: "No pude guardar el archivo",
-                               kind: .error(mensaje: "Queda poco espacio en disco. La grabación sigue a salvo en memoria.",
-                                            actionLabel: "Reintentar", action: {}))
+                    GrabiToast(title: "I couldn't save the file",
+                               kind: .error(mensaje: "Disk space is running low. Your recording is still safe in memory.",
+                                            actionLabel: "Retry", action: {}))
                         .frame(width: 420)
                 }
 
-                section("Modal — solo decisiones destructivas") {
-                    GrabiModal(title: "¿Descartar la grabación?",
-                               message: "Son 12 minutos y 34 segundos. Si la descartas, no hay forma de recuperarla.",
-                               safeLabel: "Conservar", destructiveLabel: "Descartar",
+                section("Modal — destructive decisions only") {
+                    GrabiModal(title: "Discard the recording?",
+                               message: "That's 12 minutes and 34 seconds. If you discard it, there's no way to get it back.",
+                               safeLabel: "Keep", destructiveLabel: "Discard",
                                onSafe: {}, onDestructive: {})
                 }
 
                 section("Tooltip") {
                     HStack(spacing: GrabiSpace.s6) {
-                        GrabiButton("Pasa el cursor", kind: .secundario) {}
-                            .grabiTooltip("Grabar · ⌘⇧2")
-                        GrabiIconButton(.camCirculo, help: "Cambiar forma") {}
-                            .grabiTooltip("Cambiar forma · clic derecho")
+                        GrabiButton("Hover here", kind: .secundario) {}
+                            .grabiTooltip("Record · ⌘⇧2")
+                        GrabiIconButton(.camCircle, help: "Change shape") {}
+                            .grabiTooltip("Change shape · right-click")
                     }
                     .padding(.top, GrabiSpace.s8)
                 }
@@ -181,17 +181,17 @@ public struct GrabiGallery: View {
         HStack(spacing: GrabiSpace.s4) {
             MascotView(pose: .neutral, size: 44)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Galería del sistema de diseño")
+                Text("Design system gallery")
                     .font(GrabiFont.title2)
                     .foregroundStyle(GrabiColor.text)
-                Text("Verificación de fidelidad contra design/ · solo debug")
+                Text("Fidelity check against design/ · debug only")
                     .font(GrabiFont.caption)
                     .foregroundStyle(GrabiColor.textSecondary)
             }
             Spacer()
-            Picker("Modo", selection: $scheme) {
-                Text("Claro").tag(ColorScheme.light)
-                Text("Oscuro").tag(ColorScheme.dark)
+            Picker("Mode", selection: $scheme) {
+                Text("Light").tag(ColorScheme.light)
+                Text("Dark").tag(ColorScheme.dark)
             }
             .pickerStyle(.segmented)
             .frame(width: 180)

@@ -2,8 +2,8 @@ import Foundation
 import AVFoundation
 import CoreVideo
 
-/// Caja thread-safe para "el último frame de cámara". La cola de la cámara
-/// escribe y la cola de pantalla lee (para el compositing PiP).
+/// Thread-safe box for "the latest camera frame". The camera queue
+/// writes and the screen queue reads (for PiP compositing).
 final class LatestFrameBox {
     private let lock = NSLock()
     private var buffer: CVPixelBuffer?
@@ -14,17 +14,17 @@ final class LatestFrameBox {
     }
 }
 
-/// Pipeline de captura y composición compartido entre la vista previa y la
-/// grabación: los MISMOS capturadores y el MISMO compositor alimentan ambas,
-/// de modo que la vista previa muestra exactamente lo que se graba y empezar
-/// a grabar no duplica trabajo (solo "engancha" un writer al flujo).
+/// Capture and compositing pipeline shared between the preview and the
+/// recording: the SAME capturers and the SAME compositor feed both, so
+/// the preview shows exactly what gets recorded and starting a recording
+/// duplicates no work (it just "hooks" a writer onto the flow).
 ///
-/// El micrófono NO vive aquí: solo se captura mientras se graba (encenderlo
-/// durante la vista previa activaría el indicador de micrófono del sistema
-/// sin necesidad).
+/// The microphone does NOT live here: it's only captured while recording
+/// (turning it on during the preview would light up the system's
+/// microphone indicator needlessly).
 final class CapturePipeline {
     let config: RecordingConfiguration
-    /// Tamaño del lienzo de video; nil si la configuración no tiene video.
+    /// Size of the video canvas; nil if the configuration has no video.
     private(set) var canvasSize: (width: Int, height: Int)?
 
     private var screen: ScreenCapturer?
@@ -32,17 +32,17 @@ final class CapturePipeline {
     private var compositor: PiPCompositor?
     private let latestCameraFrame = LatestFrameBox()
 
-    // El writer se engancha/desengancha en caliente; las colas de captura lo
-    // leen en cada buffer.
+    // The writer is attached/detached on the fly; the capture queues read
+    // it on every buffer.
     private let sinkLock = NSLock()
     private var _writer: MovieWriter?
     private var _onPreviewFrame: ((CVPixelBuffer) -> Void)?
 
     var onFatalError: ((Error) -> Void)?
-    /// Nivel RMS del audio del sistema (cola de audio de SCStream).
+    /// RMS level of the system audio (SCStream's audio queue).
     var onSystemAudioLevel: ((Double) -> Void)?
-    /// Frames crudos de la cámara (sin espejo ni forma), para el recuadro
-    /// flotante de la selfie durante la grabación. Cola de la cámara.
+    /// Raw camera frames (no mirror or shape), for the floating selfie
+    /// box during recording. Camera queue.
     var onCameraFrame: ((CVPixelBuffer) -> Void)?
 
     private var running = false
@@ -70,14 +70,14 @@ final class CapturePipeline {
         _writer = nil
     }
 
-    /// Forma/posición/tamaño de la cámara, aplicable en vivo.
+    /// Shape/position/size of the camera, applicable live.
     func updateCameraLayout(_ layout: CameraLayout) {
         compositor?.layout = layout
     }
 
-    /// Apaga/enciende la cámara EN VIVO (solo en modo PiP: con pantalla).
-    /// Apagar detiene la sesión (la luz de la cámara se apaga) y limpia el
-    /// último frame → el compositor deja de estampar el PiP.
+    /// Turns the camera off/on LIVE (PiP mode only: with screen).
+    /// Turning off stops the session (the camera light goes off) and clears
+    /// the latest frame → the compositor stops stamping the PiP.
     func setCameraHidden(_ hidden: Bool) async {
         guard config.capturesCamera, config.capturesScreen else { return }
         if hidden {
@@ -88,9 +88,9 @@ final class CapturePipeline {
         }
     }
 
-    /// ¿Esta configuración produce el mismo pipeline de captura? (el mic y el
-    /// bitrate no afectan al pipeline; sí las fuentes de video/audio-sistema,
-    /// el target y la resolución)
+    /// Does this configuration produce the same capture pipeline? (mic and
+    /// bitrate don't affect the pipeline; the video/system-audio sources,
+    /// target and resolution do)
     func isCompatible(with other: RecordingConfiguration) -> Bool {
         config.capturesScreen == other.capturesScreen
             && config.capturesCamera == other.capturesCamera
@@ -101,20 +101,20 @@ final class CapturePipeline {
             && config.cameraDeviceID == other.cameraDeviceID
     }
 
-    // MARK: - Arranque
+    // MARK: - Startup
 
-    /// Configura capturadores y compositor y arranca la captura.
+    /// Configures capturers and compositor and starts the capture.
     func start() async throws {
         guard !running else { return }
 
-        // 1. Cámara primero (sin arrancarla) para conocer sus dimensiones.
+        // 1. Camera first (without starting it) to learn its dimensions.
         if config.capturesCamera {
             let cam = CameraCapturer()
             try cam.configure(deviceID: config.cameraDeviceID)
             camera = cam
         }
 
-        // 2. Pantalla/región/ventana + audio de sistema.
+        // 2. Display/region/window + system audio.
         if config.capturesScreen || config.capturesSystemAudio {
             let scr = ScreenCapturer()
             let size = try await scr.prepare(
@@ -132,9 +132,9 @@ final class CapturePipeline {
             canvasSize = camera.dimensions
         }
 
-        // 3. Compositor: en modo PiP (pantalla + cámara) y también en captura
-        //    de ventana sin cámara, porque ahí hay que recortar el contentRect
-        //    (SCStream no llena el buffer con la ventana).
+        // 3. Compositor: in PiP mode (screen + camera) and also in window
+        //    capture without camera, because there the contentRect must be
+        //    cropped (SCStream doesn't fill the buffer with the window).
         var needsCompositor = config.capturesScreen && config.capturesCamera
         if case .window = config.target, config.capturesScreen { needsCompositor = true }
         if needsCompositor, let size = canvasSize {
@@ -143,7 +143,7 @@ final class CapturePipeline {
 
         wireCallbacks()
 
-        // 4. Arrancar.
+        // 4. Start.
         await camera?.start()
         if let screen {
             do {
@@ -164,14 +164,14 @@ final class CapturePipeline {
         if let camera {
             if compositor != nil {
                 camera.onFrame = { [weak self] pixelBuffer, _ in
-                    // En PiP la cámara no marca el ritmo: solo deja su frame
-                    // más reciente para que lo estampe el frame de pantalla.
+                    // In PiP the camera doesn't set the pace: it just leaves
+                    // its latest frame for the screen frame to stamp.
                     box.value = pixelBuffer
                     self?.onCameraFrame?(pixelBuffer)
                 }
             } else {
-                // Cámara sin pantalla → la cámara ES el video, a pantalla
-                // completa y en modo espejo (como toda selfie).
+                // Camera without screen → the camera IS the video, full
+                // frame and mirrored (like every selfie).
                 let mirror = MirrorRenderer(width: camera.dimensions.width,
                                             height: camera.dimensions.height)
                 camera.onFrame = { [weak self] pixelBuffer, pts in
@@ -186,22 +186,22 @@ final class CapturePipeline {
         if let screen {
             if config.capturesScreen {
                 if let compositor {
-                    // La cámara tarda ~1 s en arrancar (auto-exposición). Para
-                    // que la grabación no empiece con el PiP congelado o
-                    // apareciendo de golpe, no se escribe video hasta que la
-                    // cámara entrega su primer frame (tope: 45 frames ≈ 1,5 s
-                    // por si la cámara falla). Si hubo vista previa antes, la
-                    // cámara ya está caliente y esto no espera nada.
+                    // The camera takes ~1 s to start (auto-exposure). So the
+                    // recording doesn't open with the PiP frozen or popping
+                    // in abruptly, no video is written until the camera
+                    // delivers its first frame (cap: 45 frames ≈ 1.5 s in
+                    // case the camera fails). If a preview ran before, the
+                    // camera is already warm and this waits for nothing.
                     let waitsForCamera = config.capturesCamera
-                    var framesWaitingForCamera = 0 // solo se toca en la cola de video
-                    var cameraSeen = false // la espera aplica SOLO al arranque:
-                    // si luego se oculta la cámara en vivo, el video no debe pausarse
+                    var framesWaitingForCamera = 0 // only touched on the video queue
+                    var cameraSeen = false // the wait applies ONLY at startup:
+                    // if the camera is later hidden live, the video must not pause
                     screen.onVideoFrame = { [weak self] screenBuffer, pts, contentRect in
                         guard let self else { return }
                         let cameraFrame = box.value
                         if cameraFrame != nil { cameraSeen = true }
-                        // Composición en la cola de video de SCStream (GPU);
-                        // el mismo frame compuesto va a writer y vista previa.
+                        // Compositing on SCStream's video queue (GPU); the
+                        // same composed frame goes to writer and preview.
                         guard let composed = compositor.compose(screen: screenBuffer,
                                                                 screenContentRect: contentRect,
                                                                 camera: cameraFrame) else { return }

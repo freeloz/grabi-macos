@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - Segmented control (Fase 2 §05)
-// Track con thumb blanco que se desliza 200 ms easing.standard. Máx. 3 opciones.
+// MARK: - Segmented control (Phase 2 §05)
+// Track with a white thumb that slides 200 ms easing.standard. Max 3 options.
 
 public struct GrabiSegmentItem<Value: Hashable>: Identifiable {
     public let value: Value
@@ -69,9 +69,9 @@ public struct GrabiSegmented<Value: Hashable>: View {
     }
 }
 
-// MARK: - Badges (Fase 2 §07)
+// MARK: - Badges (Phase 2 §07)
 
-/// Badge ● REC — nunca desaparece mientras se graba (promesa de honestidad).
+/// ● REC badge — never disappears while recording (honesty promise).
 public struct RecBadge: View {
     let elapsed: String
 
@@ -81,7 +81,7 @@ public struct RecBadge: View {
 
     public var body: some View {
         HStack(spacing: 7) {
-            SemaforoDot(.grabando, size: 9)
+            SemaforoDot(.recording, size: 9)
             Text("REC")
                 .font(.system(size: 12, weight: .bold))
                 .kerning(0.96)
@@ -97,9 +97,9 @@ public struct RecBadge: View {
     }
 }
 
-/// Badge de estado con tint (Listo / Pausado / duración de clip).
+/// Tinted status badge (Ready / Paused / clip duration).
 public struct StatusBadge: View {
-    public enum Kind { case listo, pausado, duracion }
+    public enum Kind { case ready, paused, duracion }
     let kind: Kind
     let text: String
 
@@ -111,8 +111,8 @@ public struct StatusBadge: View {
     public var body: some View {
         HStack(spacing: 7) {
             switch kind {
-            case .listo: Circle().fill(GrabiColor.exito).frame(width: 9, height: 9)
-            case .pausado: RoundedRectangle(cornerRadius: 2.5).fill(GrabiColor.advertencia).frame(width: 9, height: 9)
+            case .ready: Circle().fill(GrabiColor.success).frame(width: 9, height: 9)
+            case .paused: RoundedRectangle(cornerRadius: 2.5).fill(GrabiColor.advertencia).frame(width: 9, height: 9)
             case .duracion: EmptyView()
             }
             Text(text)
@@ -126,28 +126,29 @@ public struct StatusBadge: View {
 
     private var color: Color {
         switch kind {
-        case .listo: return GrabiColor.exito
-        case .pausado: return GrabiColor.advertencia
+        case .ready: return GrabiColor.success
+        case .paused: return GrabiColor.advertencia
         case .duracion: return GrabiColor.error
         }
     }
 
     private var tint: Color {
         switch kind {
-        case .listo: return GrabiColor.tintExito
-        case .pausado: return GrabiColor.tintAdvertencia
+        case .ready: return GrabiColor.tintExito
+        case .paused: return GrabiColor.tintAdvertencia
         case .duracion: return GrabiColor.tintRec
         }
     }
 }
 
-// MARK: - Toasts (Fase 2 §06)
-// Éxito: miniatura + acción, se va sola a los 6 s. Error: mascota + solución,
-// no se va sola. La mascota solo aparece en errores y celebraciones.
+// MARK: - Toasts (Phase 2 §06)
+// Success: thumbnail + action, dismisses itself after 6 s. Error: mascot +
+// solution, never auto-dismisses. The mascot only appears in errors and
+// celebrations.
 
 public struct GrabiToast: View {
     public enum Kind {
-        case exito(thumbnail: NSImage?, meta: String, actionLabel: String, action: () -> Void)
+        case success(thumbnail: NSImage?, meta: String, actionLabel: String, action: () -> Void)
         case error(mensaje: String, actionLabel: String, action: () -> Void)
     }
 
@@ -162,7 +163,7 @@ public struct GrabiToast: View {
     public var body: some View {
         HStack(spacing: 13) {
             switch kind {
-            case .exito(let thumbnail, let meta, let actionLabel, let action):
+            case .success(let thumbnail, let meta, let actionLabel, let action):
                 thumbnailView(thumbnail)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
@@ -226,7 +227,7 @@ public struct GrabiToast: View {
     }
 }
 
-// MARK: - Modal (Fase 2 §06) — solo para decisiones destructivas.
+// MARK: - Modal (Phase 2 §06) — for destructive decisions only.
 
 public struct GrabiModal: View {
     let title: String
@@ -258,7 +259,7 @@ public struct GrabiModal: View {
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: GrabiSpace.s2 + 2) {
                 Spacer()
-                // La opción segura siempre a la izquierda y como fantasma; Esc = conservar.
+                // The safe option always on the left and as ghost; Esc = keep.
                 GrabiButton(safeLabel, kind: .fantasma, action: onSafe)
                     .keyboardShortcut(.cancelAction)
                 GrabiButton(destructiveLabel, kind: .destructivo, action: onDestructive)
@@ -274,7 +275,7 @@ public struct GrabiModal: View {
     }
 }
 
-// MARK: - Tooltip (Fase 2 §06): oscuro, aparece a los 500 ms.
+// MARK: - Tooltip (Phase 2 §06): dark, appears after 500 ms.
 
 private struct GrabiTooltipModifier: ViewModifier {
     let text: String
@@ -311,7 +312,7 @@ private struct GrabiTooltipModifier: ViewModifier {
                         .transition(.opacity)
                 }
             }
-            .help(text) // accesibilidad: tooltip del sistema para VoiceOver
+            .help(text) // accessibility: system tooltip for VoiceOver
     }
 }
 

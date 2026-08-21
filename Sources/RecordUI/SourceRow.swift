@@ -1,28 +1,28 @@
 import SwiftUI
 import RecordEngine
 
-/// Estado de una fila de fuente (Fase 2 §04 y Fase 3 §04):
-/// activa · inactiva · sin permiso (acción) · no disponible · celebración.
+/// State of a source row (Phase 2 §04 and Phase 3 §04):
+/// active · inactive · no permission (action) · unavailable · celebration.
 public enum SourceRowStatus: Equatable {
     case normal
-    /// Falta permiso: fondo tint-advertencia, switch bloqueado, enlace de acción.
+    /// Missing permission: tint-advertencia background, locked switch, action link.
     case sinPermiso
-    /// No disponible físicamente: 45 % opacidad, switch bloqueado, texto honesto.
+    /// Physically unavailable: 45% opacity, locked switch, honest copy.
     case noDisponible
-    /// Permiso recién concedido: celebra 2 s en tint-exito.
+    /// Permission just granted: celebrates for 2 s in tint-success.
     case celebracion
 }
 
-/// Fila de fuente: ícono + título + subtítulo + switch nativo teñido con
-/// color.exito (encendido = verde, coherente con el semáforo). Toda la fila
-/// es clicable, no solo el switch.
+/// Source row: icon + title + subtitle + native switch tinted with
+/// color.success (on = green, consistent with the traffic light). The whole
+/// row is clickable, not just the switch.
 public struct SourceRow: View {
     let icon: GrabiIcon
     let title: String
     let subtitle: String
     let status: SourceRowStatus
     @Binding var isOn: Bool
-    /// Nivel de audio 0–1 para el medidor sutil (solo mic/audio del sistema).
+    /// Audio level 0–1 for the subtle meter (mic/system audio only).
     let level: Double?
     let onPermissionTap: (() -> Void)?
 
@@ -62,7 +62,7 @@ public struct SourceRow: View {
                 .toggleStyle(.switch)
                 .controlSize(.small)
                 .labelsHidden()
-                .tint(GrabiColor.exito)
+                .tint(GrabiColor.success)
                 .disabled(blocked)
                 .accessibilityLabel(title)
         }
@@ -72,7 +72,7 @@ public struct SourceRow: View {
         .opacity(status == .noDisponible ? 0.45 : 1)
         .contentShape(Rectangle())
         .onTapGesture {
-            // Toda la fila es clicable. Sin permiso → abre el flujo de permiso.
+            // The whole row is clickable. No permission → open permission flow.
             if status == .sinPermiso {
                 onPermissionTap?()
             } else if !blocked {
@@ -96,7 +96,7 @@ public struct SourceRow: View {
         case .celebracion:
             Text(subtitle)
                 .font(.system(size: 11.5, weight: .semibold))
-                .foregroundStyle(GrabiColor.exito)
+                .foregroundStyle(GrabiColor.success)
         default:
             Text(subtitle)
                 .font(.system(size: 11.5))
@@ -117,8 +117,8 @@ public struct SourceRow: View {
     }
 }
 
-/// Medidor de nivel sutil (decisión de producto 2026-08: barrita discreta en
-/// las filas de audio, con color.exito; no existe en design/ v1).
+/// Subtle level meter (product decision 2026-08: discreet little bar on
+/// the audio rows, using color.success; does not exist in design/ v1).
 public struct LevelMeter: View {
     let level: Double // 0–1
 
@@ -131,7 +131,7 @@ public struct LevelMeter: View {
             ZStack(alignment: .leading) {
                 Capsule().fill(GrabiColor.track)
                 Capsule()
-                    .fill(GrabiColor.exito)
+                    .fill(GrabiColor.success)
                     .frame(width: max(3, geo.size.width * level))
                     .animation(GrabiAnimation.standard(0.1), value: level)
             }
@@ -141,7 +141,7 @@ public struct LevelMeter: View {
     }
 }
 
-/// Contenedor de filas de fuente: tarjeta con divisores (Fase 3 §01).
+/// Container for source rows: card with dividers (Phase 3 §01).
 public struct SourceList<Content: View>: View {
     let content: Content
 
@@ -159,7 +159,7 @@ public struct SourceList<Content: View>: View {
     }
 }
 
-/// Divisor entre filas.
+/// Divider between rows.
 public struct RowDivider: View {
     public init() {}
     public var body: some View {

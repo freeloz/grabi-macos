@@ -1,19 +1,19 @@
-// @testable solo existe en builds de debug; en release (make-app.sh) este
-// ejecutable se reduce a un aviso para no romper el empaquetado.
+// @testable only exists in debug builds; in release (make-app.sh) this
+// executable reduces to a notice so packaging doesn't break.
 #if DEBUG
 import Foundation
 import AVFoundation
 import CoreVideo
 @testable import RecordEngine
 
-// Verificador de integración del motor con FUENTES SINTÉTICAS: ejercita el
-// AVAssetWriter y el compositor reales (codificación HEVC/AAC incluida) sin
-// necesitar permisos de pantalla/cámara/mic — corre en cualquier máquina.
+// Engine integration checker with SYNTHETIC SOURCES: exercises the real
+// AVAssetWriter and compositor (HEVC/AAC encoding included) without
+// needing screen/camera/mic permissions — runs on any machine.
 //
-// Uso: swift run EngineChecks   (sale con código ≠ 0 si algo falla)
+// Usage: swift run EngineChecks   (exits with code ≠ 0 if anything fails)
 //
-// Los PTS sintéticos se generan con el host clock, igual que las fuentes
-// reales, porque la pausa del writer mide su duración con ese reloj.
+// Synthetic PTS are generated with the host clock, just like the real
+// sources, because the writer's pause measures its duration with that clock.
 
 var failures = 0
 
@@ -22,7 +22,7 @@ func check(_ condition: Bool, _ message: String) {
         print("  ✓ \(message)")
     } else {
         failures += 1
-        print("  ✗ FALLO: \(message)")
+        print("  ✗ FAIL: \(message)")
     }
 }
 
@@ -83,7 +83,7 @@ func hostTime() -> CMTime {
     CMClockGetTime(CMClockGetHostTimeClock())
 }
 
-/// Alimenta el writer a ritmo real (~30 fps) con PTS de host clock.
+/// Feeds the writer at real-time pace (~30 fps) with host-clock PTS.
 func feed(writer: MovieWriter, seconds: Double, video: Bool, mic: Bool, system: Bool) async throws {
     let frames = Int(seconds * 30)
     for _ in 0..<frames {
@@ -106,7 +106,7 @@ func loadAsset(_ url: URL) async throws -> (duration: Double, videoTracks: Int, 
 // MARK: - Checks
 
 func checkVideoYDosAudios() async throws {
-    section("1 · Video HEVC + 2 pistas de audio separadas")
+    section("1 · HEVC video + 2 separate audio tracks")
     let writer = try MovieWriter(
         outputURL: tempURL("full"),
         video: .init(width: 640, height: 360, bitrate: 2_000_000, fps: 30),
@@ -115,14 +115,14 @@ func checkVideoYDosAudios() async throws {
     try await feed(writer: writer, seconds: 1.0, video: true, mic: true, system: true)
     let out = try await writer.finish()
     let info = try await loadAsset(out)
-    check(info.videoTracks == 1, "1 pista de video (hay \(info.videoTracks))")
-    check(info.audioTracks == 2, "2 pistas de audio (hay \(info.audioTracks))")
-    check(abs(info.duration - 1.0) < 0.4, "duración ≈ 1 s (fue \(String(format: "%.2f", info.duration)) s)")
+    check(info.videoTracks == 1, "1 video track (got \(info.videoTracks))")
+    check(info.audioTracks == 2, "2 audio tracks (got \(info.audioTracks))")
+    check(abs(info.duration - 1.0) < 0.4, "duration ≈ 1 s (was \(String(format: "%.2f", info.duration)) s)")
     try? FileManager.default.removeItem(at: out)
 }
 
 func checkPausaSinHueco() async throws {
-    section("2 · Pausa/reanudar sin hueco en el archivo")
+    section("2 · Pause/resume without a gap in the file")
     let writer = try MovieWriter(
         outputURL: tempURL("pause"),
         video: .init(width: 640, height: 360, bitrate: 2_000_000, fps: 30),
@@ -130,19 +130,19 @@ func checkPausaSinHueco() async throws {
         includeSystemAudio: false)
     try await feed(writer: writer, seconds: 0.8, video: true, mic: true, system: false)
     writer.pause()
-    try await Task.sleep(nanoseconds: 900_000_000) // pausa real de 0,9 s
+    try await Task.sleep(nanoseconds: 900_000_000) // real 0.9 s pause
     writer.resume()
     try await feed(writer: writer, seconds: 0.8, video: true, mic: true, system: false)
     let out = try await writer.finish()
     let info = try await loadAsset(out)
-    // Sin el offset de pausa duraría ~2,5 s; con él, ~1,6 s.
-    check(info.duration < 2.1, "la pausa no deja hueco (duración \(String(format: "%.2f", info.duration)) s, esperado ~1,6)")
-    check(info.duration > 1.1, "no se perdió contenido (duración \(String(format: "%.2f", info.duration)) s)")
+    // Without the pause offset it would last ~2.5 s; with it, ~1.6 s.
+    check(info.duration < 2.1, "the pause leaves no gap (duration \(String(format: "%.2f", info.duration)) s, expected ~1.6)")
+    check(info.duration > 1.1, "no content was lost (duration \(String(format: "%.2f", info.duration)) s)")
     try? FileManager.default.removeItem(at: out)
 }
 
 func checkSoloAudio() async throws {
-    section("3 · Solo audio: .mov válido sin pista de video")
+    section("3 · Audio only: valid .mov with no video track")
     let writer = try MovieWriter(
         outputURL: tempURL("audio-only"),
         video: nil,
@@ -151,14 +151,14 @@ func checkSoloAudio() async throws {
     try await feed(writer: writer, seconds: 1.0, video: false, mic: true, system: true)
     let out = try await writer.finish()
     let info = try await loadAsset(out)
-    check(info.videoTracks == 0, "0 pistas de video")
-    check(info.audioTracks == 2, "2 pistas de audio (hay \(info.audioTracks))")
-    check(info.duration > 0.5, "duración > 0,5 s (fue \(String(format: "%.2f", info.duration)) s)")
+    check(info.videoTracks == 0, "0 video tracks")
+    check(info.audioTracks == 2, "2 audio tracks (got \(info.audioTracks))")
+    check(info.duration > 0.5, "duration > 0.5 s (was \(String(format: "%.2f", info.duration)) s)")
     try? FileManager.default.removeItem(at: out)
 }
 
 func checkNadaGrabado() async throws {
-    section("4 · Detener sin datos no deja archivo a medias")
+    section("4 · Stopping with no data leaves no half-written file")
     let url = tempURL("empty")
     let writer = try MovieWriter(
         outputURL: url,
@@ -166,55 +166,55 @@ func checkNadaGrabado() async throws {
         includeMicrophone: false, includeSystemAudio: false)
     do {
         _ = try await writer.finish()
-        check(false, "finish debía lanzar nothingRecorded")
+        check(false, "finish should have thrown nothingRecorded")
     } catch let error as RecordingError {
-        check(error == .nothingRecorded, "lanza nothingRecorded (lanzó \(error))")
+        check(error == .nothingRecorded, "throws nothingRecorded (threw \(error))")
     }
-    check(!FileManager.default.fileExists(atPath: url.path), "el archivo vacío se borró")
+    check(!FileManager.default.fileExists(atPath: url.path), "the empty file was deleted")
 }
 
 func checkCompositor() {
-    section("5 · Compositor: formas, contentRect y layout en vivo")
+    section("5 · Compositor: shapes, contentRect and live layout")
     for shape in CameraShape.allCases {
         let layout = CameraLayout(shape: shape, origin: CGPoint(x: 0.7, y: 0.6), height: 0.3)
         let compositor = PiPCompositor(width: 640, height: 360, layout: layout)
         let out = compositor.compose(screen: makePixelBuffer(),
                                      camera: makePixelBuffer(width: 320, height: 240))
         check(out != nil && CVPixelBufferGetWidth(out!) == 640 && CVPixelBufferGetHeight(out!) == 360,
-              "forma \(shape.rawValue): lienzo 640×360")
+              "shape \(shape.rawValue): 640×360 canvas")
     }
     let compositor = PiPCompositor(width: 640, height: 360, layout: .default)
     let cropped = compositor.compose(
         screen: makePixelBuffer(),
         screenContentRect: CGRect(x: 0, y: 0, width: 400, height: 300),
         camera: nil)
-    check(cropped != nil, "recorte de contentRect (ventana que no llena el buffer)")
+    check(cropped != nil, "contentRect crop (window that doesn't fill the buffer)")
     compositor.layout = CameraLayout(shape: .rectangle, origin: CGPoint(x: 0.1, y: 0.1), height: 0.5)
     let live = compositor.compose(screen: makePixelBuffer(), camera: makePixelBuffer(width: 320, height: 240))
-    check(live != nil, "cambio de layout en vivo")
+    check(live != nil, "live layout change")
 }
 
 func checkBitrateEscalado() {
-    section("6 · Bitrate escalado por área (calidad Nítida, v0.1.1)")
-    // Estándar (≤1920×1200): idéntico a v0.1, sin escalar.
+    section("6 · Bitrate scaled by area (Sharp quality, v0.1.1)")
+    // Standard (≤1920×1200): identical to v0.1, no scaling.
     check(MovieWriter.scaledBitrate(base: 8_000_000, width: 1920, height: 1080) == 8_000_000,
-          "1920×1080 → 8 Mbps (sin cambio)")
+          "1920×1080 → 8 Mbps (unchanged)")
     check(MovieWriter.scaledBitrate(base: 8_000_000, width: 1920, height: 1200) == 8_000_000,
-          "1920×1200 → 8 Mbps (línea base v0.1)")
-    // 4K: ×3,6 el área → ×3,6 el bitrate (misma calidad por píxel).
+          "1920×1200 → 8 Mbps (v0.1 baseline)")
+    // 4K: ×3.6 the area → ×3.6 the bitrate (same quality per pixel).
     let uhd = MovieWriter.scaledBitrate(base: 8_000_000, width: 3840, height: 2160)
-    check(abs(uhd - 28_800_000) < 100_000, "3840×2160 → ~28,8 Mbps (fue \(uhd))")
-    // Tope de seguridad del encoder.
+    check(abs(uhd - 28_800_000) < 100_000, "3840×2160 → ~28.8 Mbps (was \(uhd))")
+    // Encoder safety cap.
     check(MovieWriter.scaledBitrate(base: 8_000_000, width: 5120, height: 2880) == 32_000_000,
-          "5K → tope 32 Mbps")
-    // Ventana pequeña en Nítida: nunca por debajo de la base.
+          "5K → 32 Mbps cap")
+    // Small window on Sharp: never below the base.
     check(MovieWriter.scaledBitrate(base: 8_000_000, width: 800, height: 600) == 8_000_000,
-          "fuentes pequeñas conservan la base")
+          "small sources keep the base")
 }
 
 // MARK: - Main
 
-print("EngineChecks · verificación de integración del motor Grabi")
+print("EngineChecks · Grabi engine integration check")
 
 do {
     try await checkVideoYDosAudios()
@@ -225,12 +225,12 @@ do {
     checkBitrateEscalado()
 } catch {
     failures += 1
-    print("  ✗ EXCEPCIÓN: \(error)")
+    print("  ✗ EXCEPTION: \(error)")
 }
 
-print(failures == 0 ? "\n✅ Todo en orden (\(failures) fallos)" : "\n❌ \(failures) fallo(s)")
+print(failures == 0 ? "\n✅ All good (\(failures) failures)" : "\n❌ \(failures) failure(s)")
 exit(failures == 0 ? 0 : 1)
 
 #else
-print("EngineChecks corre en debug: usa `swift run EngineChecks` (sin -c release)")
+print("EngineChecks runs in debug: use `swift run EngineChecks` (without -c release)")
 #endif

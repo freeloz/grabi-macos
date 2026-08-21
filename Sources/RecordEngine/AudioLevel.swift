@@ -2,8 +2,8 @@ import Foundation
 import AVFoundation
 import Accelerate
 
-/// Nivel RMS 0–1 de un buffer PCM, mapeado logarítmicamente (−50 dB → 0,
-/// 0 dB → 1) para que el medidor se mueva de forma natural con la voz.
+/// RMS level 0–1 of a PCM buffer, mapped logarithmically (−50 dB → 0,
+/// 0 dB → 1) so the meter moves naturally with the voice.
 enum AudioLevel {
     static func normalizedLevel(from sample: CMSampleBuffer) -> Double? {
         guard let block = CMSampleBufferGetDataBuffer(sample),

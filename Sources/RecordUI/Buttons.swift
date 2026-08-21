@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Botones Grabi (Fase 2 §02): altura 36, radio sm (10), tipografía 14/600,
-/// transición 120 ms. Foco = anillo, nunca solo cambio de color.
+/// Grabi buttons (Phase 2 §02): height 36, radius sm (10), type 14/600,
+/// 120 ms transition. Focus = ring, never just a color change.
 public enum GrabiButtonKind {
     case primario
     case secundario
@@ -102,7 +102,7 @@ private struct GrabiButtonCore: ButtonStyle {
     }
 }
 
-/// Botón de solo ícono, 36×36 (fila "Ícono" de la Fase 2).
+/// Icon-only button, 36×36 (the "Icon" row of Phase 2).
 public struct GrabiIconButton: View {
     let icon: GrabiIcon
     let help: String
@@ -144,7 +144,7 @@ private struct IconButtonCore: ButtonStyle {
     }
 }
 
-// MARK: - Anillo de foco (color.focus: 2 px + offset 2 px)
+// MARK: - Focus ring (color.focus: 2 px + offset 2 px)
 
 private struct FocusRingModifier<S: InsettableShape>: ViewModifier {
     let shape: S
@@ -163,7 +163,7 @@ private struct FocusRingModifier<S: InsettableShape>: ViewModifier {
 }
 
 public extension View {
-    /// Anillo de foco Grabi: nunca `outline: none` sin reemplazo (Fase 2 §10).
+    /// Grabi focus ring: never `outline: none` without a replacement (Phase 2 §10).
     func grabiFocusRing<S: InsettableShape>(_ shape: S) -> some View {
         modifier(FocusRingModifier(shape: shape))
     }

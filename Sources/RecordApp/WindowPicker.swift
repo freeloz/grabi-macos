@@ -5,13 +5,13 @@ import ScreenCaptureKit
 import RecordEngine
 import RecordUI
 
-/// Miniaturas del selector visual, con caché en memoria: reabrir el
-/// selector muestra las miniaturas AL INSTANTE (las de la vez anterior) y
-/// las refresca en paralelo por debajo.
+/// Thumbnails for the visual picker, with an in-memory cache: reopening the
+/// picker shows the thumbnails INSTANTLY (the ones from last time) and
+/// refreshes them in parallel underneath.
 ///
-/// Captura: en macOS 14+ SCScreenshotManager por GPU al tamaño exacto de la
-/// tarjeta, reutilizando el SCShareableContent que el modelo ya trajo (cero
-/// fetches extra). En macOS 13, CGWindowListCreateImage como fallback.
+/// Capture: on macOS 14+ SCScreenshotManager via GPU at the card's exact
+/// size, reusing the SCShareableContent the model already fetched (zero
+/// extra fetches). On macOS 13, CGWindowListCreateImage as fallback.
 @MainActor
 final class ThumbnailStore: ObservableObject {
     static let shared = ThumbnailStore()
@@ -19,10 +19,10 @@ final class ThumbnailStore: ObservableObject {
     @Published private(set) var windowImages: [CGWindowID: NSImage] = [:]
     @Published private(set) var displayImages: [CGDirectDisplayID: NSImage] = [:]
 
-    private let targetWidth: CGFloat = 480 // tarjeta ~228 pt @2x
+    private let targetWidth: CGFloat = 480 // card ~228 pt @2x
 
-    /// Captura todo en paralelo y actualiza el caché entrada a entrada
-    /// (cada tarjeta se pinta en cuanto llega la suya).
+    /// Captures everything in parallel and updates the cache entry by entry
+    /// (each card is painted as soon as its own arrives).
     func refresh(displays: [DisplayInfo], windows: [WindowInfo]) async {
         await withTaskGroup(of: Void.self) { group in
             for display in displays {
@@ -43,7 +43,7 @@ final class ThumbnailStore: ObservableObject {
             }
             await group.waitForAll()
         }
-        // Purgar miniaturas de ventanas que ya no existen.
+        // Purge thumbnails of windows that no longer exist.
         let validWindows = Set(windows.map(\.id))
         windowImages = windowImages.filter { validWindows.contains($0.key) }
     }
@@ -88,8 +88,8 @@ final class ThumbnailStore: ObservableObject {
     }
 }
 
-/// Selector visual de qué capturar (estilo Google Meet): miniaturas reales
-/// de cada pantalla y cada ventana abierta; clic para elegir.
+/// Visual picker of what to capture (Google Meet style): real thumbnails
+/// of every display and every open window; click to choose.
 @MainActor
 final class WindowPickerController: TitledWindowController {
     func show(model: GrabiAppModel) {
@@ -114,11 +114,11 @@ private struct CapturePickerView: View {
                             PickerCard(
                                 title: display.name,
                                 subtitle: "\(Int(display.frame.width))×\(Int(display.frame.height))",
-                                isSelected: model.captureMode == .pantalla && isSelectedDisplay(display),
+                                isSelected: model.captureMode == .screen && isSelectedDisplay(display),
                                 image: thumbnails.displayImages[display.id]
                             ) {
                                 model.selectedDisplayID = display.isMain ? nil : display.id
-                                model.captureMode = .pantalla
+                                model.captureMode = .screen
                                 controller.close()
                             }
                         }
@@ -140,11 +140,11 @@ private struct CapturePickerView: View {
                                 PickerCard(
                                     title: window.appName,
                                     subtitle: window.title,
-                                    isSelected: model.captureMode == .ventana && model.selectedWindow?.id == window.id,
+                                    isSelected: model.captureMode == .window && model.selectedWindow?.id == window.id,
                                     image: thumbnails.windowImages[window.id]
                                 ) {
                                     model.selectedWindow = window
-                                    model.captureMode = .ventana
+                                    model.captureMode = .window
                                     controller.close()
                                 }
                             }
@@ -157,10 +157,10 @@ private struct CapturePickerView: View {
         .frame(width: 720, height: 540)
         .background(GrabiColor.bg)
         .task {
-            // 1. Pintar YA con lo conocido (caché de miniaturas + contenido
-            //    SCK que el modelo ya trajo al abrir el panel).
+            // 1. Paint NOW with what's known (thumbnail cache + SCK content
+            //    the model already fetched when the panel opened).
             await thumbnails.refresh(displays: model.availableDisplays, windows: model.availableWindows)
-            // 2. Refrescar la lista y volver a capturar lo nuevo.
+            // 2. Refresh the list and re-capture what's new.
             await model.refreshAll()
             await thumbnails.refresh(displays: model.availableDisplays, windows: model.availableWindows)
         }

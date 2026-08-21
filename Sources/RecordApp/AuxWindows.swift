@@ -4,7 +4,7 @@ import AVFoundation
 import RecordEngine
 import RecordUI
 
-/// Ventana titulada simple reutilizable.
+/// Simple reusable titled window.
 @MainActor
 class TitledWindowController: NSObject, NSWindowDelegate {
     var window: NSWindow?
@@ -31,7 +31,7 @@ class TitledWindowController: NSObject, NSWindowDelegate {
     }
 }
 
-// MARK: - Onboarding (Fase 3 §06): 3 pantallas y a grabar
+// MARK: - Onboarding (Phase 3 §06): 3 screens and off to record
 
 @MainActor
 final class OnboardingWindowController: TitledWindowController {
@@ -83,7 +83,7 @@ struct OnboardingView: View {
 
     private var page0: some View {
         VStack(spacing: 16) {
-            MascotView(pose: .saludando, size: 116)
+            MascotView(pose: .waving, size: 116)
             Text(L("app.ob.hello"))
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
@@ -109,11 +109,11 @@ struct OnboardingView: View {
                 .foregroundStyle(GrabiColor.textSecondary)
             VStack(spacing: 8) {
                 permissionRow(
-                    icon: .pantalla, title: RecordingSource.screen.displayName,
+                    icon: .screen, title: RecordingSource.screen.displayName,
                     granted: model.preflight?.screen.isUsable == true,
                     action: { model.openScreenSettings() })
                 permissionRow(
-                    icon: .microfono, title: RecordingSource.microphone.displayName,
+                    icon: .microphone, title: RecordingSource.microphone.displayName,
                     granted: model.preflight?.microphone.isUsable == true,
                     action: {
                         Task {
@@ -133,7 +133,7 @@ struct OnboardingView: View {
 
     private func permissionRow(icon: GrabiIcon, title: String, granted: Bool, action: @escaping () -> Void) -> some View {
         HStack(spacing: 11) {
-            GrabiIconView(icon, size: 17, tint: granted ? GrabiColor.exito : GrabiColor.text)
+            GrabiIconView(icon, size: 17, tint: granted ? GrabiColor.success : GrabiColor.text)
             Text(title)
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(GrabiColor.text)
@@ -141,7 +141,7 @@ struct OnboardingView: View {
             if granted {
                 Text(L("app.ob.granted"))
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(GrabiColor.exito)
+                    .foregroundStyle(GrabiColor.success)
             } else {
                 Button(action: action) {
                     Text(L("app.ob.allow"))
@@ -164,7 +164,7 @@ struct OnboardingView: View {
 
     private var page2: some View {
         VStack(spacing: 14) {
-            MascotView(pose: .grabando, size: 86)
+            MascotView(pose: .recording, size: 86)
             Text(L("app.ob.first.title"))
                 .font(.system(size: 21, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
@@ -176,7 +176,7 @@ struct OnboardingView: View {
             Spacer().frame(height: 4)
             Button { finish(startRecording: true) } label: {
                 HStack(spacing: 10) {
-                    SemaforoDot(.listo, size: 12)
+                    SemaforoDot(.ready, size: 12)
                     Text(L("app.ob.testRecording"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(GrabiColor.text)
@@ -201,12 +201,12 @@ struct OnboardingView: View {
     }
 }
 
-// MARK: - Flujo de permisos (Fase 3 §04): honestidad + pasos numerados
+// MARK: - Permission flow (Phase 3 §04): honesty + numbered steps
 
 @MainActor
 final class PermissionWindowController: TitledWindowController {
     func show(model: GrabiAppModel, source: RecordingSource) {
-        // Cámara/mic sin determinar → diálogo del sistema directamente.
+        // Camera/mic not determined → system dialog directly.
         if source == .camera || source == .microphone {
             let mediaType: AVMediaType = source == .camera ? .video : .audio
             if AVCaptureDevice.authorizationStatus(for: mediaType) == .notDetermined {
@@ -256,7 +256,7 @@ private struct PermissionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 16) {
-                MascotView(pose: .preocupado, size: 60)
+                MascotView(pose: .worried, size: 60)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(titleText)
                         .font(.system(size: 17, weight: .bold))
@@ -298,7 +298,7 @@ private struct PermissionView: View {
     }
 }
 
-// MARK: - Ajustes (mínimos: carpeta + atajos)
+// MARK: - Settings (minimal: folder + shortcuts)
 
 @MainActor
 final class SettingsWindowController: TitledWindowController {
@@ -321,7 +321,7 @@ struct SettingsView: View {
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 HStack {
-                    GrabiIconView(.carpeta, size: 16, tint: GrabiColor.textSecondary)
+                    GrabiIconView(.folder, size: 16, tint: GrabiColor.textSecondary)
                     Text(model.destinationFolder.path.replacingOccurrences(
                         of: FileManager.default.homeDirectoryForCurrentUser.path, with: "~"))
                         .font(GrabiFont.caption)
@@ -342,9 +342,9 @@ struct SettingsView: View {
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 VStack(spacing: 0) {
-                    qualityRow(.estandar)
+                    qualityRow(.standard)
                     RowDivider()
-                    qualityRow(.nitida)
+                    qualityRow(.sharp)
                 }
                 .background(GrabiColor.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -390,8 +390,8 @@ struct SettingsView: View {
         .background(GrabiColor.bg)
     }
 
-    /// Fila de calidad: toda la fila es clicable, check en brand-strong para
-    /// la seleccionada (patrón del dropdown, Fase 2 §05).
+    /// Quality row: the whole row is clickable, brand-strong check on the
+    /// selected one (dropdown pattern, Phase 2 §05).
     private func qualityRow(_ quality: RecordingQuality) -> some View {
         let selected = model.quality == quality
         return HStack(spacing: 11) {
@@ -449,11 +449,11 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Galería (debug)
+// MARK: - Gallery (debug)
 
 @MainActor
 final class GalleryWindowController: TitledWindowController {
     func show() {
-        present(title: "Galería Grabi", size: NSSize(width: 880, height: 640), content: GrabiGallery())
+        present(title: "Grabi Gallery", size: NSSize(width: 880, height: 640), content: GrabiGallery())
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Strings localizados de los componentes (Bundle.module del target).
+/// Localized strings for the components (the target's Bundle.module).
 func L(_ key: String) -> String {
     NSLocalizedString(key, bundle: .module, comment: "")
 }

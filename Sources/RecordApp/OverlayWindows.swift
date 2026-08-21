@@ -4,7 +4,7 @@ import Combine
 import RecordEngine
 import RecordUI
 
-/// Panel flotante no activante: base para pastilla y overlays.
+/// Non-activating floating panel: base for the pill and overlays.
 private func makeFloatingPanel(level: NSWindow.Level) -> NSPanel {
     let panel = NSPanel(
         contentRect: .zero,
@@ -20,10 +20,10 @@ private func makeFloatingPanel(level: NSWindow.Level) -> NSPanel {
     return panel
 }
 
-// MARK: - Pastilla flotante (Fase 3 §03)
+// MARK: - Floating pill (Phase 3 §03)
 
-/// Aparece al grabar, arrastrable, siempre encima y EXCLUIDA de la captura
-/// (el motor excluye las ventanas de la propia app).
+/// Appears while recording, draggable, always on top and EXCLUDED from the
+/// capture (the engine excludes the app's own windows).
 @MainActor
 final class PillWindowController {
     private var panel: NSPanel?
@@ -72,9 +72,9 @@ private struct PillRoot: View {
     }
 }
 
-// MARK: - Borde de grabación
-// Marco redondeado alrededor de lo que se está grabando (pantalla, ventana o
-// región): siempre sabes qué área se ve. Click-through y excluido de la captura.
+// MARK: - Recording border
+// Rounded frame around what is being recorded (screen, window, or region):
+// you always know which area is visible. Click-through and excluded from capture.
 
 @MainActor
 final class CaptureBorderWindowController {
@@ -83,7 +83,7 @@ final class CaptureBorderWindowController {
     func show(frame: NSRect) {
         if panel == nil {
             let p = makeFloatingPanel(level: .statusBar)
-            p.ignoresMouseEvents = true // nunca estorba: los clics lo atraviesan
+            p.ignoresMouseEvents = true // never in the way: clicks pass through it
             p.contentView = NSHostingView(rootView: CaptureBorderView())
             panel = p
         }
@@ -105,10 +105,10 @@ private struct CaptureBorderView: View {
     }
 }
 
-// MARK: - Recuadro flotante de la selfie durante la grabación
-// La cámara en vivo, con su forma, EXCLUIDA de la captura, colocada en el
-// mismo lugar donde se compone en el video. Arrastrarla mueve el PiP grabado
-// en vivo: el recuadro ES la vista previa de lo que se está grabando.
+// MARK: - Floating selfie frame during recording
+// The live camera, with its shape, EXCLUDED from the capture, placed in the
+// same spot where it is composited into the video. Dragging it moves the
+// recorded PiP live: the frame IS the preview of what is being recorded.
 
 @MainActor
 final class CameraWindowController: NSObject {
@@ -118,13 +118,13 @@ final class CameraWindowController: NSObject {
     private var layoutCancellable: AnyCancellable?
     private var moveObserver: NSObjectProtocol?
     private var programmaticMove = false
-    /// Área de captura en coordenadas NS (origen abajo-izquierda, globales);
-    /// nil → sin mapeo (modo cámara-sola: libre).
+    /// Capture area in NS coordinates (bottom-left origin, global);
+    /// nil → no mapping (camera-only mode: free).
     private var baseRect: NSRect?
 
     func show(model: GrabiAppModel) {
         self.model = model
-        renderView.usesAspectFill = true // recorte centrado, como el PiP grabado
+        renderView.usesAspectFill = true // centered crop, like the recorded PiP
         model.engine.onCameraFrame = { [weak self] pixelBuffer in
             DispatchQueue.main.async { self?.renderView.render(pixelBuffer) }
         }
@@ -148,8 +148,8 @@ final class CameraWindowController: NSObject {
         applyLayout()
         panel?.orderFrontRegardless()
 
-        // Seguir cambios de forma/tamaño/posición hechos desde otro lado
-        // (ventana de vista previa, menú contextual).
+        // Track shape/size/position changes made from elsewhere
+        // (preview window, context menu).
         layoutCancellable = model.$cameraLayout
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.applyLayout() }
@@ -160,7 +160,7 @@ final class CameraWindowController: NSObject {
         panel?.orderOut(nil)
     }
 
-    /// Rect de lo capturado, en coordenadas de pantalla NS.
+    /// Rect of what is captured, in NS screen coordinates.
     private func computeBaseRect() -> NSRect? {
         model?.captureAreaFrame()
     }
@@ -178,10 +178,10 @@ final class CameraWindowController: NSObject {
             let y = base.maxY - base.height * layout.origin.y - h
             panel.setFrame(NSRect(x: x, y: y, width: w, height: h), display: true)
         } else if let screen = NSScreen.main {
-            // Cámara-sola: tamaño fijo abajo a la derecha, libre de mover.
+            // Camera-only: fixed size at the bottom right, free to move.
             let h: CGFloat = 220
             let w = h * layout.shape.aspectRatio
-            if panel.frame.width < 10 { // primera vez
+            if panel.frame.width < 10 { // first time
                 panel.setFrame(NSRect(x: screen.visibleFrame.maxX - w - 24,
                                       y: screen.visibleFrame.minY + 24,
                                       width: w, height: h), display: true)
@@ -193,7 +193,7 @@ final class CameraWindowController: NSObject {
         }
     }
 
-    // MARK: Redimensionar desde cualquier esquina (ancla: la esquina opuesta)
+    // MARK: Resize from any corner (anchor: the opposite corner)
 
     private var resizeStartLayout: (origin: CGPoint, height: CGFloat)?
     private var resizeStartFrame: NSRect?
@@ -203,14 +203,14 @@ final class CameraWindowController: NSObject {
         resizeStartFrame = panel?.frame
     }
 
-    /// En modo mapeado actualiza `cameraLayout` → el PiP grabado cambia de
-    /// tamaño en vivo; la esquina opuesta a la arrastrada queda fija.
+    /// In mapped mode updates `cameraLayout` → the recorded PiP resizes
+    /// live; the corner opposite the dragged one stays fixed.
     private func resize(by delta: CGFloat, corner: ResizeCorner) {
         guard let model else { return }
         let aspect = model.cameraLayout.shape.aspectRatio
 
         if let base = baseRect, let start = resizeStartLayout {
-            // Mismo rango que la vista previa (prototipo: s 80–210 sobre 360).
+            // Same range as the preview (prototype: s 80–210 over 360).
             let newHeight = min(max(start.height + delta / base.height, 80.0 / 360.0), 210.0 / 360.0)
             let dH = start.height - newHeight
             let dW = dH * aspect * base.height / base.width
@@ -225,10 +225,10 @@ final class CameraWindowController: NSObject {
             origin.x = min(max(origin.x, 0), max(0, 1 - wFrac))
             origin.y = min(max(origin.y, 0), max(0, 1 - newHeight))
             model.cameraLayout = CameraLayout(shape: model.cameraLayout.shape, origin: origin, height: newHeight)
-            // applyLayout() llega vía la suscripción a $cameraLayout.
+            // applyLayout() arrives via the $cameraLayout subscription.
         } else if let panel, let f0 = resizeStartFrame {
-            // Cámara-sola: solo cambia la ventana flotante (coords NS: y hacia
-            // arriba; "topLeft" visual = (minX, maxY)).
+            // Camera-only: only the floating window changes (NS coords: y
+            // upward; visual "topLeft" = (minX, maxY)).
             let h = min(max(f0.height + delta, 140), 420)
             let w = h * aspect
             let newFrame: NSRect
@@ -244,7 +244,7 @@ final class CameraWindowController: NSObject {
         }
     }
 
-    /// El usuario arrastró el recuadro → mover el PiP grabado en vivo.
+    /// The user dragged the frame → move the recorded PiP live.
     private func windowMoved() {
         guard !programmaticMove, let panel, let base = baseRect, let model else { return }
         let f = panel.frame
@@ -254,18 +254,18 @@ final class CameraWindowController: NSObject {
         var y = (base.maxY - f.maxY) / base.height
         x = min(max(x, 0), max(0, 1 - wFrac))
         y = min(max(y, 0), max(0, 1 - hFrac))
-        // Evitar el eco: cameraLayout.didSet re-aplica el frame.
+        // Avoid the echo: cameraLayout.didSet re-applies the frame.
         programmaticMove = true
         model.cameraLayout.origin = CGPoint(x: x, y: y)
         programmaticMove = false
     }
 }
 
-/// Esquina de redimensión (nombres visuales: topLeft = arriba-izquierda).
+/// Resize corner (visual names: topLeft = top-left).
 enum ResizeCorner {
     case topLeft, topRight, bottomLeft, bottomRight
 
-    /// Crecimiento a partir del arrastre: hacia afuera = agrandar.
+    /// Growth from the drag: outward = enlarge.
     func delta(from translation: CGSize) -> CGFloat {
         switch self {
         case .bottomRight: return max(translation.width, translation.height)
@@ -301,15 +301,15 @@ private struct CameraFloatView: View {
                 ? geo.size.height / 2
                 : geo.size.height * layout.cornerRadiusFraction
             CameraPixelView(view: renderView)
-                .scaleEffect(x: -1, y: 1) // modo espejo, igual que lo grabado
+                .scaleEffect(x: -1, y: 1) // mirror mode, same as the recording
                 .clipShape(RoundedRectangle(cornerRadius: radius))
                 .contextMenu {
                     ForEach(CameraShape.allCases) { shape in
                         Button(shape.displayName) { model.cameraLayout.shape = shape }
                     }
                 }
-                // Mover: arrastra desde dentro del cuadro (la ventana es
-                // movable-by-background). Redimensionar: cualquier esquina.
+                // Move: drag from inside the frame (the window is
+                // movable-by-background). Resize: any corner.
                 .overlay {
                     ForEach([ResizeCorner.topLeft, .topRight, .bottomLeft, .bottomRight], id: \.self) { corner in
                         cornerHandle(corner, circleInset: layout.shape == .circle ? geo.size.height * 0.10 : 4)
@@ -322,7 +322,7 @@ private struct CameraFloatView: View {
         .ignoresSafeArea()
     }
 
-    /// Manija de esquina: visible al pasar el cursor, área de golpeo de 30 px.
+    /// Corner handle: visible on hover, 30 px hit area.
     private func cornerHandle(_ corner: ResizeCorner, circleInset: CGFloat) -> some View {
         Circle()
             .fill(Color.white)
@@ -352,7 +352,7 @@ private struct CameraPixelView: NSViewRepresentable {
     func updateNSView(_ nsView: PixelBufferNSView, context: Context) {}
 }
 
-// MARK: - Cuenta regresiva 3·2·1 (Fase 3/4: mascota concentrándose)
+// MARK: - 3·2·1 countdown (Phase 3/4: mascot concentrating)
 
 @MainActor
 final class CountdownWindowController {
@@ -381,7 +381,7 @@ private struct CountdownView: View {
         ZStack {
             Color.black.opacity(0.35)
             VStack(spacing: 18) {
-                MascotView(pose: .grabando, size: 120)
+                MascotView(pose: .recording, size: 120)
                 Text("\(model.countdown ?? 0)")
                     .font(.system(size: 88, weight: .heavy, design: .rounded))
                     .foregroundStyle(Color(nsColor: NSColor(srgbRed: 0xFA/255.0, green: 0xF7/255.0, blue: 0xF1/255.0, alpha: 1)))
@@ -392,7 +392,7 @@ private struct CountdownView: View {
     }
 }
 
-// MARK: - Selector de región (Fase C §3): overlay para dibujar el recuadro
+// MARK: - Region picker (Phase C §3): overlay to draw the rectangle
 
 @MainActor
 final class RegionPickerController: NSObject {
@@ -400,10 +400,10 @@ final class RegionPickerController: NSObject {
     private var keyMonitor: Any?
     private weak var model: GrabiAppModel?
 
-    /// Un overlay POR PANTALLA: el usuario dibuja en la que quiera y esa
-    /// pantalla queda seleccionada. Los paneles se crean de cero en cada
-    /// apertura para que el arrastre anterior no contamine el nuevo (el
-    /// estado del gesto vive en la vista).
+    /// One overlay PER SCREEN: the user draws on whichever one they want
+    /// and that screen becomes the selected one. The panels are created from
+    /// scratch on every opening so the previous drag doesn't contaminate the
+    /// new one (the gesture state lives in the view).
     func show(model: GrabiAppModel) {
         self.model = model
         closePanels()
@@ -418,7 +418,7 @@ final class RegionPickerController: NSObject {
             panel.orderFrontRegardless()
             panels.append(panel)
         }
-        // Esc cancela.
+        // Esc cancels.
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             if event.keyCode == 53 { self?.finish(rect: nil, displayID: nil); return nil }
             return event
@@ -442,13 +442,13 @@ final class RegionPickerController: NSObject {
             }
             model.captureMode = .region
         } else if model.regionRect == nil, model.captureMode == .region {
-            model.captureMode = .pantalla
+            model.captureMode = .screen
         }
     }
 }
 
-/// Dibuja el recuadro con arrastre; coordenadas locales (arriba-izquierda)
-/// == coordenadas de `sourceRect` porque la ventana cubre la pantalla entera.
+/// Draws the rectangle by dragging; local coordinates (top-left)
+/// == `sourceRect` coordinates because the window covers the whole screen.
 private struct RegionPickView: View {
     let onDone: (CGRect) -> Void
     let onCancel: () -> Void
@@ -465,7 +465,7 @@ private struct RegionPickView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .topLeading) {
-                // Velo con recorte en la región elegida.
+                // Veil with a cutout at the chosen region.
                 Canvas { context, size in
                     var veil = Path(CGRect(origin: .zero, size: size))
                     if let rect { veil.addRect(rect) }

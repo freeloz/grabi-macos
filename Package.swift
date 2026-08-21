@@ -5,29 +5,29 @@ let package = Package(
     name: "Record",
     defaultLocalization: "en",
     platforms: [
-        .macOS(.v13) // ScreenCaptureKit con captura de audio de sistema requiere macOS 13+
+        .macOS(.v13) // ScreenCaptureKit with system-audio capture requires macOS 13+
     ],
     targets: [
-        // Motor de grabación: sin UI, solo frameworks de Apple.
+        // Recording engine: no UI, Apple frameworks only.
         .target(
             name: "RecordEngine",
             resources: [.process("Resources")]
         ),
-        // Sistema de diseño Grabi: tokens, íconos, mascota y componentes SwiftUI.
+        // Grabi design system: tokens, icons, mascot, and SwiftUI components.
         .target(
             name: "RecordUI",
             dependencies: ["RecordEngine"],
             resources: [.process("Resources")]
         ),
-        // La app.
+        // The app.
         .executableTarget(
             name: "RecordApp",
             dependencies: ["RecordEngine", "RecordUI"],
             resources: [.process("Resources")],
             linkerSettings: [
-                // Incrusta el Info.plist en el binario (sección __info_plist)
-                // para que los diálogos de permisos funcionen también al
-                // ejecutar con `swift run`, fuera del bundle .app.
+                // Embeds Info.plist in the binary (__info_plist section)
+                // so the permission dialogs also work when running via
+                // `swift run`, outside the .app bundle.
                 .unsafeFlags([
                     "-Xlinker", "-sectcreate",
                     "-Xlinker", "__TEXT",
@@ -36,8 +36,8 @@ let package = Package(
                 ])
             ]
         ),
-        // Verificador de integración del motor (CLT no incluye XCTest):
-        // `swift run EngineChecks` — fuentes sintéticas, sin permisos de TCC.
+        // Engine integration checks (CLT ships without XCTest):
+        // `swift run EngineChecks` — synthetic sources, no TCC permissions.
         .executableTarget(
             name: "EngineChecks",
             dependencies: ["RecordEngine"]

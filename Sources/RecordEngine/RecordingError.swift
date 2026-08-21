@@ -1,8 +1,8 @@
 import Foundation
 
-/// Errores del motor: accionables y localizados (Localizable.strings del
-/// target; las instrucciones de permisos usan las rutas REALES de Ajustes
-/// del Sistema en cada idioma).
+/// Engine errors: actionable and localized (the target's
+/// Localizable.strings; the permission instructions use the REAL System
+/// Settings paths in each language).
 public enum RecordingError: LocalizedError, Equatable {
     case noActiveSources
     case screenPermissionDenied
@@ -29,10 +29,10 @@ public enum RecordingError: LocalizedError, Equatable {
         case .displayNotFound: return L("err.displayNotFound")
         case .windowNotFound: return L("err.windowNotFound")
         case .invalidRegion: return L("err.invalidRegion")
-        case .captureInterrupted(let detalle): return String(format: L("err.captureInterrupted"), detalle)
-        case .writeFailed(let detalle): return String(format: L("err.writeFailed"), detalle)
+        case .captureInterrupted(let detail): return String(format: L("err.captureInterrupted"), detail)
+        case .writeFailed(let detail): return String(format: L("err.writeFailed"), detail)
         case .nothingRecorded: return L("err.nothingRecorded")
-        case .invalidState(let detalle): return String(format: L("err.invalidState"), detalle)
+        case .invalidState(let detail): return String(format: L("err.invalidState"), detail)
         }
     }
 }

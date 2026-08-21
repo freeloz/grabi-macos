@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// El botón de grabar ★ (Fase 2 §03). Sigue el semáforo y, al grabar, SE
-/// TRANSFORMA en el cronómetro: mismo lugar, misma forma, otro trabajo.
-/// Radio full; altura 56 por defecto (52 dentro del panel, Fase 3 §01).
+/// The record button ★ (Phase 2 §03). It follows the traffic light and,
+/// when recording, TRANSFORMS into the timer: same place, same shape,
+/// different job. Full radius; height 56 by default (52 inside the panel,
+/// Phase 3 §01).
 public enum RecordButtonState: Equatable {
-    case listo
-    case grabando
-    case pausado
+    case ready
+    case recording
+    case paused
 }
 
 public struct RecordButton: View {
@@ -43,20 +44,20 @@ public struct RecordButton: View {
     public var body: some View {
         Group {
             switch state {
-            case .listo: listoBody
-            case .grabando: grabandoBody
-            case .pausado: pausadoBody
+            case .ready: listoBody
+            case .recording: recordingBody
+            case .paused: pausedBody
             }
         }
         .frame(height: height)
         .animation(GrabiAnimation.standard(), value: state)
     }
 
-    // listo · punto verde + Grabar + atajo. Hover: elev.1 → elev.2.
+    // ready · green dot + Record + shortcut. Hover: elev.1 → elev.2.
     private var listoBody: some View {
         Button(action: onRecord) {
             HStack(spacing: GrabiSpace.s3) {
-                SemaforoDot(isEnabled ? .listo : .apagado, size: 14)
+                SemaforoDot(isEnabled ? .ready : .apagado, size: 14)
                 Text(L("ui.record"))
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(GrabiColor.text)
@@ -75,7 +76,7 @@ public struct RecordButton: View {
             .background(hovering && isEnabled ? GrabiColor.bg : GrabiColor.surface)
             .overlay(
                 Capsule().strokeBorder(
-                    isEnabled ? (hovering ? GrabiColor.switchOff /* #C4B89F, hover del spec */ : GrabiColor.borderStrong)
+                    isEnabled ? (hovering ? GrabiColor.switchOff /* #C4B89F, spec hover */ : GrabiColor.borderStrong)
                               : GrabiColor.border,
                     lineWidth: 1.5)
             )
@@ -91,17 +92,17 @@ public struct RecordButton: View {
         .keyboardShortcut(.defaultAction)
     }
 
-    // grabando · pastilla oscura con cronómetro + pausa + stop.
-    private var grabandoBody: some View {
+    // recording · dark pill with timer + pause + stop.
+    private var recordingBody: some View {
         HStack(spacing: GrabiSpace.s3 + 2) {
-            SemaforoDot(.grabando, size: 13)
+            SemaforoDot(.recording, size: 13)
             Text(elapsed)
                 .font(GrabiFont.timer())
                 .foregroundStyle(GrabiColor.ivoryFixed)
             Rectangle()
                 .fill(GrabiColor.inkFixedSoft)
                 .frame(width: 1, height: 24)
-            PillCircleButton(kind: .pausa, action: onPause)
+            PillCircleButton(kind: .pause, action: onPause)
             PillCircleButton(kind: .stop, action: onStop)
         }
         .padding(.leading, 22)
@@ -115,11 +116,11 @@ public struct RecordButton: View {
         .accessibilityLabel(String(format: L("ui.a11y.recording"), elapsed))
     }
 
-    // pausado · ámbar + cronómetro atenuado + Reanudar.
-    private var pausadoBody: some View {
+    // paused · amber + dimmed timer + Resume.
+    private var pausedBody: some View {
         Button(action: onResume) {
             HStack(spacing: GrabiSpace.s3 + 2) {
-                SemaforoDot(.pausado, size: 13)
+                SemaforoDot(.paused, size: 13)
                 Text(elapsed)
                     .font(GrabiFont.timer())
                     .foregroundStyle(GrabiColor.textSecondary)
@@ -139,9 +140,9 @@ public struct RecordButton: View {
     }
 }
 
-/// Botón circular de la pastilla (pausa: borde; stop: relleno rec).
+/// Circular button on the pill (pause: outline; stop: rec fill).
 struct PillCircleButton: View {
-    enum Kind { case pausa, stop, reanudar }
+    enum Kind { case pause, stop, resume }
     let kind: Kind
     let action: () -> Void
     var size: CGFloat = 32
@@ -152,8 +153,8 @@ struct PillCircleButton: View {
         Button(action: action) {
             Group {
                 switch kind {
-                case .pausa:
-                    GrabiIconView(.pausa, size: size * 0.44, tint: GrabiColor.ivoryFixed)
+                case .pause:
+                    GrabiIconView(.pause, size: size * 0.44, tint: GrabiColor.ivoryFixed)
                         .frame(width: size, height: size)
                         .overlay(Circle().strokeBorder(GrabiColor.inkFixedBorder, lineWidth: 1.5))
                 case .stop:
@@ -162,8 +163,8 @@ struct PillCircleButton: View {
                         .frame(width: size * 0.31, height: size * 0.31)
                         .frame(width: size, height: size)
                         .background(Circle().fill(GrabiColor.recOnInk))
-                case .reanudar:
-                    GrabiIconView(.reanudar, size: size * 0.4, tint: GrabiColor.inkFixed)
+                case .resume:
+                    GrabiIconView(.resume, size: size * 0.4, tint: GrabiColor.inkFixed)
                         .frame(width: size, height: size)
                         .background(Circle().fill(GrabiColor.ivoryFixed))
                 }
@@ -173,17 +174,17 @@ struct PillCircleButton: View {
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
-        .accessibilityLabel(kind == .pausa ? L("ui.pause") : kind == .stop ? L("ui.stop") : L("ui.resume"))
+        .accessibilityLabel(kind == .pause ? L("ui.pause") : kind == .stop ? L("ui.stop") : L("ui.resume"))
     }
 }
 
-/// Pastilla flotante durante la grabación (Fase 3 §03): mínima, arrastrable,
-/// siempre encima, excluida de la captura. Doble clic la colapsa.
+/// Floating pill during recording (Phase 3 §03): minimal, draggable,
+/// always on top, excluded from capture. Double-click collapses it.
 public struct FloatingPill: View {
     let isPaused: Bool
     let elapsed: String
     @Binding var collapsed: Bool
-    /// Controles en vivo opcionales: (encendido, acción al pulsar).
+    /// Optional live controls: (on state, tap action).
     let cameraToggle: (isOn: Bool, action: () -> Void)?
     let micToggle: (isOn: Bool, action: () -> Void)?
     let onPause: () -> Void
@@ -217,7 +218,7 @@ public struct FloatingPill: View {
                 if isPaused {
                     RoundedRectangle(cornerRadius: 2.5).fill(GrabiColor.ambarOnInk)
                 } else {
-                    SemaforoDot(.grabando, size: 11)
+                    SemaforoDot(.recording, size: 11)
                 }
             }
             .frame(width: 11, height: 11)
@@ -227,19 +228,19 @@ public struct FloatingPill: View {
             if !collapsed {
                 Rectangle().fill(GrabiColor.inkFixedSoft).frame(width: 1, height: 22)
                 if let cameraToggle {
-                    PillSourceToggle(icon: .camCirculo, isOn: cameraToggle.isOn,
+                    PillSourceToggle(icon: .camCircle, isOn: cameraToggle.isOn,
                                      onLabel: L("ui.cam.hide"), offLabel: L("ui.cam.show"),
                                      action: cameraToggle.action)
                 }
                 if let micToggle {
-                    PillSourceToggle(icon: .microfono, isOn: micToggle.isOn,
+                    PillSourceToggle(icon: .microphone, isOn: micToggle.isOn,
                                      onLabel: L("ui.mic.mute"), offLabel: L("ui.mic.unmute"),
                                      action: micToggle.action)
                 }
                 if isPaused {
                     Button(action: onResume) {
                         HStack(spacing: 7) {
-                            GrabiIconView(.reanudar, size: 12, tint: GrabiColor.inkFixed)
+                            GrabiIconView(.resume, size: 12, tint: GrabiColor.inkFixed)
                             Text(L("ui.resume"))
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(GrabiColor.inkFixed)
@@ -251,7 +252,7 @@ public struct FloatingPill: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(L("ui.resume"))
                 } else {
-                    PillCircleButton(kind: .pausa, action: onPause, size: 30)
+                    PillCircleButton(kind: .pause, action: onPause, size: 30)
                 }
                 PillCircleButton(kind: .stop, action: onStop, size: 30)
             }
@@ -270,7 +271,7 @@ public struct FloatingPill: View {
     }
 }
 
-/// Manija de arrastre (6 puntos), visible en la pastilla.
+/// Drag handle (6 dots), visible on the pill.
 struct DragHandleDots: View {
     var body: some View {
         VStack(spacing: 3.5) {
@@ -287,9 +288,9 @@ struct DragHandleDots: View {
 }
 
 
-/// Toggle de fuente en la pastilla (cámara/mic en vivo): encendido = ícono
-/// marfil con borde; apagado = ícono atenuado con barra diagonal ámbar
-/// (semántica del semáforo: ámbar = en pausa, no error).
+/// Source toggle on the pill (live camera/mic): on = ivory icon with
+/// outline; off = dimmed icon with an amber diagonal bar (traffic-light
+/// semantics: amber = paused, not error).
 struct PillSourceToggle: View {
     let icon: GrabiIcon
     let isOn: Bool

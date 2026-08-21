@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 import CoreGraphics
 
-/// Estado de una fuente según el chequeo previo.
+/// Status of a source according to the preflight check.
 public enum SourceStatus: Equatable, Sendable {
     case available
     case permissionDenied(help: String)
@@ -13,7 +13,7 @@ public enum SourceStatus: Equatable, Sendable {
         return false
     }
 
-    /// Texto en español para mostrar al usuario cuando la fuente no es usable.
+    /// Localized text to show the user when the source is not usable.
     public var explanation: String? {
         switch self {
         case .available: return nil
@@ -23,8 +23,8 @@ public enum SourceStatus: Equatable, Sendable {
     }
 }
 
-/// Resultado del chequeo previo de las 4 fuentes. La UI lo usa para avisar
-/// al usuario ANTES de iniciar y ofrecerle grabar sin las fuentes que fallen.
+/// Result of the preflight check of the 4 sources. The UI uses it to warn
+/// the user BEFORE starting and offer to record without the failing sources.
 public struct PreflightReport: Equatable, Sendable {
     public let screen: SourceStatus
     public let camera: SourceStatus
@@ -42,25 +42,25 @@ public struct PreflightReport: Equatable, Sendable {
 }
 
 public enum Preflight {
-    /// Chequea disponibilidad y permisos de las 4 fuentes.
+    /// Checks availability and permissions of the 4 sources.
     ///
-    /// Si `requestingAccess` es true, solicita al sistema los permisos que
-    /// estén en estado "no determinado" (muestra los diálogos de macOS) —
-    /// así los avisos aparecen antes de iniciar, nunca a mitad de grabación.
+    /// If `requestingAccess` is true, asks the system for the permissions
+    /// still in the "not determined" state (shows the macOS dialogs) —
+    /// so the prompts appear before starting, never mid-recording.
     public static func check(requestingAccess: Bool = true) async -> PreflightReport {
         PreflightReport(
             screen: await screenStatus(requestingAccess: requestingAccess),
             camera: await cameraStatus(requestingAccess: requestingAccess),
             microphone: await microphoneStatus(requestingAccess: requestingAccess),
-            systemAudio: await screenStatus(requestingAccess: false) // mismo permiso que pantalla
+            systemAudio: await screenStatus(requestingAccess: false) // same permission as screen
         )
     }
 
     private static func screenStatus(requestingAccess: Bool) async -> SourceStatus {
         if CGPreflightScreenCaptureAccess() { return .available }
         if requestingAccess {
-            // Solo la primera vez macOS muestra el aviso que lleva a Ajustes;
-            // las siguientes devuelve false en silencio.
+            // Only the first time does macOS show the prompt that leads to
+            // System Settings; subsequent calls silently return false.
             if CGRequestScreenCaptureAccess() { return .available }
         }
         return .permissionDenied(help: RecordingError.screenPermissionDenied.errorDescription ?? "")

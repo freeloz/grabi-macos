@@ -1,152 +1,156 @@
 # Grabi
 
-**Graba tu pantalla sin drama.** Grabi es un grabador de pantalla nativo de
-macOS que vive en la barra de menú: abres, presionas el punto rojo, listo.
-Lo contrario de OBS.
+**Record your screen, no drama.** Grabi is a native macOS screen recorder
+that lives in the menu bar: open it, hit the red dot, done. The opposite
+of OBS.
 
-- **4 fuentes independientes**, cualquier combinación: pantalla (completa,
-  una ventana o una región), cámara selfie, micrófono y audio del sistema.
-- **Cámara en picture-in-picture** con forma (círculo / cuadrado /
-  rectángulo), posición y tamaño libres — modificables **en vivo** durante
-  la grabación, arrastrando el recuadro flotante que siempre ves mientras
-  grabas. En espejo, como toda selfie.
-- **Vista previa en vivo**: lo que ves es exactamente lo que se graba.
-- **Pausa/reanuda** sin dejar huecos en el archivo. Pastilla flotante con
-  cronómetro, excluida de la grabación (igual que todas las ventanas de Grabi).
-- **Un solo .mov** con video HEVC por hardware y el micrófono y el audio del
-  sistema en **dos pistas separadas** (~2,2 GB/hora observados a 1080p).
-- Selector visual de pantallas y ventanas con miniaturas, borde rojo
-  alrededor del área grabada, notificación con miniatura al terminar,
-  onboarding con Grabi (la mascota), atajos globales ⌘⇧2 y ⌘⇧P.
-- En español, con la voz de la marca. Todo local: nada sale de tu Mac.
+- **4 independent sources**, any combination: screen (full display, a
+  window, or a region), selfie camera, microphone, and system audio.
+- **Picture-in-picture camera** with free shape (circle / square /
+  rectangle), position and size — adjustable **live** while recording, by
+  dragging the floating box you always see while you record. Mirrored,
+  like every selfie.
+- **Live preview**: what you see is exactly what gets recorded.
+- **Pause/resume** with no gaps in the file. Floating pill with a timer,
+  excluded from the recording (like every Grabi window).
+- **A single .mov** with hardware HEVC video and the microphone and system
+  audio on **two separate tracks** (~2.2 GB/hour observed at 1080p).
+- Visual display and window picker with thumbnails, red border around the
+  recorded area, notification with thumbnail when you finish, onboarding
+  with Grabi (the mascot), global shortcuts ⌘⇧2 and ⌘⇧P.
+- In 5 languages (English default), with the brand voice. Everything local:
+  nothing leaves your Mac.
 
-## Descargar
+## Download
 
-Última versión para macOS 13+ (DMG firmado):
+Latest version for macOS 13+ (signed DMG):
 
 - **https://dl.grabi.net/macos/latest/Grabi.dmg**
-- Manifiesto con versión y checksum: https://dl.grabi.net/macos/latest.json
-- Versiones anteriores: `https://dl.grabi.net/macos/v<versión>/…` y las
-  [releases de GitHub](https://github.com/freeloz/grabi-macos/releases).
+- Manifest with version and checksum: https://dl.grabi.net/macos/latest.json
+- Previous versions: `https://dl.grabi.net/macos/v<version>/…` and the
+  [GitHub releases](https://github.com/freeloz/grabi-macos/releases).
 
-Cada DMG publica su SHA-256 junto al archivo (`.sha256` y `SHA256SUMS.txt`).
-Verifícalo así:
+Every DMG publishes its SHA-256 next to the file (`.sha256` and
+`SHA256SUMS.txt`). Verify it like this:
 
 ```bash
-shasum -a 256 Grabi-*.dmg   # debe coincidir con el .sha256 publicado
+shasum -a 256 Grabi-*.dmg   # must match the published .sha256
 ```
 
-> Firma interina: certificado local "Grabi Dev" con hardened runtime (aún sin
-> notarización de Apple). La primera vez, clic derecho → Abrir. El sitio
-> oficial es [grabi.net](https://grabi.net).
+> Interim signing: local "Grabi Dev" certificate with hardened runtime (no
+> Apple notarization yet). The first time, right-click → Open. The official
+> site is [grabi.net](https://grabi.net).
 
-## Compilar y ejecutar
+## Build and run
 
-Requisitos: macOS 13+, Swift 5.9+ (bastan las Command Line Tools), sin
-dependencias externas — solo frameworks de Apple.
+Requirements: macOS 13+, Swift 5.9+ (the Command Line Tools are enough), no
+external dependencies — Apple frameworks only.
 
 ```bash
-./make-app.sh          # compila (release) y empaqueta dist/Grabi.app
+./make-app.sh          # builds (release) and packages dist/Grabi.app
 open dist/Grabi.app
 ```
 
-`make-app.sh` firma con la identidad local **"Grabi Dev"** si existe en tu
-llavero (créala una vez: Acceso a Llaveros → Asistente para Certificados →
-Crear certificado → tipo *Firma de código*, nombre `Grabi Dev`). Con firma
-estable, los permisos de pantalla/cámara/mic sobreviven a las
-recompilaciones; con firma ad-hoc, macOS re-pide el permiso de pantalla en
-cada build.
+`make-app.sh` signs with the local **"Grabi Dev"** identity if it exists in
+your keychain (create it once: Keychain Access → Certificate Assistant →
+Create a Certificate → type *Code Signing*, name `Grabi Dev`). With a
+stable signature, the screen/camera/mic permissions survive rebuilds; with
+an ad-hoc signature, macOS re-asks for the screen permission on every
+build.
 
-Verificación del motor (sin permisos, corre en cualquier máquina):
+Engine verification (no permissions needed, runs on any machine):
 
 ```bash
 swift run EngineChecks
 ```
 
-Prueba de resistencia (memoria estable en grabaciones largas):
+Endurance test (stable memory during long recordings):
 
 ```bash
-./scripts/monitor-memoria.sh   # mientras grabas 30-60 min
+./scripts/monitor-memory.sh   # while you record 30-60 min
 ```
 
-## Arquitectura
+## Architecture
 
-Swift Package con tres targets:
+Swift Package with three targets:
 
 ```
 Sources/
-├── RecordEngine/    El motor. Cero UI.
-│   ├── RecordEngine.swift       Fachada: preflight → preview → start/pause/stop
-│   ├── CapturePipeline.swift    Captura compartida entre vista previa y grabación
-│   ├── ScreenCapturer.swift     ScreenCaptureKit: pantalla/ventana/región + audio sistema
-│   ├── CameraCapturer.swift     AVFoundation: cámara
-│   ├── MicrophoneCapturer.swift AVFoundation: micrófono (canales nativos)
-│   ├── PiPCompositor.swift      Core Image + Metal: PiP con formas, en GPU
-│   ├── MovieWriter.swift        AVAssetWriter en streaming; pausa por offset de PTS
-│   └── Preflight.swift          Disponibilidad y permisos por fuente
-├── RecordUI/        El sistema de diseño Grabi (design/) como SwiftUI.
-│   ├── Tokens.swift             Colores claro/oscuro, espaciado, radios, movimiento
-│   ├── Mascot.swift             La mascota y el semáforo (8 poses)
-│   └── …                        Botones, filas de fuente, segmented, toasts, galería
-├── RecordApp/       La app de barra de menú (panel, vista previa, overlays…)
-└── EngineChecks/    Verificación de integración del motor
+├── RecordEngine/    The engine. Zero UI.
+│   ├── RecordEngine.swift       Facade: preflight → preview → start/pause/stop
+│   ├── CapturePipeline.swift    Capture shared between preview and recording
+│   ├── ScreenCapturer.swift     ScreenCaptureKit: screen/window/region + system audio
+│   ├── CameraCapturer.swift     AVFoundation: camera
+│   ├── MicrophoneCapturer.swift AVFoundation: microphone (native channels)
+│   ├── PiPCompositor.swift      Core Image + Metal: PiP with shapes, on the GPU
+│   ├── MovieWriter.swift        Streaming AVAssetWriter; pause via PTS offset
+│   └── Preflight.swift          Availability and permissions per source
+├── RecordUI/        The Grabi design system (design/) as SwiftUI.
+│   ├── Tokens.swift             Light/dark colors, spacing, radii, motion
+│   ├── Mascot.swift             The mascot and the traffic light (8 poses)
+│   └── …                        Buttons, source rows, segmented, toasts, gallery
+├── RecordApp/       The menu-bar app (panel, preview, overlays…)
+└── EngineChecks/    Engine integration verification
 ```
 
-Decisiones clave del motor:
+Key engine decisions:
 
-- **Un pipeline, dos consumidores**: la vista previa y el writer comparten
-  capturadores y compositor; empezar a grabar solo "engancha" el writer.
-- **Sincronización**: todas las fuentes estampan PTS con el host clock; el
-  writer arranca su sesión en el primer frame de video y AVAssetWriter
-  alinea el resto. La pausa acumula un offset (medido con el mismo reloj)
-  que se resta a cada PTS: N pausas, cero huecos.
-- **Thread-safety**: los buffers llegan por colas distintas; todos los
-  appends se serializan en la cola interna del writer.
-- **Streaming a disco**: nunca se acumulan frames en RAM; los que llegan
-  con el encoder ocupado se descartan (tiempo real).
+- **One pipeline, two consumers**: the preview and the writer share
+  capturers and compositor; starting a recording just "hooks up" the
+  writer.
+- **Synchronization**: every source stamps PTS with the host clock; the
+  writer starts its session on the first video frame and AVAssetWriter
+  aligns the rest. Pausing accumulates an offset (measured with the same
+  clock) that is subtracted from each PTS: N pauses, zero gaps.
+- **Thread-safety**: buffers arrive on different queues; all appends are
+  serialized on the writer's internal queue.
+- **Streaming to disk**: frames are never accumulated in RAM; frames that
+  arrive while the encoder is busy are dropped (real time).
 
-`design/` contiene el manual de marca, el sistema de diseño y el prototipo
-aprobado (Fases 0–4): es la especificación de la UI. La galería interna
-(Ajustes → Galería del sistema) muestra cada componente en todos sus estados
-para verificar fidelidad.
+`design/` contains the brand manual, the design system, and the approved
+prototype (Phases 0–4): it is the UI specification. The internal gallery
+(Settings → System gallery) shows every component in all of its states to
+verify fidelity.
 
-## Ajustes
+## Settings
 
-- **Calidad de grabación** (v0.1.1): *Estándar* (hasta 1080p, ~3 GB/hora,
-  por defecto) o *Nítida* (resolución nativa de la fuente hasta 4K; el
-  bitrate escala proporcionalmente al área de píxeles para mantener la
-  calidad por píxel, con tope de 32 Mbps). El aspecto siempre se conserva.
-- **Carpeta de grabaciones** y **atajos globales** (⌘⇧2 · ⌘⇧P).
+- **Recording quality** (v0.1.1): *Standard* (up to 1080p, ~3 GB/hour,
+  default) or *Sharp* (native source resolution up to 4K; the bitrate
+  scales proportionally with the pixel area to keep per-pixel quality,
+  capped at 32 Mbps). Aspect ratio is always preserved.
+- **Recordings folder** and **global shortcuts** (⌘⇧2 · ⌘⇧P).
 
-## Idiomas
+## Languages
 
-Grabi habla **inglés** (idioma por defecto), **español**, **portugués**,
-**francés** y **alemán**, siguiendo automáticamente el idioma del sistema
-(sin selector propio). Los mensajes de permisos usan las rutas reales de
-Ajustes del Sistema en cada idioma. La carpeta (`~/Movies/Grabi`) y los
-nombres de archivo (`Grabi 2026-08-20 18.30.45.mov`) son neutros a
-propósito: no cambian si cambias de idioma.
+Grabi speaks **English** (the default language), **Spanish**,
+**Portuguese**, **French**, and **German**, automatically following the
+system language (no language picker of its own). The permission messages
+use the real System Settings paths in each language. The folder
+(`~/Movies/Grabi`) and the file names (`Grabi 2026-08-20 18.30.45.mov`)
+are deliberately neutral: they don't change if you switch languages.
 
-**Contribuir una traducción**: cada target tiene sus catálogos en
-`Sources/<Target>/Resources/<idioma>.lproj/Localizable.strings` (más
-`Support/InfoPlist/` para los diálogos de permisos). Copia la carpeta `en.lproj`
-al código de tu idioma, traduce con la voz de la marca (cercana, simple,
-honesta — ver `design/`), respeta los marcadores `%@`/`%d`, y verifica el
-resultado con la herramienta de capturas:
-`.build/debug/RecordApp --capturas /tmp/i18n -AppleLanguages "(xx)"`.
+**Contributing a translation**: each target keeps its catalogs in
+`Sources/<Target>/Resources/<language>.lproj/Localizable.strings` (plus
+`Support/InfoPlist/` for the permission dialogs). Copy the `en.lproj`
+folder to your language code, translate with the brand voice (warm,
+simple, honest — see `design/`), keep the `%@`/`%d` placeholders, and
+verify the result with the screenshot tool:
+`.build/debug/RecordApp --screenshots /tmp/i18n -AppleLanguages "(xx)"`.
 
-## Permisos
+## Permissions
 
-Grabi necesita Grabación de Pantalla (incluye el audio del sistema), Cámara
-y Micrófono — solo para grabar; la app lo explica y te lleva al panel
-exacto de Ajustes del Sistema. Si una fuente no está disponible o le falta
-permiso, Grabi avisa **antes** de iniciar y ofrece grabar sin ella.
+Grabi needs Screen Recording (includes system audio), Camera, and
+Microphone — only to record; the app explains it and takes you to the
+exact System Settings pane. If a source is unavailable or missing a
+permission, Grabi warns you **before** starting and offers to record
+without it.
 
-## Limitaciones conocidas (v0.1)
+## Known limitations (v0.1)
 
-- Distribución: sin cuenta de Apple Developer no hay notarización; la app
-  solo corre en máquinas donde se compile/firme localmente.
-- La captura de ventana sigue a la ventana, pero el borde indicador y el
-  mapeo del recuadro selfie usan la posición que tenía al iniciar.
-- Selector de dispositivos (otra cámara/mic) y ajustes de calidad: fuera de
-  alcance de v0.1 a propósito.
+- Distribution: without an Apple Developer account there is no
+  notarization; the app only runs on machines where it is built/signed
+  locally.
+- Window capture follows the window, but the indicator border and the
+  selfie-box mapping use the position it had when recording started.
+- Device picker (another camera/mic) and quality settings: deliberately
+  out of scope for v0.1.

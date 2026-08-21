@@ -4,15 +4,15 @@ import CoreVideo
 import RecordEngine
 import RecordUI
 
-/// Ventana "Vista previa — Grabi" (Fase 3 §02): lo que ves es lo que se
-/// graba. La cámara se arrastra libremente, se redimensiona desde la esquina
-/// inferior derecha y cambia de forma con clic derecho o desde la barra.
-/// Queda excluida de la grabación (ventana de la propia app).
+/// "Preview — Grabi" window (Phase 3 §02): what you see is what gets
+/// recorded. The camera drags freely, resizes from the bottom-right corner
+/// and changes shape via right-click or from the bar.
+/// It is excluded from the recording (the app's own window).
 @MainActor
 final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegate {
     private var window: NSWindow?
     let renderView = PixelBufferNSView()
-    /// Tamaño del último frame (para mapear el overlay al área real del video).
+    /// Size of the last frame (to map the overlay to the video's real area).
     @Published var videoSize = CGSize(width: 16, height: 10)
     private weak var model: GrabiAppModel?
 
@@ -50,11 +50,11 @@ final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegat
     }
 }
 
-/// NSView cuyo layer muestra CVPixelBuffers (IOSurface) sin copias.
+/// NSView whose layer shows CVPixelBuffers (IOSurface) without copies.
 final class PixelBufferNSView: NSView {
     private let contentLayer = CALayer()
 
-    /// true → recorte centrado (aspect-fill), como la cámara del PiP.
+    /// true → centered crop (aspect-fill), like the PiP camera.
     var usesAspectFill = false {
         didSet { contentLayer.contentsGravity = usesAspectFill ? .resizeAspectFill : .resizeAspect }
     }
@@ -116,7 +116,7 @@ struct PreviewRoot: View {
         .background(GrabiColor.bg)
     }
 
-    /// Rect del video dentro de la vista (el layer usa resizeAspect).
+    /// Rect of the video within the view (the layer uses resizeAspect).
     private func fittedRect(in size: CGSize) -> CGRect {
         let videoAspect = controller.videoSize.width / max(controller.videoSize.height, 1)
         let viewAspect = size.width / max(size.height, 1)
@@ -148,7 +148,7 @@ struct PreviewRoot: View {
             } else {
                 Button { model.requestStart() } label: {
                     HStack(spacing: 9) {
-                        SemaforoDot(model.anySourceEnabled ? .listo : .apagado, size: 11)
+                        SemaforoDot(model.anySourceEnabled ? .ready : .apagado, size: 11)
                         Text(L("app.preview.record")).font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(GrabiColor.text)
                     }
@@ -169,9 +169,9 @@ struct PreviewRoot: View {
     }
 }
 
-/// La cámara en la vista previa: arrastrable con imanes a esquinas/bordes,
-/// redimensionable desde la esquina inferior derecha (proporción fija),
-/// borde brand + 4 manijas, menú contextual de formas.
+/// The camera in the preview: draggable with magnets to corners/edges,
+/// resizable from the bottom-right corner (fixed proportion),
+/// brand border + 4 handles, shape context menu.
 private struct CameraOverlay: View {
     @ObservedObject var model: GrabiAppModel
     let contentRect: CGRect
@@ -179,8 +179,8 @@ private struct CameraOverlay: View {
     @State private var dragStartOrigin: CGPoint?
     @State private var resizeStart: (origin: CGPoint, height: CGFloat)?
 
-    /// Margen alrededor del recuadro para que las manijas (centradas en las
-    /// esquinas) queden DENTRO del área interactiva del overlay.
+    /// Margin around the frame so the handles (centered on the corners)
+    /// stay INSIDE the overlay's interactive area.
     private let handlePad: CGFloat = 15
 
     var body: some View {
@@ -197,8 +197,8 @@ private struct CameraOverlay: View {
                 .frame(width: pipWidth, height: pipHeight)
                 .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
                 .gesture(dragGesture(pipWidth: pipWidth, pipHeight: pipHeight))
-            // 4 manijas de esquina: todas redimensionan, con ancla en la
-            // esquina opuesta (Fase 3 §02).
+            // 4 corner handles: all of them resize, anchored at the
+            // opposite corner (Phase 3 §02).
             resizeHandle(.topLeft, at: CGPoint(x: handlePad, y: handlePad))
             resizeHandle(.topRight, at: CGPoint(x: handlePad + pipWidth, y: handlePad))
             resizeHandle(.bottomLeft, at: CGPoint(x: handlePad, y: handlePad + pipHeight))
@@ -228,8 +228,8 @@ private struct CameraOverlay: View {
             .fill(Color.white)
             .overlay(Circle().strokeBorder(GrabiColor.brandStrong, lineWidth: 2))
             .frame(width: 12, height: 12)
-            // Área de golpeo de 30 px (mínimo 28 con puntero, Fase 2 §10):
-            // la manija visible es pequeña pero fácil de agarrar.
+            // 30 px hit area (minimum 28 with pointer, Phase 2 §10):
+            // the visible handle is small but easy to grab.
             .frame(width: 30, height: 30)
             .contentShape(Circle())
             .position(point)
@@ -244,9 +244,9 @@ private struct CameraOverlay: View {
                         }
                         guard let start = resizeStart else { return }
                         let delta = corner.delta(from: value.translation)
-                        // Rango del prototipo: s 80–210 sobre lienzo de 360.
+                        // Prototype range: s 80–210 over a 360 canvas.
                         let newHeight = min(max(start.height + delta / contentRect.height, 80.0 / 360.0), 210.0 / 360.0)
-                        // Ancla en la esquina opuesta a la arrastrada.
+                        // Anchor at the corner opposite the dragged one.
                         let aspect = model.cameraLayout.shape.aspectRatio
                         let dH = start.height - newHeight
                         let dW = dH * aspect * contentRect.height / contentRect.width
@@ -284,8 +284,8 @@ private struct CameraOverlay: View {
             .onEnded { _ in dragStartOrigin = nil }
     }
 
-    /// Imanes a las 4 esquinas y al centro de cada borde, con margen space.6
-    /// (24 sobre el lienzo de referencia 640×360 del prototipo).
+    /// Magnets to the 4 corners and the center of each edge, with space.6
+    /// margin (24 over the prototype's 640×360 reference canvas).
     private func snapped(x: CGFloat, y: CGFloat, wFrac: CGFloat, hFrac: CGFloat) -> (CGFloat, CGFloat) {
         let marginX = 24.0 / 640.0
         let marginY = 24.0 / 360.0

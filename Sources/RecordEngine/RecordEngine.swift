@@ -3,7 +3,7 @@ import AVFoundation
 import CoreVideo
 import Combine
 
-/// Estados observables del motor.
+/// Observable states of the engine.
 public enum RecordingState: Equatable {
     case idle
     case starting
@@ -21,32 +21,32 @@ public enum RecordingState: Equatable {
     }
 }
 
-/// Fachada pública del motor de grabación.
+/// Public facade of the recording engine.
 ///
-/// Flujo: `Preflight.check()` → (opcional) `startPreview(configuration:)`
-/// para ver el lienzo compuesto en vivo → `start(configuration:)` →
-/// `pause()`/`resume()` → `stop()`. La vista previa y la grabación comparten
-/// el mismo pipeline de captura: iniciar la grabación con la misma
-/// configuración no reinicia cámaras ni streams.
+/// Flow: `Preflight.check()` → (optional) `startPreview(configuration:)`
+/// to see the composed canvas live → `start(configuration:)` →
+/// `pause()`/`resume()` → `stop()`. The preview and the recording share
+/// the same capture pipeline: starting the recording with the same
+/// configuration restarts no cameras or streams.
 public final class RecordingEngine: ObservableObject {
     @Published public private(set) var state: RecordingState = .idle
-    /// true mientras el pipeline emite frames de vista previa.
+    /// true while the pipeline emits preview frames.
     @Published public private(set) var isPreviewing = false
 
-    /// Frames compuestos (pantalla+cámara tal como se graban), BGRA.
-    /// Se invoca en una cola de captura: la UI debe saltar a main si toca vistas.
+    /// Composed frames (screen+camera exactly as recorded), BGRA.
+    /// Invoked on a capture queue: the UI must hop to main if it touches views.
     public var onPreviewFrame: ((CVPixelBuffer) -> Void)? {
         didSet { pipeline?.onPreviewFrame = onPreviewFrame }
     }
 
-    /// Frames crudos de la cámara (para el recuadro flotante de la selfie).
+    /// Raw camera frames (for the floating selfie box).
     public var onCameraFrame: ((CVPixelBuffer) -> Void)? {
         didSet { pipeline?.onCameraFrame = onCameraFrame }
     }
 
-    /// Nivel del micrófono 0–1 (durante monitoreo o grabación). Cola de captura.
+    /// Microphone level 0–1 (during monitoring or recording). Capture queue.
     public var onMicLevel: ((Double) -> Void)?
-    /// Nivel del audio del sistema 0–1 (con el pipeline activo). Cola de captura.
+    /// System audio level 0–1 (while the pipeline is active). Capture queue.
     public var onSystemAudioLevel: ((Double) -> Void)?
 
     private var pipeline: CapturePipeline?
@@ -54,8 +54,8 @@ public final class RecordingEngine: ObservableObject {
     private var micMonitor: MicrophoneCapturer?
     private var writer: MovieWriter?
 
-    // Mute del micrófono en vivo: se escribe SILENCIO real (buffers a cero)
-    // en vez de dejar un hueco — la pista queda continua y sincronizada.
+    // Live microphone mute: real SILENCE is written (zeroed buffers)
+    // instead of leaving a gap — the track stays continuous and in sync.
     private let muteLock = NSLock()
     private var _micMuted = false
     private var isMicrophoneMuted: Bool {
@@ -67,30 +67,31 @@ public final class RecordingEngine: ObservableObject {
         if muted { onMicLevel?(0) }
     }
 
-    /// Apaga/enciende la cámara durante la grabación (solo modo PiP).
+    /// Turns the camera off/on during recording (PiP mode only).
     public func setCameraHidden(_ hidden: Bool) async {
         await pipeline?.setCameraHidden(hidden)
     }
 
     public init() {}
 
-    // MARK: - Descubrimiento
+    // MARK: - Discovery
 
-    /// Chequeo previo: qué fuentes están disponibles y con permiso.
+    /// Preflight check: which sources are available and permitted.
     public static func preflight(requestingAccess: Bool = true) async -> PreflightReport {
         await Preflight.check(requestingAccess: requestingAccess)
     }
 
-    /// Pantallas y ventanas disponibles para capturar.
+    /// Displays and windows available for capture.
     public static func availableContent() async throws -> ShareableContent {
         try await ShareableContent.current()
     }
 
-    // MARK: - Monitoreo de nivel de micrófono (feedback antes de grabar)
+    // MARK: - Microphone level monitoring (feedback before recording)
 
-    /// Captura el mic SOLO para medir su nivel (no graba nada). Enciende el
-    /// indicador naranja del sistema — honestidad ante todo. Se apaga solo al
-    /// empezar a grabar (la grabación ya reporta nivel por su propia captura).
+    /// Captures the mic ONLY to measure its level (records nothing). Lights
+    /// up the system's orange indicator — honesty above all. It turns off by
+    /// itself when recording starts (the recording already reports the level
+    /// through its own capture).
     public func startMicrophoneMonitoring(deviceID: String? = nil) async {
         guard micMonitor == nil, micCapturer == nil else { return }
         let monitor = MicrophoneCapturer()
@@ -110,14 +111,14 @@ public final class RecordingEngine: ObservableObject {
         onMicLevel?(0)
     }
 
-    // MARK: - Vista previa
+    // MARK: - Preview
 
-    /// Arranca el pipeline de captura sin escribir a disco. La UI recibe los
-    /// frames por `onPreviewFrame`. Si ya hay una vista previa con otra
-    /// configuración, se reinicia con la nueva.
+    /// Starts the capture pipeline without writing to disk. The UI receives
+    /// the frames via `onPreviewFrame`. If a preview with a different
+    /// configuration is already running, it restarts with the new one.
     public func startPreview(configuration config: RecordingConfiguration) async throws {
         guard !state.isActive else {
-            throw RecordingError.invalidState("no se puede cambiar la vista previa durante una grabación")
+            throw RecordingError.invalidState("the preview cannot be changed during a recording")
         }
         if let pipeline, pipeline.isCompatible(with: config) {
             pipeline.updateCameraLayout(config.cameraLayout)
@@ -125,7 +126,7 @@ public final class RecordingEngine: ObservableObject {
             return
         }
         await teardownPipeline()
-        guard config.hasVideo else { return } // sin video no hay nada que previsualizar
+        guard config.hasVideo else { return } // without video there is nothing to preview
         let pipeline = CapturePipeline(config: config)
         pipeline.onPreviewFrame = onPreviewFrame
         pipeline.onCameraFrame = onCameraFrame
@@ -145,23 +146,23 @@ public final class RecordingEngine: ObservableObject {
         setPreviewing(true)
     }
 
-    /// Detiene la vista previa (si no se está grabando, apaga la captura).
+    /// Stops the preview (if not recording, shuts down the capture).
     public func stopPreview() async {
         setPreviewing(false)
-        guard !state.isActive else { return } // el pipeline sigue: está grabando
+        guard !state.isActive else { return } // the pipeline goes on: it's recording
         await teardownPipeline()
     }
 
-    /// Cambia forma/posición/tamaño de la cámara EN VIVO (vista previa y grabación).
+    /// Changes the camera's shape/position/size LIVE (preview and recording).
     public func updateCameraLayout(_ layout: CameraLayout) {
         pipeline?.updateCameraLayout(layout)
     }
 
-    // MARK: - Grabación
+    // MARK: - Recording
 
     public func start(configuration config: RecordingConfiguration) async throws {
         guard !state.isActive else {
-            throw RecordingError.invalidState("ya hay una grabación en curso")
+            throw RecordingError.invalidState("a recording is already in progress")
         }
         guard config.hasAnySource else {
             throw RecordingError.noActiveSources
@@ -172,8 +173,8 @@ public final class RecordingEngine: ObservableObject {
             try await startRecordingPipeline(config: config)
             setState(.recording)
         } catch {
-            // Limpieza total: nada debe quedar corriendo ni archivos a medias
-            // (salvo la vista previa, que se conserva si estaba activa).
+            // Full cleanup: nothing may stay running, no half-written files
+            // (except the preview, which is kept if it was active).
             await stopMic()
             writer?.cancel()
             writer = nil
@@ -185,8 +186,8 @@ public final class RecordingEngine: ObservableObject {
     }
 
     private func startRecordingPipeline(config: RecordingConfiguration) async throws {
-        // Re-validar permisos justo antes de empezar: nunca fallar a mitad de
-        // grabación por algo detectable ahora.
+        // Re-validate permissions right before starting: never fail
+        // mid-recording over something detectable now.
         let report = await Preflight.check(requestingAccess: true)
         if config.capturesScreen || config.capturesSystemAudio {
             guard report.screen.isUsable else { throw RecordingError.screenPermissionDenied }
@@ -206,8 +207,8 @@ public final class RecordingEngine: ObservableObject {
             }
         }
 
-        // Pipeline: reusar el de la vista previa si es compatible (la captura
-        // ya está corriendo); si no, construir uno nuevo.
+        // Pipeline: reuse the preview's if compatible (the capture is
+        // already running); otherwise, build a new one.
         let pipeline: CapturePipeline
         if let existing = self.pipeline, existing.isCompatible(with: config) {
             pipeline = existing
@@ -227,11 +228,11 @@ public final class RecordingEngine: ObservableObject {
             self.pipeline = pipeline
         }
 
-        // El monitoreo de nivel cede el mic a la grabación.
+        // Level monitoring hands the mic over to the recording.
         await stopMicrophoneMonitoring()
 
-        // Micrófono: se configura primero (sin arrancar) para conocer sus
-        // canales nativos; solo captura durante la grabación.
+        // Microphone: configured first (without starting) to learn its
+        // native channels; it only captures during the recording.
         var mic: MicrophoneCapturer?
         if config.capturesMicrophone {
             let m = MicrophoneCapturer()
@@ -239,7 +240,7 @@ public final class RecordingEngine: ObservableObject {
             mic = m
         }
 
-        // Writer con SOLO las pistas de las fuentes activadas.
+        // Writer with ONLY the tracks of the enabled sources.
         var videoSpec: MovieWriter.VideoSpec?
         if let size = pipeline.canvasSize, config.hasVideo {
             videoSpec = .init(
@@ -255,7 +256,7 @@ public final class RecordingEngine: ObservableObject {
             microphoneChannels: mic?.nativeChannelCount ?? 2,
             includeSystemAudio: config.capturesSystemAudio)
 
-        setMicrophoneMuted(false) // cada grabación empieza sin mute
+        setMicrophoneMuted(false) // every recording starts unmuted
         if let mic {
             mic.onAudio = { [weak self] sample in
                 guard let self else { return }
@@ -277,7 +278,7 @@ public final class RecordingEngine: ObservableObject {
         pipeline.attachWriter(writer)
     }
 
-    // MARK: - Pausa
+    // MARK: - Pause
 
     public func pause() {
         guard case .recording = state else { return }
@@ -293,18 +294,18 @@ public final class RecordingEngine: ObservableObject {
 
     // MARK: - Stop
 
-    /// Detiene la grabación y devuelve la URL del archivo finalizado.
-    /// La vista previa (si estaba activa) sigue corriendo.
+    /// Stops the recording and returns the URL of the finalized file.
+    /// The preview (if it was active) keeps running.
     @discardableResult
     public func stop() async throws -> URL {
         switch state {
         case .recording, .paused: break
-        default: throw RecordingError.invalidState("no hay ninguna grabación en curso")
+        default: throw RecordingError.invalidState("no recording is in progress")
         }
         setState(.stopping)
 
-        // Orden: primero dejan de llegar buffers al writer, después se
-        // finaliza — así el archivo queda siempre reproducible.
+        // Order: first buffers stop reaching the writer, then it gets
+        // finalized — that way the file is always playable.
         pipeline?.detachWriter()
         await stopMic()
         if !isPreviewing {
@@ -312,8 +313,8 @@ public final class RecordingEngine: ObservableObject {
         }
 
         guard let writer else {
-            setState(.failed(.invalidState("no había writer activo")))
-            throw RecordingError.invalidState("no había writer activo")
+            setState(.failed(.invalidState("there was no active writer")))
+            throw RecordingError.invalidState("there was no active writer")
         }
         self.writer = nil
         do {
@@ -327,7 +328,7 @@ public final class RecordingEngine: ObservableObject {
         }
     }
 
-    // MARK: - Interno
+    // MARK: - Internal
 
     private func handleFatalError(_ error: Error) async {
         switch state {
@@ -336,14 +337,14 @@ public final class RecordingEngine: ObservableObject {
             await stopMic()
             await teardownPipeline()
             setPreviewing(false)
-            // Intentar salvar lo grabado hasta ahora: el archivo queda finalizado.
+            // Try to save what was recorded so far: the file gets finalized.
             if let writer {
                 self.writer = nil
                 _ = try? await writer.finish()
             }
             setState(.failed(.captureInterrupted(error.localizedDescription)))
         default:
-            // Falló la vista previa (sin grabación): apagar en silencio.
+            // The preview failed (no recording): shut down silently.
             await teardownPipeline()
             setPreviewing(false)
         }

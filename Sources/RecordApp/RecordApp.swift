@@ -2,7 +2,7 @@ import SwiftUI
 import AppKit
 import RecordUI
 
-/// Grabi vive en la barra de menú (LSUIElement: sin ícono en el Dock).
+/// Grabi lives in the menu bar (LSUIElement: no Dock icon).
 @MainActor
 enum AppShared {
     static let model = GrabiAppModel()
@@ -10,14 +10,14 @@ enum AppShared {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Verificación i18n: renderizar superficies a PNG y salir.
+        // i18n verification: render surfaces to PNG and exit.
         if let idx = CommandLine.arguments.firstIndex(of: "--screenshots"),
            CommandLine.arguments.count > idx + 1 {
             Screenshots.renderAll(to: CommandLine.arguments[idx + 1], model: AppShared.model)
             exit(0)
         }
         NSApp.setActivationPolicy(.accessory)
-        // Primer arranque: onboarding de 3 pantallas que termina grabando.
+        // First launch: 3-screen onboarding that ends by recording.
         let model = AppShared.model
         if !model.onboardingDone {
             model.onboardingController.show(model: model)

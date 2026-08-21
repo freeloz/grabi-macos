@@ -2,15 +2,15 @@ import Foundation
 import CoreGraphics
 import ScreenCaptureKit
 
-/// Qué capturar como "pantalla": una pantalla completa, una ventana de otra
-/// app, o una región rectangular de una pantalla.
+/// What to capture as the "screen": a full display, a window of another
+/// app, or a rectangular region of a display.
 public enum CaptureTarget: Equatable, Sendable {
-    /// Pantalla completa. `nil` → pantalla principal.
+    /// Full display. `nil` → main display.
     case display(CGDirectDisplayID?)
-    /// Una ventana concreta (ID de CGWindow / SCWindow).
+    /// A specific window (CGWindow / SCWindow ID).
     case window(CGWindowID)
-    /// Región de una pantalla. `rect` en puntos, con origen arriba-izquierda
-    /// relativo a esa pantalla (el mismo sistema de coordenadas que
+    /// Region of a display. `rect` in points, with a top-left origin
+    /// relative to that display (the same coordinate system as
     /// `SCStreamConfiguration.sourceRect`).
     case region(displayID: CGDirectDisplayID?, rect: CGRect)
 
@@ -32,16 +32,16 @@ extension CaptureTarget: Hashable {
     }
 }
 
-/// Pantalla disponible para capturar.
+/// Display available for capture.
 public struct DisplayInfo: Identifiable, Equatable, Sendable {
     public let id: CGDirectDisplayID
-    /// "Pantalla integrada", "Pantalla 2", …
+    /// "Built-in Display", "Display 2", …
     public let name: String
     public let frame: CGRect
     public let isMain: Bool
 }
 
-/// Ventana disponible para capturar.
+/// Window available for capture.
 public struct WindowInfo: Identifiable, Equatable, Sendable {
     public let id: CGWindowID
     public let appName: String
@@ -49,14 +49,14 @@ public struct WindowInfo: Identifiable, Equatable, Sendable {
     public let frame: CGRect
 }
 
-/// Contenido disponible según ScreenCaptureKit (requiere permiso de pantalla).
+/// Content available according to ScreenCaptureKit (requires screen permission).
 public struct ShareableContent: Sendable {
     public let displays: [DisplayInfo]
     public let windows: [WindowInfo]
 
-    // Cache del contenido crudo de SCK del último `current()`: las miniaturas
-    // del selector lo reutilizan para capturar al instante sin repetir el
-    // fetch de SCShareableContent (que tarda ~1-2 s).
+    // Cache of the raw SCK content from the last `current()`: the picker's
+    // thumbnails reuse it to capture instantly without repeating the
+    // SCShareableContent fetch (which takes ~1-2 s).
     private static let rawLock = NSLock()
     nonisolated(unsafe) private static var raw: SCShareableContent?
 
@@ -75,8 +75,8 @@ public struct ShareableContent: Sendable {
         raw = content
     }
 
-    /// Lista pantallas y ventanas capturables. Excluye las ventanas de la
-    /// propia app y las que no tienen título (menús, overlays del sistema).
+    /// Lists capturable displays and windows. Excludes the app's own
+    /// windows and untitled ones (menus, system overlays).
     public static func current() async throws -> ShareableContent {
         let content: SCShareableContent
         do {
@@ -97,8 +97,8 @@ public struct ShareableContent: Sendable {
                 isMain: display.displayID == mainID)
         }
         let ownPID = ProcessInfo.processInfo.processIdentifier
-        // Overlays del sistema que aparecen como "ventanas" pero no tiene
-        // sentido grabar (Centro de Notificaciones, Dock, Spotlight, etc.).
+        // System overlays that show up as "windows" but make no sense
+        // to record (Notification Center, Dock, Spotlight, etc.).
         let systemBundleIDs: Set<String> = [
             "com.apple.notificationcenterui",
             "com.apple.dock",
@@ -114,7 +114,7 @@ public struct ShareableContent: Sendable {
                   app.processID != ownPID,
                   !systemBundleIDs.contains(app.bundleIdentifier),
                   window.isOnScreen,
-                  window.windowLayer == 0, // solo ventanas normales, no overlays/paneles
+                  window.windowLayer == 0, // only normal windows, no overlays/panels
                   window.frame.width >= 80, window.frame.height >= 60,
                   let title = window.title, !title.isEmpty
             else { return nil }

@@ -3,9 +3,9 @@ import AppKit
 import UserNotifications
 import AVFoundation
 
-/// Notificación nativa post-grabación (Fase 3 §05): miniatura + «Ver» /
-/// «Copiar enlace». Respeta No molestar. El archivo ya está guardado cuando
-/// se ve la notificación.
+/// Native post-recording notification (Phase 3 §05): thumbnail + "View" /
+/// "Copy link". Respects Do Not Disturb. The file is already saved by the
+/// time the notification is seen.
 final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
 
@@ -17,8 +17,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 
-        let ver = UNNotificationAction(identifier: "VER", title: L("app.notif.view"), options: [.foreground])
-        let copiar = UNNotificationAction(identifier: "COPIAR", title: L("app.notif.copy"), options: [])
+        let ver = UNNotificationAction(identifier: "VIEW", title: L("app.notif.view"), options: [.foreground])
+        let copiar = UNNotificationAction(identifier: "COPY", title: L("app.notif.copy"), options: [])
         let category = UNNotificationCategory(
             identifier: "GRABI_DONE", actions: [ver, copiar], intentIdentifiers: [])
         center.setNotificationCategories([category])
@@ -37,7 +37,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         content.categoryIdentifier = "GRABI_DONE"
         content.sound = nil
 
-        // Miniatura del primer segundo del video.
+        // Thumbnail from the first second of the video.
         if let thumbnail = makeThumbnail(url: url),
            let attachment = try? UNNotificationAttachment(identifier: "thumb", url: thumbnail) {
             content.attachments = [attachment]
@@ -82,15 +82,15 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                                 didReceive response: UNNotificationResponse) async {
         guard let url = lastURL else { return }
         switch response.actionIdentifier {
-        case "VER":
+        case "VIEW":
             NSWorkspace.shared.open(url)
-        case "COPIAR":
-            // «Copiar enlace» copia el archivo al portapapeles, listo para
-            // pegar en Mensajes o Slack.
+        case "COPY":
+            // "Copy link" copies the file to the pasteboard, ready to
+            // paste into Messages or Slack.
             NSPasteboard.general.clearContents()
             NSPasteboard.general.writeObjects([url as NSURL])
         default:
-            // Clic en el cuerpo → mostrar en Finder.
+            // Click on the body → reveal in Finder.
             NSWorkspace.shared.activateFileViewerSelecting([url])
         }
     }

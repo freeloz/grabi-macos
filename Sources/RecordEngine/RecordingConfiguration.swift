@@ -1,7 +1,7 @@
 import Foundation
 import CoreGraphics
 
-/// Fuentes de grabación disponibles.
+/// Available recording sources.
 public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
     case screen
     case camera
@@ -10,7 +10,7 @@ public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    /// Nombre para mostrar en la UI.
+    /// Display name for the UI.
     public var displayName: String {
         switch self {
         case .screen: return L("source.screen")
@@ -21,8 +21,8 @@ public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Forma de la cámara en el video (según el sistema de diseño: círculo,
-/// cuadrado o rectángulo 3:2; cuadrado y rectángulo con esquinas redondeadas).
+/// Shape of the camera in the video (per the design system: circle,
+/// square, or 3:2 rectangle; square and rectangle with rounded corners).
 public enum CameraShape: String, CaseIterable, Identifiable, Sendable {
     case circle
     case square
@@ -38,25 +38,25 @@ public enum CameraShape: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Relación ancho/alto de la forma (del prototipo: rect = 1,5 × alto).
+    /// Width/height ratio of the shape (from the prototype: rect = 1.5 × height).
     public var aspectRatio: CGFloat {
         self == .rectangle ? 1.5 : 1.0
     }
 }
 
-/// Posición/tamaño/forma de la cámara sobre el lienzo, en coordenadas
-/// normalizadas (0–1) para que la misma configuración sirva en la vista
-/// previa y en el video grabado. Modificable EN VIVO durante la grabación.
+/// Position/size/shape of the camera over the canvas, in normalized
+/// coordinates (0–1) so the same configuration works for the live
+/// preview and the recorded video. Modifiable LIVE while recording.
 public struct CameraLayout: Equatable, Sendable {
     public var shape: CameraShape
-    /// Esquina superior izquierda, normalizada: x sobre el ancho del lienzo,
-    /// y sobre el alto.
+    /// Top-left corner, normalized: x over the canvas width,
+    /// y over the height.
     public var origin: CGPoint
-    /// Alto normalizado sobre el alto del lienzo. El ancho se deriva de la forma.
+    /// Height normalized over the canvas height. Width is derived from the shape.
     public var height: CGFloat
 
-    /// Valor por defecto del prototipo aprobado: círculo, abajo a la derecha
-    /// (cam {x:486, y:206, s:130} sobre un lienzo de 640×360).
+    /// Default value from the approved prototype: circle, bottom right
+    /// (cam {x:486, y:206, s:130} over a 640×360 canvas).
     public static let `default` = CameraLayout(
         shape: .circle,
         origin: CGPoint(x: 486.0 / 640.0, y: 206.0 / 360.0),
@@ -68,35 +68,35 @@ public struct CameraLayout: Equatable, Sendable {
         self.height = height
     }
 
-    /// Radio de esquina relativo al alto (del prototipo: radius 12 con s=130).
+    /// Corner radius relative to the height (from the prototype: radius 12 at s=130).
     public var cornerRadiusFraction: CGFloat {
         shape == .circle ? 0.5 : 12.0 / 130.0
     }
 }
 
-/// Configuración de una grabación. Cada fuente es un toggle independiente;
-/// la única restricción es que al menos una esté activa.
+/// Configuration of a recording. Each source is an independent toggle;
+/// the only restriction is that at least one is active.
 public struct RecordingConfiguration: Sendable {
     public var capturesScreen: Bool
     public var capturesCamera: Bool
     public var capturesMicrophone: Bool
     public var capturesSystemAudio: Bool
 
-    /// Archivo .mov de salida.
+    /// Output .mov file.
     public var outputURL: URL
 
-    /// Ancho objetivo del video de pantalla. El alto se deriva del aspecto
-    /// real de la pantalla para no deformar la imagen (los MacBook son 16:10,
-    /// no 16:9, así que forzar 1920x1080 estiraría el video).
+    /// Target width of the screen video. The height is derived from the
+    /// display's real aspect so the image is not distorted (MacBooks are
+    /// 16:10, not 16:9, so forcing 1920x1080 would stretch the video).
     public var targetWidth: Int
     public var framesPerSecond: Int
     public var videoBitrate: Int
 
-    /// Qué capturar: pantalla completa, ventana o región.
+    /// What to capture: full display, window, or region.
     public var target: CaptureTarget
-    /// Forma/posición/tamaño de la cámara (PiP). Modificable en vivo.
+    /// Shape/position/size of the camera (PiP). Modifiable live.
     public var cameraLayout: CameraLayout
-    /// uniqueID de AVCaptureDevice; nil → dispositivo por defecto.
+    /// AVCaptureDevice uniqueID; nil → default device.
     public var cameraDeviceID: String?
     public var microphoneDeviceID: String?
 

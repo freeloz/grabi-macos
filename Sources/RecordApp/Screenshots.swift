@@ -2,8 +2,8 @@ import SwiftUI
 import AppKit
 import RecordUI
 
-/// Herramienta de verificación i18n (solo desarrollo): renderiza las
-/// superficies principales a PNG en el idioma del proceso y termina.
+/// i18n verification tool (development only): renders the main surfaces
+/// to PNG in the process language and exits.
 ///
 ///   .build/debug/RecordApp --screenshots <dir> -AppleLanguages "(de)"
 @MainActor
@@ -26,7 +26,7 @@ enum Screenshots {
         }
 
         save(PanelView(model: model).frame(width: 360), "panel")
-        save(SettingsView(model: model, gallery: GalleryWindowController()).frame(width: 420, height: 470), "ajustes")
+        save(SettingsView(model: model, gallery: GalleryWindowController()).frame(width: 420, height: 470), "settings")
         save(OnboardingView(model: model, controller: OnboardingWindowController()), "onboarding")
     }
 }

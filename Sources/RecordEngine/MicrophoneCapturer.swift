@@ -1,16 +1,16 @@
 import Foundation
 import AVFoundation
 
-/// Captura el micrófono con AVFoundation y entrega buffers PCM.
+/// Captures the microphone with AVFoundation and delivers PCM buffers.
 final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     var onAudio: ((CMSampleBuffer) -> Void)?
 
     private let session = AVCaptureSession()
     private let queue = DispatchQueue(label: "record.microphone")
 
-    /// Canales nativos del micrófono (tras `configure`). La pista AAC del mic
-    /// se crea con este número: forzar un mic mono a estéreo hace que el
-    /// downmix reparta/atenúe la señal y se escuche muy bajo.
+    /// The microphone's native channels (after `configure`). The mic's AAC
+    /// track is created with this count: forcing a mono mic to stereo makes
+    /// the downmix split/attenuate the signal and sound very quiet.
     private(set) var nativeChannelCount = 2
 
     func configure(deviceID: String?) throws {

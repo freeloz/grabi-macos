@@ -4,14 +4,15 @@ import CoreVideo
 import CoreGraphics
 import Metal
 
-/// Compone la cámara sobre el frame de pantalla en GPU (Core Image + Metal),
-/// con la forma (círculo / cuadrado / rectángulo redondeado), posición y
-/// tamaño definidos por un `CameraLayout` que puede cambiar EN VIVO.
+/// Composites the camera over the screen frame on the GPU (Core Image +
+/// Metal), with the shape (circle / square / rounded rectangle), position and
+/// size defined by a `CameraLayout` that can change LIVE.
 ///
-/// Modelo de sincronización: los frames de PANTALLA marcan el ritmo del video.
-/// La cámara solo va actualizando "su último frame" y aquí se estampa el más
-/// reciente sobre cada frame de pantalla. El desfase máximo es ~1 frame de
-/// cámara (~33 ms), imperceptible, y evita re-muestrear dos streams de video.
+/// Synchronization model: SCREEN frames set the pace of the video.
+/// The camera just keeps updating "its latest frame" and here the most
+/// recent one is stamped onto each screen frame. The maximum lag is ~1
+/// camera frame (~33 ms), imperceptible, and it avoids resampling two
+/// video streams.
 final class PiPCompositor {
     private let ciContext: CIContext
     private var pool: CVPixelBufferPool?
@@ -19,8 +20,8 @@ final class PiPCompositor {
     let height: Int
     private let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 
-    // El layout lo escribe la UI (vía el motor) y lo lee la cola de video de
-    // SCStream en cada frame: un lock corto es suficiente y sin contención.
+    // The layout is written by the UI (via the engine) and read by SCStream's
+    // video queue on every frame: a short lock suffices, with no contention.
     private let layoutLock = NSLock()
     private var _layout: CameraLayout
 
@@ -29,7 +30,7 @@ final class PiPCompositor {
         set { layoutLock.lock(); defer { layoutLock.unlock() }; _layout = newValue }
     }
 
-    // Máscara cacheada: regenerarla solo cuando cambian forma o tamaño en px.
+    // Cached mask: regenerate it only when the shape or pixel size changes.
     private var cachedMask: CIImage?
     private var cachedMaskKey: String = ""
 
@@ -46,19 +47,19 @@ final class PiPCompositor {
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
             kCVPixelBufferWidthKey as String: width,
             kCVPixelBufferHeightKey as String: height,
-            // IOSurface para que GPU (Core Image) y encoder (VideoToolbox)
-            // compartan el buffer sin copias.
+            // IOSurface so the GPU (Core Image) and encoder (VideoToolbox)
+            // share the buffer without copies.
             kCVPixelBufferIOSurfacePropertiesKey as String: [:],
         ]
         CVPixelBufferPoolCreate(nil, nil, poolAttrs as CFDictionary, &pool)
     }
 
-    /// Pantalla + cámara (si hay) → buffer nuevo listo para encoder/preview.
+    /// Screen + camera (if any) → new buffer ready for the encoder/preview.
     ///
-    /// `screenContentRect` (píxeles, origen arriba-izquierda): rect del
-    /// contenido real dentro del buffer cuando SCStream no lo llena (captura
-    /// de ventana). Se recorta y se escala al lienzo, centrado sobre negro —
-    /// así la cámara PiP siempre queda DENTRO del contenido grabado.
+    /// `screenContentRect` (pixels, top-left origin): rect of the actual
+    /// content within the buffer when SCStream doesn't fill it (window
+    /// capture). It's cropped and scaled to the canvas, centered over black —
+    /// so the PiP camera always stays INSIDE the recorded content.
     func compose(screen: CVPixelBuffer, screenContentRect: CGRect? = nil, camera: CVPixelBuffer?) -> CVPixelBuffer? {
         guard let pool else { return nil }
         var outBuffer: CVPixelBuffer?
@@ -68,8 +69,8 @@ final class PiPCompositor {
         var image = CIImage(cvPixelBuffer: screen)
 
         if let rect = screenContentRect {
-            // contentRect viene con origen arriba-izquierda; Core Image usa
-            // origen abajo-izquierda.
+            // contentRect comes with a top-left origin; Core Image uses
+            // a bottom-left origin.
             let bufferHeight = image.extent.height
             let ciRect = CGRect(x: rect.origin.x,
                                 y: bufferHeight - rect.maxY,
@@ -82,8 +83,8 @@ final class PiPCompositor {
             }
         }
 
-        // Aspect-fit centrado al lienzo (si la ventana cambia de tamaño a
-        // mitad de grabación, se letterboxea sin deformar).
+        // Centered aspect-fit to the canvas (if the window resizes
+        // mid-recording, it gets letterboxed without distortion).
         if Int(image.extent.width) != width || Int(image.extent.height) != height {
             let sx = CGFloat(width) / image.extent.width
             let sy = CGFloat(height) / image.extent.height
@@ -94,8 +95,8 @@ final class PiPCompositor {
             image = image.transformed(by: CGAffineTransform(translationX: dx, y: dy))
         }
 
-        // Fondo negro explícito: con letterbox el buffer del pool no queda
-        // cubierto del todo y podría traer contenido de un frame anterior.
+        // Explicit black background: with letterboxing the pool buffer isn't
+        // fully covered and could carry content from a previous frame.
         image = image.composited(over: CIImage(color: .black).cropped(
             to: CGRect(x: 0, y: 0, width: width, height: height)))
 
@@ -112,16 +113,16 @@ final class PiPCompositor {
         return outBuffer
     }
 
-    /// Cámara → recorte centrado al aspecto de la forma, escala al tamaño del
-    /// layout, máscara de forma y traslado a su posición (coordenadas CI:
-    /// origen abajo-izquierda; el layout usa arriba-izquierda como la UI).
+    /// Camera → centered crop to the shape's aspect, scale to the layout
+    /// size, shape mask, and translate to its position (CI coordinates:
+    /// bottom-left origin; the layout uses top-left like the UI).
     private func shapedCamera(from camera: CVPixelBuffer, layout: CameraLayout) -> CIImage {
         let cam = CIImage(cvPixelBuffer: camera)
 
         let pipHeight = max(16, CGFloat(height) * layout.height)
         let pipWidth = pipHeight * layout.shape.aspectRatio
 
-        // Recorte centrado (aspect-fill) al aspecto de la forma.
+        // Centered crop (aspect-fill) to the shape's aspect.
         let sourceAspect = cam.extent.width / cam.extent.height
         let targetAspect = pipWidth / pipHeight
         var crop = cam.extent
@@ -139,13 +140,13 @@ final class PiPCompositor {
         let scale = pipWidth / crop.width
         image = image.transformed(by: CGAffineTransform(scaleX: scale, y: scale))
 
-        // A origen (0,0) para aplicar la máscara y luego colocar.
+        // To origin (0,0) to apply the mask and then place.
         image = image.transformed(by: CGAffineTransform(
             translationX: -image.extent.origin.x,
             y: -image.extent.origin.y))
 
-        // Modo espejo: la selfie se ve como en un espejo (lo natural para el
-        // usuario frente a la cámara).
+        // Mirror mode: the selfie looks like in a mirror (what feels
+        // natural to the user facing the camera).
         image = image
             .transformed(by: CGAffineTransform(scaleX: -1, y: 1))
             .transformed(by: CGAffineTransform(translationX: pipWidth, y: 0))
@@ -160,11 +161,11 @@ final class PiPCompositor {
 
         let x = CGFloat(width) * layout.origin.x
         let yTop = CGFloat(height) * layout.origin.y
-        let y = CGFloat(height) - yTop - pipHeight // inversión de eje Y
+        let y = CGFloat(height) - yTop - pipHeight // Y-axis inversion
         return image.transformed(by: CGAffineTransform(translationX: x, y: y))
     }
 
-    /// Máscara blanca sobre transparente con la forma del layout, cacheada.
+    /// White-on-transparent mask with the layout's shape, cached.
     private func shapeMask(width w: CGFloat, height h: CGFloat, layout: CameraLayout) -> CIImage {
         let key = "\(layout.shape.rawValue)-\(Int(w))x\(Int(h))"
         if key == cachedMaskKey, let cachedMask { return cachedMask }
@@ -192,8 +193,8 @@ final class PiPCompositor {
     }
 }
 
-/// Espeja horizontalmente los frames de cámara en GPU, para el modo
-/// cámara-sola (a pantalla completa la selfie también va en modo espejo).
+/// Mirrors camera frames horizontally on the GPU, for camera-only mode
+/// (at full screen the selfie is also mirrored).
 final class MirrorRenderer {
     private let ciContext: CIContext
     private var pool: CVPixelBufferPool?

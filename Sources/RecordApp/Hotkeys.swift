@@ -1,8 +1,8 @@
 import Foundation
 import Carbon.HIToolbox
 
-/// Atajos de teclado globales vía Carbon (no requieren permiso de
-/// Accesibilidad): ⌘⇧2 grabar/detener · ⌘⇧P pausar/reanudar.
+/// Global keyboard shortcuts via Carbon (no Accessibility permission
+/// required): ⌘⇧2 record/stop · ⌘⇧P pause/resume.
 final class HotkeyManager {
     var onToggleRecord: (() -> Void)?
     var onTogglePause: (() -> Void)?
