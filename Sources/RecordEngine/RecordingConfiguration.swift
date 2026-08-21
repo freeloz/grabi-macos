@@ -13,10 +13,10 @@ public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
     /// Nombre para mostrar en la UI.
     public var displayName: String {
         switch self {
-        case .screen: return "Pantalla"
-        case .camera: return "Cámara"
-        case .microphone: return "Micrófono"
-        case .systemAudio: return "Audio del sistema"
+        case .screen: return L("source.screen")
+        case .camera: return L("source.camera")
+        case .microphone: return L("source.microphone")
+        case .systemAudio: return L("source.systemAudio")
         }
     }
 }
@@ -32,9 +32,9 @@ public enum CameraShape: String, CaseIterable, Identifiable, Sendable {
 
     public var displayName: String {
         switch self {
-        case .circle: return "Círculo"
-        case .square: return "Cuadrado"
-        case .rectangle: return "Rectángulo"
+        case .circle: return L("shape.circle")
+        case .square: return L("shape.square")
+        case .rectangle: return L("shape.rectangle")
         }
     }
 

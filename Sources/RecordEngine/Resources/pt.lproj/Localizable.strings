@@ -1,0 +1,26 @@
+/* Fontes */
+"source.screen" = "Tela";
+"source.camera" = "Câmera";
+"source.microphone" = "Microfone";
+"source.systemAudio" = "Áudio do sistema";
+/* Formas da câmera */
+"shape.circle" = "Círculo";
+"shape.square" = "Quadrado";
+"shape.rectangle" = "Retângulo";
+/* Telas */
+"display.builtin" = "Tela integrada";
+"display.numbered" = "Tela %d";
+/* Erros acionáveis */
+"err.sinFuentes" = "Nenhuma fonte está ativada. Ative pelo menos uma (tela, câmera, microfone ou áudio do sistema) para gravar.";
+"err.permisoPantalla" = "Falta a permissão de Gravação de Tela. Abra Ajustes do Sistema → Privacidade e Segurança → Gravação de Tela e Áudio do Sistema, ative o Grabi e tente de novo (talvez precise reabrir o app).";
+"err.permisoCamara" = "Falta a permissão da Câmera. Ative em Ajustes do Sistema → Privacidade e Segurança → Câmera, ou desative a câmera e grave sem ela.";
+"err.permisoMicrofono" = "Falta a permissão do Microfone. Ative em Ajustes do Sistema → Privacidade e Segurança → Microfone, ou desative o microfone e grave sem ele.";
+"err.camaraNoDisponible" = "Não encontro sua câmera. Ela está conectada? Você também pode desativá-la e gravar sem ela.";
+"err.microfonoNoDisponible" = "Não encontro seu microfone. Ele está conectado? Você também pode desativá-lo e gravar sem ele.";
+"err.pantallaNoEncontrada" = "A tela selecionada não foi encontrada. Foi desconectada? Escolha outra tela e tente de novo.";
+"err.ventanaNoEncontrada" = "A janela selecionada não foi encontrada. Pode ter sido fechada — escolha outra janela.";
+"err.regionInvalida" = "A região selecionada é pequena demais. Desenhe um quadro de pelo menos 16×16 pontos.";
+"err.capturaInterrumpida" = "A captura foi interrompida: %@. A gravação parou e tentamos salvar tudo o que foi capturado até esse momento.";
+"err.escrituraFallida" = "Não foi possível gravar o arquivo: %@";
+"err.nadaGrabado" = "A gravação parou antes de receber qualquer dado, então nenhum arquivo foi salvo.";
+"err.estadoInvalido" = "Essa ação não é válida agora: %@";

@@ -67,7 +67,9 @@ public struct ShareableContent: Sendable {
         let displays = content.displays.enumerated().map { index, display in
             DisplayInfo(
                 id: display.displayID,
-                name: display.displayID == mainID ? "Pantalla integrada" : "Pantalla \(index + 1)",
+                name: display.displayID == mainID
+                    ? L("display.builtin")
+                    : String(format: L("display.numbered"), index + 1),
                 frame: display.frame,
                 isMain: display.displayID == mainID)
         }

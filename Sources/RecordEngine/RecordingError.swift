@@ -1,6 +1,8 @@
 import Foundation
 
-/// Errores del motor, en español y con instrucciones accionables.
+/// Errores del motor: accionables y localizados (Localizable.strings del
+/// target; las instrucciones de permisos usan las rutas REALES de Ajustes
+/// del Sistema en cada idioma).
 public enum RecordingError: LocalizedError, Equatable {
     case sinFuentesActivas
     case permisoPantallaDenegado
@@ -18,32 +20,19 @@ public enum RecordingError: LocalizedError, Equatable {
 
     public var errorDescription: String? {
         switch self {
-        case .sinFuentesActivas:
-            return "No hay ninguna fuente activada. Activa al menos una (pantalla, cámara, micrófono o audio del sistema) para poder grabar."
-        case .permisoPantallaDenegado:
-            return "Falta el permiso de Grabación de Pantalla. Ábrelo en Ajustes del Sistema → Privacidad y seguridad → Grabación de pantalla y audio del sistema, activa RecordApp y vuelve a intentarlo (puede que tengas que reabrir la app)."
-        case .permisoCamaraDenegado:
-            return "Falta el permiso de Cámara. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Cámara, o desactiva la cámara para grabar sin ella."
-        case .permisoMicrofonoDenegado:
-            return "Falta el permiso de Micrófono. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Micrófono, o desactiva el micrófono para grabar sin él."
-        case .camaraNoDisponible:
-            return "No se encontró ninguna cámara conectada. Desactiva la cámara para grabar sin ella."
-        case .microfonoNoDisponible:
-            return "No se encontró ningún micrófono. Desactiva el micrófono para grabar sin él."
-        case .pantallaNoEncontrada:
-            return "No se encontró la pantalla seleccionada. ¿Se desconectó? Elige otra pantalla e inténtalo de nuevo."
-        case .ventanaNoEncontrada:
-            return "No se encontró la ventana seleccionada. Puede que se haya cerrado — elige otra ventana."
-        case .regionInvalida:
-            return "La región seleccionada es demasiado pequeña. Dibuja un recuadro de al menos 16×16 puntos."
-        case .capturaInterrumpida(let detalle):
-            return "La captura se interrumpió: \(detalle). La grabación se detuvo y se intentó guardar lo capturado hasta ese momento."
-        case .escrituraFallida(let detalle):
-            return "No se pudo escribir el archivo de grabación: \(detalle)"
-        case .nadaGrabado:
-            return "La grabación se detuvo antes de recibir ningún dato, así que no se guardó ningún archivo."
-        case .estadoInvalido(let detalle):
-            return "Operación no válida en el estado actual: \(detalle)"
+        case .sinFuentesActivas: return L("err.sinFuentes")
+        case .permisoPantallaDenegado: return L("err.permisoPantalla")
+        case .permisoCamaraDenegado: return L("err.permisoCamara")
+        case .permisoMicrofonoDenegado: return L("err.permisoMicrofono")
+        case .camaraNoDisponible: return L("err.camaraNoDisponible")
+        case .microfonoNoDisponible: return L("err.microfonoNoDisponible")
+        case .pantallaNoEncontrada: return L("err.pantallaNoEncontrada")
+        case .ventanaNoEncontrada: return L("err.ventanaNoEncontrada")
+        case .regionInvalida: return L("err.regionInvalida")
+        case .capturaInterrumpida(let detalle): return String(format: L("err.capturaInterrumpida"), detalle)
+        case .escrituraFallida(let detalle): return String(format: L("err.escrituraFallida"), detalle)
+        case .nadaGrabado: return L("err.nadaGrabado")
+        case .estadoInvalido(let detalle): return String(format: L("err.estadoInvalido"), detalle)
         }
     }
 }

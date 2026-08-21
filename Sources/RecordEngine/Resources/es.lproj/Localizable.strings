@@ -1,0 +1,26 @@
+/* Fuentes */
+"source.screen" = "Pantalla";
+"source.camera" = "Cámara";
+"source.microphone" = "Micrófono";
+"source.systemAudio" = "Audio del sistema";
+/* Formas de cámara */
+"shape.circle" = "Círculo";
+"shape.square" = "Cuadrado";
+"shape.rectangle" = "Rectángulo";
+/* Pantallas */
+"display.builtin" = "Pantalla integrada";
+"display.numbered" = "Pantalla %d";
+/* Errores accionables */
+"err.sinFuentes" = "No hay ninguna fuente activada. Activa al menos una (pantalla, cámara, micrófono o audio del sistema) para poder grabar.";
+"err.permisoPantalla" = "Falta el permiso de Grabación de Pantalla. Ábrelo en Ajustes del Sistema → Privacidad y seguridad → Grabación de pantalla y audio del sistema, activa Grabi y vuelve a intentarlo (puede que tengas que reabrir la app).";
+"err.permisoCamara" = "Falta el permiso de Cámara. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Cámara, o desactiva la cámara para grabar sin ella.";
+"err.permisoMicrofono" = "Falta el permiso de Micrófono. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Micrófono, o desactiva el micrófono para grabar sin él.";
+"err.camaraNoDisponible" = "No encuentro tu cámara. ¿Está conectada? También puedes desactivarla y grabar sin ella.";
+"err.microfonoNoDisponible" = "No encuentro tu micrófono. ¿Está conectado? También puedes desactivarlo y grabar sin él.";
+"err.pantallaNoEncontrada" = "No se encontró la pantalla seleccionada. ¿Se desconectó? Elige otra pantalla e inténtalo de nuevo.";
+"err.ventanaNoEncontrada" = "No se encontró la ventana seleccionada. Puede que se haya cerrado — elige otra ventana.";
+"err.regionInvalida" = "La región seleccionada es demasiado pequeña. Dibuja un recuadro de al menos 16×16 puntos.";
+"err.capturaInterrumpida" = "La captura se interrumpió: %@. La grabación se detuvo y se intentó guardar lo capturado hasta ese momento.";
+"err.escrituraFallida" = "No se pudo escribir el archivo de grabación: %@";
+"err.nadaGrabado" = "La grabación se detuvo antes de recibir ningún dato, así que no se guardó ningún archivo.";
+"err.estadoInvalido" = "Operación no válida en el estado actual: %@";

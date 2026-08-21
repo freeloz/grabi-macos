@@ -1,0 +1,26 @@
+/* Sources */
+"source.screen" = "Screen";
+"source.camera" = "Camera";
+"source.microphone" = "Microphone";
+"source.systemAudio" = "System audio";
+/* Camera shapes */
+"shape.circle" = "Circle";
+"shape.square" = "Square";
+"shape.rectangle" = "Rectangle";
+/* Displays */
+"display.builtin" = "Built-in display";
+"display.numbered" = "Display %d";
+/* Actionable errors */
+"err.sinFuentes" = "No source is turned on. Turn on at least one (screen, camera, microphone, or system audio) to start recording.";
+"err.permisoPantalla" = "Screen Recording permission is missing. Open System Settings → Privacy & Security → Screen & System Audio Recording, turn on Grabi, and try again (you may need to reopen the app).";
+"err.permisoCamara" = "Camera permission is missing. Turn it on in System Settings → Privacy & Security → Camera, or turn the camera off and record without it.";
+"err.permisoMicrofono" = "Microphone permission is missing. Turn it on in System Settings → Privacy & Security → Microphone, or turn the microphone off and record without it.";
+"err.camaraNoDisponible" = "Can't find your camera. Is it plugged in? You can also turn it off and record without it.";
+"err.microfonoNoDisponible" = "Can't find your microphone. Is it plugged in? You can also turn it off and record without it.";
+"err.pantallaNoEncontrada" = "The selected display wasn't found. Was it unplugged? Pick another display and try again.";
+"err.ventanaNoEncontrada" = "The selected window wasn't found. It may have been closed — pick another window.";
+"err.regionInvalida" = "The selected region is too small. Draw a box of at least 16×16 points.";
+"err.capturaInterrumpida" = "The capture was interrupted: %@. Recording stopped and Grabi tried to save everything captured so far.";
+"err.escrituraFallida" = "The recording file couldn't be written: %@";
+"err.nadaGrabado" = "The recording stopped before any data arrived, so no file was saved.";
+"err.estadoInvalido" = "That action isn't valid right now: %@";
