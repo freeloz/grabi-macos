@@ -2,35 +2,33 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- El bundle ID se mantiene (com.ivan.recordapp) para conservar los
-	     permisos de TCC ya concedidos; el nombre visible es Grabi. -->
-	<key>CFBundleIdentifier</key>
-	<string>com.ivan.recordapp</string>
-	<key>CFBundleName</key>
-	<string>Grabi</string>
 	<key>CFBundleDisplayName</key>
 	<string>Grabi</string>
 	<key>CFBundleExecutable</key>
 	<string>Grabi</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.ivan.recordapp</string>
+	<key>CFBundleName</key>
+	<string>Grabi</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.1.1</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>4</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-	<key>NSHighResolutionCapable</key>
-	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Grabi usa la cámara para incluirte en tus grabaciones. Es solo para grabar — nada sale de tu Mac.</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Grabi usa el micrófono para grabar tu voz. Es solo para grabar — nada sale de tu Mac.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 </dict>
 </plist>

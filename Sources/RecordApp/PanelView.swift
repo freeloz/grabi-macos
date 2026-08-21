@@ -166,6 +166,15 @@ struct PanelView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Ajustes")
+                Rectangle()
+                    .fill(GrabiColor.border)
+                    .frame(width: 1, height: 14)
+                Button("Salir") { model.quit() }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 12))
+                    .foregroundStyle(GrabiColor.textSecondary)
+                    .help("Salir de Grabi (si estás grabando, primero guarda la grabación)")
+                    .keyboardShortcut("q")
             }
         }
         .padding(.horizontal, 4)
