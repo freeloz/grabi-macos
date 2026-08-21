@@ -20,6 +20,26 @@ Lo contrario de OBS.
   onboarding con Grabi (la mascota), atajos globales ⌘⇧2 y ⌘⇧P.
 - En español, con la voz de la marca. Todo local: nada sale de tu Mac.
 
+## Descargar
+
+Última versión para macOS 13+ (DMG firmado):
+
+- **https://dl.grabi.net/macos/latest/Grabi.dmg**
+- Manifiesto con versión y checksum: https://dl.grabi.net/macos/latest.json
+- Versiones anteriores: `https://dl.grabi.net/macos/v<versión>/…` y las
+  [releases de GitHub](https://github.com/freeloz/grabi-macos/releases).
+
+Cada DMG publica su SHA-256 junto al archivo (`.sha256` y `SHA256SUMS.txt`).
+Verifícalo así:
+
+```bash
+shasum -a 256 Grabi-*.dmg   # debe coincidir con el .sha256 publicado
+```
+
+> Firma interina: certificado local "Grabi Dev" con hardened runtime (aún sin
+> notarización de Apple). La primera vez, clic derecho → Abrir. El sitio
+> oficial es [grabi.net](https://grabi.net).
+
 ## Compilar y ejecutar
 
 Requisitos: macOS 13+, Swift 5.9+ (bastan las Command Line Tools), sin

@@ -1,0 +1,18 @@
+# Verificación de build en cada push/PR. La publicación de releases es local
+# (necesita la identidad de firma del llavero): ./scripts/publish-release.sh
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build (release)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift version
+        run: swift --version
+      - name: Build release
+        run: swift build -c release
