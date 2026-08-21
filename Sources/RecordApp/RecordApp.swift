@@ -17,6 +17,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             exit(0)
         }
         NSApp.setActivationPolicy(.accessory)
+        // Start Sparkle now, not on first Settings open: the daily quiet
+        // check must run even if the user never opens Settings.
+        _ = UpdaterManager.shared
         // First launch: 3-screen onboarding that ends by recording.
         let model = AppShared.model
         if !model.onboardingDone {
