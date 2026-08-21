@@ -83,6 +83,9 @@ final class GrabiAppModel: ObservableObject {
     @Published private(set) var systemLevel: Double = 0
     @Published var showUnavailableDialog = false
     @Published private(set) var unavailableSources: [RecordingSource] = []
+    /// Controles en vivo durante la grabación (pastilla flotante).
+    @Published private(set) var micMuted = false
+    @Published private(set) var cameraHidden = false
 
     // MARK: Preferencias
     @Published var destinationFolder: URL {
@@ -337,6 +340,27 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
+    /// Silenciar/activar el micrófono en vivo (la pista sigue continua: se
+    /// escribe silencio real).
+    func toggleMicMuted() {
+        guard isActive, micEnabled else { return }
+        micMuted.toggle()
+        engine.setMicrophoneMuted(micMuted)
+    }
+
+    /// Apagar/encender la cámara en vivo (solo PiP; la luz se apaga de verdad).
+    func toggleCameraHidden() {
+        guard isActive, cameraEnabled, screenEnabled else { return }
+        cameraHidden.toggle()
+        let hidden = cameraHidden
+        Task { await engine.setCameraHidden(hidden) }
+        if hidden {
+            cameraWindowController.close()
+        } else {
+            cameraWindowController.show(model: self)
+        }
+    }
+
     func togglePause() {
         if isPaused {
             engine.resume()
@@ -406,6 +430,8 @@ final class GrabiAppModel: ObservableObject {
     }
 
     private func startRecording() async {
+        micMuted = false
+        cameraHidden = false
         do {
             let config = try buildConfiguration()
             try await engine.start(configuration: config)

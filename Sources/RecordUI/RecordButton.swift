@@ -183,6 +183,9 @@ public struct FloatingPill: View {
     let isPaused: Bool
     let elapsed: String
     @Binding var collapsed: Bool
+    /// Controles en vivo opcionales: (encendido, acción al pulsar).
+    let cameraToggle: (isOn: Bool, action: () -> Void)?
+    let micToggle: (isOn: Bool, action: () -> Void)?
     let onPause: () -> Void
     let onResume: () -> Void
     let onStop: () -> Void
@@ -190,12 +193,16 @@ public struct FloatingPill: View {
     public init(isPaused: Bool,
                 elapsed: String,
                 collapsed: Binding<Bool>,
+                cameraToggle: (isOn: Bool, action: () -> Void)? = nil,
+                micToggle: (isOn: Bool, action: () -> Void)? = nil,
                 onPause: @escaping () -> Void,
                 onResume: @escaping () -> Void,
                 onStop: @escaping () -> Void) {
         self.isPaused = isPaused
         self.elapsed = elapsed
         self._collapsed = collapsed
+        self.cameraToggle = cameraToggle
+        self.micToggle = micToggle
         self.onPause = onPause
         self.onResume = onResume
         self.onStop = onStop
@@ -219,6 +226,16 @@ public struct FloatingPill: View {
                 .foregroundStyle(isPaused ? GrabiColor.ivoryFixedDim : GrabiColor.ivoryFixed)
             if !collapsed {
                 Rectangle().fill(GrabiColor.inkFixedSoft).frame(width: 1, height: 22)
+                if let cameraToggle {
+                    PillSourceToggle(icon: .camCirculo, isOn: cameraToggle.isOn,
+                                     onLabel: L("ui.cam.ocultar"), offLabel: L("ui.cam.mostrar"),
+                                     action: cameraToggle.action)
+                }
+                if let micToggle {
+                    PillSourceToggle(icon: .microfono, isOn: micToggle.isOn,
+                                     onLabel: L("ui.mic.silenciar"), offLabel: L("ui.mic.activar"),
+                                     action: micToggle.action)
+                }
                 if isPaused {
                     Button(action: onResume) {
                         HStack(spacing: 7) {
@@ -266,5 +283,43 @@ struct DragHandleDots: View {
         }
         .foregroundStyle(Color(nsColor: NSColor(srgbRed: 0x5C/255.0, green: 0x55/255.0, blue: 0x48/255.0, alpha: 1)))
         .accessibilityHidden(true)
+    }
+}
+
+
+/// Toggle de fuente en la pastilla (cámara/mic en vivo): encendido = ícono
+/// marfil con borde; apagado = ícono atenuado con barra diagonal ámbar
+/// (semántica del semáforo: ámbar = en pausa, no error).
+struct PillSourceToggle: View {
+    let icon: GrabiIcon
+    let isOn: Bool
+    let onLabel: String
+    let offLabel: String
+    let action: () -> Void
+
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                GrabiIconView(icon, size: 14, tint: isOn ? GrabiColor.ivoryFixed : GrabiColor.ivoryFixedDim)
+                if !isOn {
+                    Rectangle()
+                        .fill(GrabiColor.ambarOnInk)
+                        .frame(width: 22, height: 2.5)
+                        .rotationEffect(.degrees(-45))
+                }
+            }
+            .frame(width: 30, height: 30)
+            .overlay(Circle().strokeBorder(
+                isOn ? GrabiColor.inkFixedBorder : GrabiColor.ambarOnInk.opacity(0.6),
+                lineWidth: 1.5))
+            .scaleEffect(hovering ? 1.06 : 1)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
+        .help(isOn ? onLabel : offLabel)
+        .accessibilityLabel(isOn ? onLabel : offLabel)
     }
 }

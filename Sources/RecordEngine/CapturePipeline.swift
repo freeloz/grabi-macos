@@ -75,6 +75,19 @@ final class CapturePipeline {
         compositor?.layout = layout
     }
 
+    /// Apaga/enciende la cámara EN VIVO (solo en modo PiP: con pantalla).
+    /// Apagar detiene la sesión (la luz de la cámara se apaga) y limpia el
+    /// último frame → el compositor deja de estampar el PiP.
+    func setCameraHidden(_ hidden: Bool) async {
+        guard config.capturesCamera, config.capturesScreen else { return }
+        if hidden {
+            await camera?.stop()
+            latestCameraFrame.value = nil
+        } else {
+            await camera?.start()
+        }
+    }
+
     /// ¿Esta configuración produce el mismo pipeline de captura? (el mic y el
     /// bitrate no afectan al pipeline; sí las fuentes de video/audio-sistema,
     /// el target y la resolución)
@@ -181,16 +194,19 @@ final class CapturePipeline {
                     // cámara ya está caliente y esto no espera nada.
                     let waitsForCamera = config.capturesCamera
                     var framesWaitingForCamera = 0 // solo se toca en la cola de video
+                    var cameraSeen = false // la espera aplica SOLO al arranque:
+                    // si luego se oculta la cámara en vivo, el video no debe pausarse
                     screen.onVideoFrame = { [weak self] screenBuffer, pts, contentRect in
                         guard let self else { return }
                         let cameraFrame = box.value
+                        if cameraFrame != nil { cameraSeen = true }
                         // Composición en la cola de video de SCStream (GPU);
                         // el mismo frame compuesto va a writer y vista previa.
                         guard let composed = compositor.compose(screen: screenBuffer,
                                                                 screenContentRect: contentRect,
                                                                 camera: cameraFrame) else { return }
                         self.onPreviewFrame?(composed)
-                        if waitsForCamera, cameraFrame == nil, self.writer != nil, framesWaitingForCamera < 45 {
+                        if waitsForCamera, !cameraSeen, self.writer != nil, framesWaitingForCamera < 45 {
                             framesWaitingForCamera += 1
                             return
                         }

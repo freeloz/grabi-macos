@@ -36,10 +36,10 @@ final class PillWindowController {
             panel = p
         }
         guard let panel else { return }
-        panel.setContentSize(NSSize(width: 320, height: 56))
+        panel.setContentSize(NSSize(width: 440, height: 64))
         if let screen = NSScreen.main {
             let f = screen.visibleFrame
-            panel.setFrameOrigin(NSPoint(x: f.midX - 160, y: f.maxY - 66))
+            panel.setFrameOrigin(NSPoint(x: f.midX - 220, y: f.maxY - 74))
         }
         panel.orderFrontRegardless()
     }
@@ -59,6 +59,10 @@ private struct PillRoot: View {
                 isPaused: model.isPaused,
                 elapsed: model.elapsedText,
                 collapsed: $collapsed,
+                cameraToggle: (model.screenEnabled && model.cameraEnabled)
+                    ? (isOn: !model.cameraHidden, action: { model.toggleCameraHidden() }) : nil,
+                micToggle: model.micEnabled
+                    ? (isOn: !model.micMuted, action: { model.toggleMicMuted() }) : nil,
                 onPause: { model.togglePause() },
                 onResume: { model.togglePause() },
                 onStop: { Task { await model.stop() } })

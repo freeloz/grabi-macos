@@ -7,3 +7,7 @@
 "ui.a11y.grabando" = "Gravando, %@";
 "ui.a11y.pausado" = "Em pausa, %@. Retomar";
 "ui.a11y.pillPausa" = "Gravação em pausa, %@";
+"ui.cam.ocultar" = "Desligar câmera";
+"ui.cam.mostrar" = "Ligar câmera";
+"ui.mic.silenciar" = "Silenciar microfone";
+"ui.mic.activar" = "Ativar microfone";

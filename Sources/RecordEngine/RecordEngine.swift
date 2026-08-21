@@ -54,6 +54,24 @@ public final class RecordingEngine: ObservableObject {
     private var micMonitor: MicrophoneCapturer?
     private var writer: MovieWriter?
 
+    // Mute del micrófono en vivo: se escribe SILENCIO real (buffers a cero)
+    // en vez de dejar un hueco — la pista queda continua y sincronizada.
+    private let muteLock = NSLock()
+    private var _micMuted = false
+    private var isMicrophoneMuted: Bool {
+        muteLock.lock(); defer { muteLock.unlock() }; return _micMuted
+    }
+
+    public func setMicrophoneMuted(_ muted: Bool) {
+        muteLock.lock(); _micMuted = muted; muteLock.unlock()
+        if muted { onMicLevel?(0) }
+    }
+
+    /// Apaga/enciende la cámara durante la grabación (solo modo PiP).
+    public func setCameraHidden(_ hidden: Bool) async {
+        await pipeline?.setCameraHidden(hidden)
+    }
+
     public init() {}
 
     // MARK: - Descubrimiento
@@ -237,12 +255,18 @@ public final class RecordingEngine: ObservableObject {
             microphoneChannels: mic?.nativeChannelCount ?? 2,
             includeSystemAudio: config.capturesSystemAudio)
 
+        setMicrophoneMuted(false) // cada grabación empieza sin mute
         if let mic {
             mic.onAudio = { [weak self] sample in
+                guard let self else { return }
+                if self.isMicrophoneMuted, let block = CMSampleBufferGetDataBuffer(sample) {
+                    CMBlockBufferFillDataBytes(with: 0, blockBuffer: block,
+                                               offsetIntoDestination: 0,
+                                               dataLength: CMBlockBufferGetDataLength(block))
+                }
                 writer.appendMicrophone(sample)
-                if let onLevel = self?.onMicLevel,
-                   let level = AudioLevel.normalizedLevel(from: sample) {
-                    onLevel(level)
+                if let level = AudioLevel.normalizedLevel(from: sample) {
+                    self.onMicLevel?(level)
                 }
             }
             micCapturer = mic

@@ -7,3 +7,7 @@
 "ui.a11y.grabando" = "Aufnahme, %@";
 "ui.a11y.pausado" = "Pausiert, %@. Fortsetzen";
 "ui.a11y.pillPausa" = "Aufnahme pausiert, %@";
+"ui.cam.ocultar" = "Kamera ausschalten";
+"ui.cam.mostrar" = "Kamera einschalten";
+"ui.mic.silenciar" = "Mikrofon stummschalten";
+"ui.mic.activar" = "Mikrofon aktivieren";
