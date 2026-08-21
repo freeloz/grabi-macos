@@ -54,6 +54,27 @@ public struct ShareableContent: Sendable {
     public let displays: [DisplayInfo]
     public let windows: [WindowInfo]
 
+    // Cache del contenido crudo de SCK del último `current()`: las miniaturas
+    // del selector lo reutilizan para capturar al instante sin repetir el
+    // fetch de SCShareableContent (que tarda ~1-2 s).
+    private static let rawLock = NSLock()
+    nonisolated(unsafe) private static var raw: SCShareableContent?
+
+    public static func scWindow(for id: CGWindowID) -> SCWindow? {
+        rawLock.lock(); defer { rawLock.unlock() }
+        return raw?.windows.first { $0.windowID == id }
+    }
+
+    public static func scDisplay(for id: CGDirectDisplayID) -> SCDisplay? {
+        rawLock.lock(); defer { rawLock.unlock() }
+        return raw?.displays.first { $0.displayID == id }
+    }
+
+    private static func storeRaw(_ content: SCShareableContent) {
+        rawLock.lock(); defer { rawLock.unlock() }
+        raw = content
+    }
+
     /// Lista pantallas y ventanas capturables. Excluye las ventanas de la
     /// propia app y las que no tienen título (menús, overlays del sistema).
     public static func current() async throws -> ShareableContent {
@@ -63,6 +84,8 @@ public struct ShareableContent: Sendable {
         } catch {
             throw RecordingError.permisoPantallaDenegado
         }
+        storeRaw(content)
+
         let mainID = CGMainDisplayID()
         let displays = content.displays.enumerated().map { index, display in
             DisplayInfo(

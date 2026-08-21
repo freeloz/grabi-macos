@@ -5,41 +5,51 @@ import ScreenCaptureKit
 import RecordEngine
 import RecordUI
 
-/// Miniaturas para el selector visual.
+/// Miniaturas del selector visual, con caché en memoria: reabrir el
+/// selector muestra las miniaturas AL INSTANTE (las de la vez anterior) y
+/// las refresca en paralelo por debajo.
 ///
-/// En macOS 14+ usa SCScreenshotManager: captura por GPU directamente al
-/// tamaño de la miniatura y en paralelo — carga casi instantánea. En macOS 13
-/// cae a CGWindowListCreateImage/CGDisplayCreateImage (deprecadas en 14, pero
-/// únicas disponibles ahí); son lentas porque el window server las atiende en
-/// serie y a resolución completa.
-actor CaptureThumbnailer {
-    static let shared = CaptureThumbnailer()
+/// Captura: en macOS 14+ SCScreenshotManager por GPU al tamaño exacto de la
+/// tarjeta, reutilizando el SCShareableContent que el modelo ya trajo (cero
+/// fetches extra). En macOS 13, CGWindowListCreateImage como fallback.
+@MainActor
+final class ThumbnailStore: ObservableObject {
+    static let shared = ThumbnailStore()
 
-    private var scWindows: [CGWindowID: SCWindow] = [:]
-    private var scDisplays: [CGDirectDisplayID: SCDisplay] = [:]
-    private var refreshed = false
+    @Published private(set) var windowImages: [CGWindowID: NSImage] = [:]
+    @Published private(set) var displayImages: [CGDirectDisplayID: NSImage] = [:]
 
-    /// Ancho objetivo de las miniaturas en píxeles (tarjeta ~228 pt @2x).
-    private let targetWidth: CGFloat = 480
+    private let targetWidth: CGFloat = 480 // tarjeta ~228 pt @2x
 
-    /// Un solo fetch de SCShareableContent por apertura del selector.
-    func refresh() async {
-        refreshed = false
-        await ensureFresh()
+    /// Captura todo en paralelo y actualiza el caché entrada a entrada
+    /// (cada tarjeta se pinta en cuanto llega la suya).
+    func refresh(displays: [DisplayInfo], windows: [WindowInfo]) async {
+        await withTaskGroup(of: Void.self) { group in
+            for display in displays {
+                group.addTask { @MainActor [weak self] in
+                    guard let self else { return }
+                    if let image = await Self.captureDisplay(display.id, targetWidth: self.targetWidth) {
+                        self.displayImages[display.id] = image
+                    }
+                }
+            }
+            for window in windows {
+                group.addTask { @MainActor [weak self] in
+                    guard let self else { return }
+                    if let image = await Self.captureWindow(window.id, targetWidth: self.targetWidth) {
+                        self.windowImages[window.id] = image
+                    }
+                }
+            }
+            await group.waitForAll()
+        }
+        // Purgar miniaturas de ventanas que ya no existen.
+        let validWindows = Set(windows.map(\.id))
+        windowImages = windowImages.filter { validWindows.contains($0.key) }
     }
 
-    private func ensureFresh() async {
-        guard !refreshed else { return }
-        refreshed = true
-        guard #available(macOS 14.0, *) else { return }
-        guard let content = try? await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true) else { return }
-        scWindows = Dictionary(uniqueKeysWithValues: content.windows.map { ($0.windowID, $0) })
-        scDisplays = Dictionary(uniqueKeysWithValues: content.displays.map { ($0.displayID, $0) })
-    }
-
-    func window(_ windowID: CGWindowID) async -> NSImage? {
-        await ensureFresh()
-        if #available(macOS 14.0, *), let scWindow = scWindows[windowID] {
+    private nonisolated static func captureWindow(_ id: CGWindowID, targetWidth: CGFloat) async -> NSImage? {
+        if #available(macOS 14.0, *), let scWindow = ShareableContent.scWindow(for: id) {
             let config = SCStreamConfiguration()
             let scale = min(1, targetWidth / max(scWindow.frame.width, 1))
             config.width = max(Int(scWindow.frame.width * scale), 2)
@@ -52,16 +62,15 @@ actor CaptureThumbnailer {
         }
         return await Task.detached(priority: .userInitiated) {
             guard let cgImage = CGWindowListCreateImage(
-                .null, .optionIncludingWindow, windowID,
+                .null, .optionIncludingWindow, id,
                 [.boundsIgnoreFraming, .nominalResolution])
             else { return nil }
             return NSImage(cgImage: cgImage, size: .zero)
         }.value
     }
 
-    func display(_ displayID: CGDirectDisplayID) async -> NSImage? {
-        await ensureFresh()
-        if #available(macOS 14.0, *), let scDisplay = scDisplays[displayID] {
+    private nonisolated static func captureDisplay(_ id: CGDirectDisplayID, targetWidth: CGFloat) async -> NSImage? {
+        if #available(macOS 14.0, *), let scDisplay = ShareableContent.scDisplay(for: id) {
             let config = SCStreamConfiguration()
             let scale = targetWidth / max(CGFloat(scDisplay.width), 1)
             config.width = max(Int(CGFloat(scDisplay.width) * scale), 2)
@@ -73,7 +82,7 @@ actor CaptureThumbnailer {
             }
         }
         return await Task.detached(priority: .userInitiated) {
-            guard let cgImage = CGDisplayCreateImage(displayID) else { return nil }
+            guard let cgImage = CGDisplayCreateImage(id) else { return nil }
             return NSImage(cgImage: cgImage, size: .zero)
         }.value
     }
@@ -91,6 +100,7 @@ final class WindowPickerController: TitledWindowController {
 
 private struct CapturePickerView: View {
     @ObservedObject var model: GrabiAppModel
+    @ObservedObject private var thumbnails = ThumbnailStore.shared
     let controller: WindowPickerController
 
     private let columns = [GridItem(.adaptive(minimum: 200, maximum: 240), spacing: GrabiSpace.s4)]
@@ -105,7 +115,7 @@ private struct CapturePickerView: View {
                                 title: display.name,
                                 subtitle: "\(Int(display.frame.width))×\(Int(display.frame.height))",
                                 isSelected: model.captureMode == .pantalla && isSelectedDisplay(display),
-                                thumbnail: { await CaptureThumbnailer.shared.display(display.id) }
+                                image: thumbnails.displayImages[display.id]
                             ) {
                                 model.selectedDisplayID = display.isMain ? nil : display.id
                                 model.captureMode = .pantalla
@@ -131,7 +141,7 @@ private struct CapturePickerView: View {
                                     title: window.appName,
                                     subtitle: window.title,
                                     isSelected: model.captureMode == .ventana && model.selectedWindow?.id == window.id,
-                                    thumbnail: { await CaptureThumbnailer.shared.window(window.id) }
+                                    image: thumbnails.windowImages[window.id]
                                 ) {
                                     model.selectedWindow = window
                                     model.captureMode = .ventana
@@ -147,8 +157,12 @@ private struct CapturePickerView: View {
         .frame(width: 720, height: 540)
         .background(GrabiColor.bg)
         .task {
-            await CaptureThumbnailer.shared.refresh()
+            // 1. Pintar YA con lo conocido (caché de miniaturas + contenido
+            //    SCK que el modelo ya trajo al abrir el panel).
+            await thumbnails.refresh(displays: model.availableDisplays, windows: model.availableWindows)
+            // 2. Refrescar la lista y volver a capturar lo nuevo.
             await model.refreshAll()
+            await thumbnails.refresh(displays: model.availableDisplays, windows: model.availableWindows)
         }
     }
 
@@ -171,10 +185,9 @@ private struct PickerCard: View {
     let title: String
     let subtitle: String
     let isSelected: Bool
-    let thumbnail: () async -> NSImage?
+    let image: NSImage?
     let action: () -> Void
 
-    @State private var image: NSImage?
     @State private var hovering = false
 
     var body: some View {
@@ -218,7 +231,6 @@ private struct PickerCard: View {
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
-        .task { image = await thumbnail() }
         .accessibilityLabel("\(title), \(subtitle)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
