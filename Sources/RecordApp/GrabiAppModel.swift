@@ -167,7 +167,7 @@ final class GrabiAppModel: ObservableObject {
         NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in await self?.refreshAll() }
+            Task { @MainActor [weak self] in await self?.refreshAll() }
         }
 
         Task { await refreshAll(applyDefaults: true) }

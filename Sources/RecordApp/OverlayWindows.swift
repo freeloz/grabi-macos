@@ -141,7 +141,7 @@ final class CameraWindowController: NSObject {
             moveObserver = NotificationCenter.default.addObserver(
                 forName: NSWindow.didMoveNotification, object: p, queue: .main
             ) { [weak self] _ in
-                Task { @MainActor in self?.windowMoved() }
+                Task { @MainActor [weak self] in self?.windowMoved() }
             }
         }
         baseRect = computeBaseRect()
