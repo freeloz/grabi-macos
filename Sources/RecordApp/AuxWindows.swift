@@ -50,7 +50,7 @@ private struct OnboardingView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button("Omitir") { finish(startRecording: false) }
+                Button(L("app.ob.omitir")) { finish(startRecording: false) }
                     .buttonStyle(.plain)
                     .font(GrabiFont.caption)
                     .foregroundStyle(GrabiColor.textSecondary)
@@ -84,16 +84,16 @@ private struct OnboardingView: View {
     private var page0: some View {
         VStack(spacing: 16) {
             MascotView(pose: .saludando, size: 116)
-            Text("Hola, soy Grabi")
+            Text(L("app.ob.hola"))
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
-            Text("Graba tu pantalla sin drama. Gratis, sin límites, sin cuenta.")
+            Text(L("app.ob.claim"))
                 .font(.system(size: 14.5))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
             Spacer().frame(height: 4)
-            GrabiButton("Empezar", kind: .primario) { step = 1 }
+            GrabiButton(L("app.ob.empezar"), kind: .primario) { step = 1 }
         }
         .padding(.horizontal, 36)
     }
@@ -101,19 +101,19 @@ private struct OnboardingView: View {
     private var page1: some View {
         VStack(spacing: 14) {
             MascotView(pose: .neutral, size: 76)
-            Text("Dos permisos y ya")
+            Text(L("app.ob.permisos.titulo"))
                 .font(.system(size: 21, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
-            Text("Solo para grabar. Nada sale de tu Mac.")
+            Text(L("app.ob.permisos.sub"))
                 .font(.system(size: 13.5))
                 .foregroundStyle(GrabiColor.textSecondary)
             VStack(spacing: 8) {
                 permissionRow(
-                    icon: .pantalla, title: "Pantalla",
+                    icon: .pantalla, title: RecordingSource.screen.displayName,
                     granted: model.preflight?.screen.isUsable == true,
                     action: { model.openScreenSettings() })
                 permissionRow(
-                    icon: .microfono, title: "Micrófono",
+                    icon: .microfono, title: RecordingSource.microphone.displayName,
                     granted: model.preflight?.microphone.isUsable == true,
                     action: {
                         Task {
@@ -122,8 +122,8 @@ private struct OnboardingView: View {
                         }
                     })
             }
-            GrabiButton("Continuar", kind: .primario) { step = 2 }
-            Button("Puedes darlos después") { step = 2 }
+            GrabiButton(L("app.ob.continuar"), kind: .primario) { step = 2 }
+            Button(L("app.ob.despues")) { step = 2 }
                 .buttonStyle(.plain)
                 .font(.system(size: 12.5))
                 .foregroundStyle(GrabiColor.textSecondary)
@@ -139,12 +139,12 @@ private struct OnboardingView: View {
                 .foregroundStyle(GrabiColor.text)
             Spacer()
             if granted {
-                Text("Concedido ✓")
+                Text(L("app.ob.concedido"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(GrabiColor.exito)
             } else {
                 Button(action: action) {
-                    Text("Permitir")
+                    Text(L("app.ob.permitir"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(GrabiColor.onBrand)
                         .padding(.horizontal, 13)
@@ -165,10 +165,10 @@ private struct OnboardingView: View {
     private var page2: some View {
         VStack(spacing: 14) {
             MascotView(pose: .grabando, size: 86)
-            Text("Tu primera grabación")
+            Text(L("app.ob.primera.titulo"))
                 .font(.system(size: 21, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
-            Text("Presiona grabar y di hola a la cámara. Diez segundos bastan — te espero.")
+            Text(L("app.ob.primera.sub"))
                 .font(.system(size: 13.5))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .multilineTextAlignment(.center)
@@ -177,7 +177,7 @@ private struct OnboardingView: View {
             Button { finish(startRecording: true) } label: {
                 HStack(spacing: 10) {
                     SemaforoDot(.listo, size: 12)
-                    Text("Grabar mi prueba")
+                    Text(L("app.ob.grabarPrueba"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(GrabiColor.text)
                 }
@@ -229,17 +229,17 @@ private struct PermissionView: View {
 
     private var titleText: String {
         switch source {
-        case .screen, .systemAudio: return "Grabi necesita ver tu pantalla"
-        case .camera: return "Grabi necesita tu cámara"
-        case .microphone: return "Grabi necesita tu micrófono"
+        case .screen, .systemAudio: return L("app.perm.titulo.pantalla")
+        case .camera: return L("app.perm.titulo.camara")
+        case .microphone: return L("app.perm.titulo.microfono")
         }
     }
 
     private var settingsPane: String {
         switch source {
-        case .screen, .systemAudio: return "Grabación de pantalla y audio"
-        case .camera: return "Cámara"
-        case .microphone: return "Micrófono"
+        case .screen, .systemAudio: return L("app.perm.panel.pantalla")
+        case .camera: return L("app.perm.panel.camara")
+        case .microphone: return L("app.perm.panel.microfono")
         }
     }
 
@@ -261,20 +261,20 @@ private struct PermissionView: View {
                     Text(titleText)
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(GrabiColor.text)
-                    Text("Es solo para grabar. Nada sale de tu Mac.")
+                    Text(L("app.perm.honesto"))
                         .font(GrabiFont.caption)
                         .foregroundStyle(GrabiColor.textSecondary)
                 }
             }
             VStack(alignment: .leading, spacing: 10) {
-                stepRow(1, text: "Abre **Ajustes del Sistema → Privacidad y seguridad**")
-                stepRow(2, text: "Entra a **\(settingsPane)**")
-                stepRow(3, text: "Activa **Grabi** — te esperamos aquí ✓")
+                stepRow(1, text: L("app.perm.paso1"))
+                stepRow(2, text: LF("app.perm.paso2", settingsPane))
+                stepRow(3, text: L("app.perm.paso3"))
             }
             HStack {
                 Spacer()
-                GrabiButton("Ahora no", kind: .fantasma) { controller.close() }
-                GrabiButton("Abrir Ajustes del Sistema", kind: .primario) {
+                GrabiButton(L("app.perm.ahoraNo"), kind: .fantasma) { controller.close() }
+                GrabiButton(L("app.perm.abrirAjustes"), kind: .primario) {
                     NSWorkspace.shared.open(settingsURL)
                 }
             }
@@ -305,7 +305,7 @@ final class SettingsWindowController: TitledWindowController {
     private let gallery = GalleryWindowController()
 
     func show(model: GrabiAppModel) {
-        present(title: "Ajustes de Grabi", size: NSSize(width: 420, height: 430),
+        present(title: L("app.ajustes.titulo"), size: NSSize(width: 420, height: 430),
                 content: SettingsView(model: model, gallery: gallery))
     }
 }
@@ -317,7 +317,7 @@ private struct SettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: GrabiSpace.s6) {
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text("Carpeta de grabaciones")
+                Text(L("app.ajustes.carpeta"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 HStack {
@@ -329,7 +329,7 @@ private struct SettingsView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer()
-                    GrabiButton("Cambiar…", kind: .secundario) { pickFolder() }
+                    GrabiButton(L("app.cambiar"), kind: .secundario) { pickFolder() }
                 }
                 .padding(12)
                 .background(GrabiColor.surface)
@@ -338,7 +338,7 @@ private struct SettingsView: View {
             }
 
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text("Calidad de grabación")
+                Text(L("app.ajustes.calidad"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 VStack(spacing: 0) {
@@ -350,20 +350,20 @@ private struct SettingsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
                 if model.isActive {
-                    Text("El cambio aplica a la próxima grabación.")
+                    Text(L("app.ajustes.calidad.nota"))
                         .font(GrabiFont.caption)
                         .foregroundStyle(GrabiColor.textSecondary)
                 }
             }
 
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text("Atajos de teclado globales")
+                Text(L("app.ajustes.atajos"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 VStack(spacing: 0) {
-                    shortcutRow("Grabar / Detener", keys: "⌘⇧2")
+                    shortcutRow(L("app.ajustes.atajo.grabar"), keys: "⌘⇧2")
                     RowDivider()
-                    shortcutRow("Pausar / Reanudar", keys: "⌘⇧P")
+                    shortcutRow(L("app.ajustes.atajo.pausar"), keys: "⌘⇧P")
                 }
                 .background(GrabiColor.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -373,16 +373,16 @@ private struct SettingsView: View {
             Spacer()
 
             HStack {
-                Button("Ver el onboarding otra vez") {
+                Button(L("app.ajustes.verOnboarding")) {
                     model.onboardingController.show(model: model)
                 }
                 .buttonStyle(.link)
                 .font(GrabiFont.caption)
-                Button("Galería del sistema (debug)") { gallery.show() }
+                Button(L("app.ajustes.galeria")) { gallery.show() }
                     .buttonStyle(.link)
                     .font(GrabiFont.caption)
                 Spacer()
-                GrabiButton("Salir de Grabi", kind: .fantasma) { model.quit() }
+                GrabiButton(L("app.ajustes.salir"), kind: .fantasma) { model.quit() }
             }
         }
         .padding(20)
@@ -441,7 +441,7 @@ private struct SettingsView: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
-        panel.prompt = "Elegir"
+        panel.prompt = L("app.ajustes.elegir")
         panel.directoryURL = model.destinationFolder
         if panel.runModal() == .OK, let url = panel.url {
             model.destinationFolder = url

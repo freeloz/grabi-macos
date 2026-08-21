@@ -17,8 +17,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let center = UNUserNotificationCenter.current()
         center.delegate = self
 
-        let ver = UNNotificationAction(identifier: "VER", title: "Ver", options: [.foreground])
-        let copiar = UNNotificationAction(identifier: "COPIAR", title: "Copiar enlace", options: [])
+        let ver = UNNotificationAction(identifier: "VER", title: L("app.notif.ver"), options: [.foreground])
+        let copiar = UNNotificationAction(identifier: "COPIAR", title: L("app.notif.copiar"), options: [])
         let category = UNNotificationCategory(
             identifier: "GRABI_DONE", actions: [ver, copiar], intentIdentifiers: [])
         center.setNotificationCategories([category])
@@ -32,8 +32,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         let sizeText = fileSizeText(url: url)
 
         let content = UNMutableNotificationContent()
-        content.title = "¡Quedó! Tu grabación está lista"
-        content.body = "\(durText)\(sizeText.map { " · \($0)" } ?? "") · en \(url.deletingLastPathComponent().lastPathComponent)"
+        content.title = L("app.notif.titulo")
+        content.body = "\(durText)\(sizeText.map { " · \($0)" } ?? "") · \(LF("app.notif.en", url.deletingLastPathComponent().lastPathComponent))"
         content.categoryIdentifier = "GRABI_DONE"
         content.sound = nil
 

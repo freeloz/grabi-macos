@@ -482,10 +482,10 @@ private struct RegionPickView: View {
                 if start == nil {
                     VStack(spacing: 10) {
                         MascotView(pose: .neutral, size: 56)
-                        Text("Dibuja la región que quieres grabar")
+                        Text(L("app.region.titulo"))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.white)
-                        Text("esc para cancelar")
+                        Text(L("app.region.esc"))
                             .font(.system(size: 12))
                             .foregroundStyle(.white.opacity(0.7))
                     }

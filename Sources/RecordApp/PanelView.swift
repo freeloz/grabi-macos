@@ -11,9 +11,9 @@ struct PanelView: View {
     var body: some View {
         VStack(spacing: 14) {
             GrabiSegmented(items: [
-                GrabiSegmentItem(CaptureMode.pantalla, label: "Pantalla", icon: .pantalla),
-                GrabiSegmentItem(CaptureMode.ventana, label: "Ventana", icon: .ventana),
-                GrabiSegmentItem(CaptureMode.region, label: "Región", icon: .region),
+                GrabiSegmentItem(CaptureMode.pantalla, label: L("app.seg.pantalla"), icon: .pantalla),
+                GrabiSegmentItem(CaptureMode.ventana, label: L("app.seg.ventana"), icon: .ventana),
+                GrabiSegmentItem(CaptureMode.region, label: L("app.seg.region"), icon: .region),
             ], selection: Binding(
                 get: { model.captureMode },
                 set: { newMode in
@@ -27,27 +27,27 @@ struct PanelView: View {
             targetDetail
 
             SourceList {
-                SourceRow(icon: .pantalla, title: "Pantalla", subtitle: model.captureLabel,
+                SourceRow(icon: .pantalla, title: RecordingSource.screen.displayName, subtitle: model.captureLabel,
                           status: model.status(for: .screen),
                           isOn: Binding(get: { model.screenEnabled }, set: { model.screenEnabled = $0 }),
                           onPermissionTap: { model.openPermissionFlow(for: .screen) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .forShape(model.cameraLayout.shape), title: "Cámara", subtitle: model.cameraSubtitle,
+                SourceRow(icon: .forShape(model.cameraLayout.shape), title: RecordingSource.camera.displayName, subtitle: model.cameraSubtitle,
                           status: model.status(for: .camera),
                           isOn: Binding(get: { model.cameraEnabled }, set: { model.cameraEnabled = $0 }),
                           onPermissionTap: { model.openPermissionFlow(for: .camera) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .microfono, title: "Micrófono", subtitle: model.micDeviceName,
+                SourceRow(icon: .microfono, title: RecordingSource.microphone.displayName, subtitle: model.micDeviceName,
                           status: model.status(for: .microphone),
                           isOn: Binding(get: { model.micEnabled }, set: { model.micEnabled = $0 }),
                           level: model.micLevel,
                           onPermissionTap: { model.openPermissionFlow(for: .microphone) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .audioSistema, title: "Audio del sistema",
-                          subtitle: model.systemAudioEnabled ? "Encendido" : "Apagado",
+                SourceRow(icon: .audioSistema, title: RecordingSource.systemAudio.displayName,
+                          subtitle: model.systemAudioEnabled ? L("app.encendido") : L("app.apagado"),
                           status: model.status(for: .systemAudio),
                           isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
                           level: model.systemLevel > 0 ? model.systemLevel : nil,
@@ -81,14 +81,14 @@ struct PanelView: View {
         .onAppear { model.panelAppeared() }
         .onDisappear { model.panelDisappeared() }
         .confirmationDialog(
-            "Algunas fuentes no están disponibles",
+            L("app.dialogo.fuentes.titulo"),
             isPresented: $model.showUnavailableDialog,
             titleVisibility: .visible
         ) {
-            Button("Grabar sin: \(model.unavailableSources.map(\.displayName).joined(separator: ", "))") {
+            Button(LF("app.dialogo.grabarSin", model.unavailableSources.map(\.displayName).joined(separator: ", "))) {
                 model.startWithoutUnavailable()
             }
-            Button("Cancelar", role: .cancel) {}
+            Button(L("app.cancelar"), role: .cancel) {}
         } message: {
             Text(model.unavailableSources
                 .compactMap { model.preflight?.status(for: $0).explanation }
@@ -120,7 +120,7 @@ struct PanelView: View {
                     .font(GrabiFont.caption)
                     .foregroundStyle(GrabiColor.textSecondary)
                 Spacer()
-                Button("Cambiar…") { model.pickRegion() }
+                Button(L("app.cambiar")) { model.pickRegion() }
                     .font(GrabiFont.caption)
                     .buttonStyle(.link)
                     .tint(GrabiColor.brandStrong)
@@ -138,7 +138,7 @@ struct PanelView: View {
                 .foregroundStyle(GrabiColor.textSecondary)
                 .lineLimit(1)
             Spacer()
-            Button("Cambiar…") { model.pickCaptureSource() }
+            Button(L("app.cambiar")) { model.pickCaptureSource() }
                 .font(GrabiFont.caption)
                 .buttonStyle(.link)
                 .tint(GrabiColor.brandStrong)
@@ -149,7 +149,7 @@ struct PanelView: View {
 
     private var footer: some View {
         HStack {
-            Button("Vista previa en vivo") { model.openPreview() }
+            Button(L("app.vistaPrevia")) { model.openPreview() }
                 .buttonStyle(.plain)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(GrabiColor.brandStrong)
@@ -160,20 +160,20 @@ struct PanelView: View {
                     GrabiIconView(.carpeta, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help("Abrir carpeta de grabaciones")
+                .help(L("app.abrirCarpeta"))
                 Button { model.settingsController.show(model: model) } label: {
                     GrabiIconView(.ajustes, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help("Ajustes")
+                .help(L("app.ajustes"))
                 Rectangle()
                     .fill(GrabiColor.border)
                     .frame(width: 1, height: 14)
-                Button("Salir") { model.quit() }
+                Button(L("app.salir")) { model.quit() }
                     .buttonStyle(.plain)
                     .font(.system(size: 12))
                     .foregroundStyle(GrabiColor.textSecondary)
-                    .help("Salir de Grabi (si estás grabando, primero guarda la grabación)")
+                    .help(L("app.salir.ayuda"))
                     .keyboardShortcut("q")
             }
         }

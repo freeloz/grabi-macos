@@ -20,8 +20,8 @@ enum RecordingQuality: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .estandar: return "Estándar"
-        case .nitida: return "Nítida"
+        case .estandar: return L("app.calidad.estandar")
+        case .nitida: return L("app.calidad.nitida")
         }
     }
 
@@ -29,8 +29,8 @@ enum RecordingQuality: String, CaseIterable, Identifiable {
     /// movimiento; en nítida depende de la fuente — cifra por validar).
     var hint: String {
         switch self {
-        case .estandar: return "Hasta 1080p · ~3 GB por hora"
-        case .nitida: return "Resolución nativa, hasta 4K · ~6 GB por hora"
+        case .estandar: return L("app.calidad.estandar.pista")
+        case .nitida: return L("app.calidad.nitida.pista")
         }
     }
 
@@ -127,7 +127,7 @@ final class GrabiAppModel: ObservableObject {
 
     init() {
         let defaultFolder = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Movies/Grabaciones", isDirectory: true)
+            .appendingPathComponent("Movies/Grabi", isDirectory: true)
         if let stored = UserDefaults.standard.string(forKey: "destinationFolder") {
             destinationFolder = URL(fileURLWithPath: stored, isDirectory: true)
         } else {
@@ -227,23 +227,23 @@ final class GrabiAppModel: ObservableObject {
             if let id = selectedDisplayID, let d = availableDisplays.first(where: { $0.id == id }), !d.isMain {
                 return d.name
             }
-            return "Pantalla completa · integrada"
+            return L("app.captura.pantallaCompleta")
         case .ventana:
-            if let w = selectedWindow { return "Ventana: \(w.appName)" }
-            return "Elige una ventana…"
+            if let w = selectedWindow { return LF("app.captura.ventana", w.appName) }
+            return L("app.captura.eligeVentana")
         case .region:
-            if let r = regionRect { return "Región \(Int(r.width))×\(Int(r.height))" }
-            return "Dibuja una región…"
+            if let r = regionRect { return LF("app.captura.region", Int(r.width), Int(r.height)) }
+            return L("app.captura.dibujaRegion")
         }
     }
 
     var cameraSubtitle: String {
-        guard cameraEnabled else { return "Apagada" }
-        return "\(cameraLayout.shape.displayName) · muévela en la vista previa"
+        guard cameraEnabled else { return L("app.camara.apagada") }
+        return LF("app.camara.subtitulo", cameraLayout.shape.displayName)
     }
 
     var micDeviceName: String {
-        AVCaptureDevice.default(for: .audio)?.localizedName ?? "Micrófono"
+        AVCaptureDevice.default(for: .audio)?.localizedName ?? RecordingSource.microphone.displayName
     }
 
     // MARK: - Configuración
@@ -263,9 +263,13 @@ final class GrabiAppModel: ObservableObject {
 
     private func buildConfiguration() throws -> RecordingConfiguration {
         try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
+        // Nombre neutro con marca, idéntico en todos los idiomas (decisión
+        // v0.1.2): formato fijo, calendario/locale POSIX para que no cambie
+        // con la configuración regional.
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd-HHmmss"
-        let url = destinationFolder.appendingPathComponent("grabacion-\(formatter.string(from: Date())).mov")
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
+        let url = destinationFolder.appendingPathComponent("Grabi \(formatter.string(from: Date())).mov")
         return RecordingConfiguration(
             capturesScreen: screenEnabled,
             capturesCamera: cameraEnabled,

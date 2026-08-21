@@ -84,7 +84,7 @@ actor CaptureThumbnailer {
 @MainActor
 final class WindowPickerController: TitledWindowController {
     func show(model: GrabiAppModel) {
-        present(title: "Elegir qué capturar", size: NSSize(width: 720, height: 540),
+        present(title: L("app.picker.titulo"), size: NSSize(width: 720, height: 540),
                 content: CapturePickerView(model: model, controller: self))
     }
 }
@@ -98,7 +98,7 @@ private struct CapturePickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: GrabiSpace.s6) {
-                section("Pantallas") {
+                section(L("app.picker.pantallas")) {
                     LazyVGrid(columns: columns, alignment: .leading, spacing: GrabiSpace.s4) {
                         ForEach(model.availableDisplays) { display in
                             PickerCard(
@@ -115,11 +115,11 @@ private struct CapturePickerView: View {
                     }
                 }
 
-                section("Ventanas") {
+                section(L("app.picker.ventanas")) {
                     if model.availableWindows.isEmpty {
                         HStack(spacing: GrabiSpace.s3) {
                             MascotView(pose: .neutral, size: 44)
-                            Text("No hay ventanas para capturar. Abre la app que quieras grabar y vuelve aquí.")
+                            Text(L("app.picker.vacio"))
                                 .font(GrabiFont.body)
                                 .foregroundStyle(GrabiColor.textSecondary)
                         }

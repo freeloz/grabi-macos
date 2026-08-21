@@ -38,6 +38,18 @@ cp Support/Info.plist "$APP/Contents/Info.plist"
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
+# Bundles de recursos SPM (Localizable.strings de cada target): Bundle.module
+# los busca en Contents/Resources del .app.
+BUILD_DIR=".build/release"
+for b in "$BUILD_DIR"/Record_*.bundle; do
+  [[ -d "$b" ]] && cp -R "$b" "$APP/Contents/Resources/"
+done
+# Descripciones de uso (TCC) localizadas
+for l in Support/InfoPlist/*.lproj; do
+  mkdir -p "$APP/Contents/Resources/$(basename "$l")"
+  cp "$l/InfoPlist.strings" "$APP/Contents/Resources/$(basename "$l")/"
+done
+
 # 3. Firma (sin --deep: la app no tiene bundles anidados)
 if [[ "$HARDENED" == "1" ]]; then
   codesign --force --options runtime \

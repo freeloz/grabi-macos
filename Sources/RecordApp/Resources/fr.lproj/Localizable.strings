@@ -1,0 +1,85 @@
+/* Panneau */
+"app.seg.pantalla" = "Écran";
+"app.seg.ventana" = "Fenêtre";
+"app.seg.region" = "Zone";
+"app.encendido" = "Activé";
+"app.apagado" = "Désactivé";
+"app.cambiar" = "Modifier…";
+"app.cancelar" = "Annuler";
+"app.vistaPrevia" = "Aperçu en direct";
+"app.abrirCarpeta" = "Ouvrir le dossier des enregistrements";
+"app.ajustes" = "Réglages";
+"app.salir" = "Quitter";
+"app.salir.ayuda" = "Quitter Grabi (si un enregistrement est en cours, il est d'abord sauvegardé)";
+"app.dialogo.fuentes.titulo" = "Certaines sources ne sont pas disponibles";
+"app.dialogo.grabarSin" = "Enregistrer sans : %@";
+/* Capture */
+"app.captura.pantallaCompleta" = "Plein écran · intégré";
+"app.captura.ventana" = "Fenêtre : %@";
+"app.captura.eligeVentana" = "Choisissez une fenêtre…";
+"app.captura.region" = "Zone %d×%d";
+"app.captura.dibujaRegion" = "Tracez une zone…";
+"app.camara.apagada" = "Désactivée";
+"app.camara.subtitulo" = "%@ · déplacez-la dans l'aperçu";
+"app.camara.ocultar" = "Masquer la caméra";
+/* Qualité */
+"app.calidad.estandar" = "Standard";
+"app.calidad.nitida" = "Nette";
+"app.calidad.estandar.pista" = "Jusqu'à 1080p · ~3 Go par heure";
+"app.calidad.nitida.pista" = "Résolution native, jusqu'à 4K · ~6 Go par heure";
+/* Onboarding */
+"app.ob.omitir" = "Passer";
+"app.ob.hola" = "Salut, moi c'est Grabi";
+"app.ob.claim" = "Enregistrez votre écran, sans prise de tête. Gratuit, sans limites, sans compte.";
+"app.ob.empezar" = "Commencer";
+"app.ob.permisos.titulo" = "Deux autorisations et c'est parti";
+"app.ob.permisos.sub" = "Uniquement pour enregistrer. Rien ne quitte votre Mac.";
+"app.ob.continuar" = "Continuer";
+"app.ob.despues" = "Vous pourrez les donner plus tard";
+"app.ob.concedido" = "Accordée ✓";
+"app.ob.permitir" = "Autoriser";
+"app.ob.primera.titulo" = "Votre premier enregistrement";
+"app.ob.primera.sub" = "Lancez l'enregistrement et dites bonjour à la caméra. Dix secondes suffisent — je vous attends.";
+"app.ob.grabarPrueba" = "Enregistrer mon essai";
+/* Autorisations */
+"app.perm.titulo.pantalla" = "Grabi a besoin de voir votre écran";
+"app.perm.titulo.camara" = "Grabi a besoin de votre caméra";
+"app.perm.titulo.microfono" = "Grabi a besoin de votre micro";
+"app.perm.panel.pantalla" = "Enregistrement de l'écran et de l'audio du système";
+"app.perm.panel.camara" = "Caméra";
+"app.perm.panel.microfono" = "Micro";
+"app.perm.honesto" = "Uniquement pour enregistrer. Rien ne quitte votre Mac.";
+"app.perm.paso1" = "Ouvrez **Réglages Système → Confidentialité et sécurité**";
+"app.perm.paso2" = "Allez dans **%@**";
+"app.perm.paso3" = "Activez **Grabi** — on vous attend ici ✓";
+"app.perm.ahoraNo" = "Pas maintenant";
+"app.perm.abrirAjustes" = "Ouvrir Réglages Système";
+/* Réglages */
+"app.ajustes.titulo" = "Réglages de Grabi";
+"app.ajustes.calidad" = "Qualité d'enregistrement";
+"app.ajustes.calidad.nota" = "Le changement s'applique au prochain enregistrement.";
+"app.ajustes.carpeta" = "Dossier des enregistrements";
+"app.ajustes.atajos" = "Raccourcis clavier globaux";
+"app.ajustes.atajo.grabar" = "Enregistrer / Arrêter";
+"app.ajustes.atajo.pausar" = "Pause / Reprendre";
+"app.ajustes.verOnboarding" = "Revoir l'onboarding";
+"app.ajustes.galeria" = "Galerie du système (debug)";
+"app.ajustes.salir" = "Quitter Grabi";
+"app.ajustes.elegir" = "Choisir";
+/* Aperçu */
+"app.prev.titulo" = "Aperçu — Grabi";
+"app.prev.pista" = "Déplacez la caméra · coins pour redimensionner · clic droit pour plus";
+"app.prev.grabar" = "Enregistrer";
+/* Zone */
+"app.region.titulo" = "Tracez la zone à enregistrer";
+"app.region.esc" = "échap pour annuler";
+/* Sélecteur visuel */
+"app.picker.titulo" = "Choisir quoi capturer";
+"app.picker.pantallas" = "Écrans";
+"app.picker.ventanas" = "Fenêtres";
+"app.picker.vacio" = "Aucune fenêtre à capturer. Ouvrez l'app à enregistrer et revenez ici.";
+/* Notification */
+"app.notif.titulo" = "Et voilà ! Votre enregistrement est prêt";
+"app.notif.ver" = "Voir";
+"app.notif.copiar" = "Copier le lien";
+"app.notif.en" = "dans %@";

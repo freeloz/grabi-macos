@@ -34,7 +34,7 @@ final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegat
                 contentRect: NSRect(x: 0, y: 0, width: 680, height: 470),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false)
-            win.title = "Vista previa — Grabi"
+            win.title = L("app.prev.titulo")
             win.isReleasedWhenClosed = false
             win.delegate = self
             win.contentView = NSHostingView(rootView: PreviewRoot(model: model, controller: self))
@@ -138,7 +138,7 @@ struct PreviewRoot: View {
                 set: { model.cameraLayout.shape = $0 }
             ))
             .disabled(!model.cameraEnabled)
-            Text("Arrastra la cámara · esquinas para redimensionar · clic derecho para más")
+            Text(L("app.prev.pista"))
                 .font(.system(size: 12))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .lineLimit(2)
@@ -149,7 +149,7 @@ struct PreviewRoot: View {
                 Button { model.requestStart() } label: {
                     HStack(spacing: 9) {
                         SemaforoDot(model.anySourceEnabled ? .listo : .apagado, size: 11)
-                        Text("Grabar").font(.system(size: 13, weight: .semibold))
+                        Text(L("app.prev.grabar")).font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(GrabiColor.text)
                     }
                     .padding(.horizontal, 18)
@@ -219,7 +219,7 @@ private struct CameraOverlay: View {
                 }
             }
             Divider()
-            Button("Ocultar cámara") { model.cameraEnabled = false }
+            Button(L("app.camara.ocultar")) { model.cameraEnabled = false }
         }
     }
 
