@@ -20,7 +20,7 @@ final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDe
         } else {
             device = AVCaptureDevice.default(for: .audio)
         }
-        guard let device else { throw RecordingError.microfonoNoDisponible }
+        guard let device else { throw RecordingError.microphoneUnavailable }
 
         session.beginConfiguration()
         defer { session.commitConfiguration() }
@@ -29,9 +29,9 @@ final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDe
         do {
             input = try AVCaptureDeviceInput(device: device)
         } catch {
-            throw RecordingError.permisoMicrofonoDenegado
+            throw RecordingError.microphonePermissionDenied
         }
-        guard session.canAddInput(input) else { throw RecordingError.microfonoNoDisponible }
+        guard session.canAddInput(input) else { throw RecordingError.microphoneUnavailable }
         session.addInput(input)
 
         if let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(device.activeFormat.formatDescription) {
@@ -41,7 +41,7 @@ final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDe
 
         let output = AVCaptureAudioDataOutput()
         output.setSampleBufferDelegate(self, queue: queue)
-        guard session.canAddOutput(output) else { throw RecordingError.microfonoNoDisponible }
+        guard session.canAddOutput(output) else { throw RecordingError.microphoneUnavailable }
         session.addOutput(output)
     }
 

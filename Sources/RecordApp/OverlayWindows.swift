@@ -486,7 +486,7 @@ private struct RegionPickView: View {
                 if start == nil {
                     VStack(spacing: 10) {
                         MascotView(pose: .neutral, size: 56)
-                        Text(L("app.region.titulo"))
+                        Text(L("app.region.title"))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.white)
                         Text(L("app.region.esc"))

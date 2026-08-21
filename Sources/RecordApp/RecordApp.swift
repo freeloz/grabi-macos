@@ -11,9 +11,9 @@ enum AppShared {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Verificación i18n: renderizar superficies a PNG y salir.
-        if let idx = CommandLine.arguments.firstIndex(of: "--capturas"),
+        if let idx = CommandLine.arguments.firstIndex(of: "--screenshots"),
            CommandLine.arguments.count > idx + 1 {
-            Capturas.renderAll(to: CommandLine.arguments[idx + 1], model: AppShared.model)
+            Screenshots.renderAll(to: CommandLine.arguments[idx + 1], model: AppShared.model)
             exit(0)
         }
         NSApp.setActivationPolicy(.accessory)

@@ -117,7 +117,7 @@ public final class RecordingEngine: ObservableObject {
     /// configuración, se reinicia con la nueva.
     public func startPreview(configuration config: RecordingConfiguration) async throws {
         guard !state.isActive else {
-            throw RecordingError.estadoInvalido("no se puede cambiar la vista previa durante una grabación")
+            throw RecordingError.invalidState("no se puede cambiar la vista previa durante una grabación")
         }
         if let pipeline, pipeline.isCompatible(with: config) {
             pipeline.updateCameraLayout(config.cameraLayout)
@@ -139,7 +139,7 @@ public final class RecordingEngine: ObservableObject {
             try await pipeline.start()
         } catch {
             await pipeline.stop()
-            throw (error as? RecordingError) ?? .capturaInterrumpida(error.localizedDescription)
+            throw (error as? RecordingError) ?? .captureInterrupted(error.localizedDescription)
         }
         self.pipeline = pipeline
         setPreviewing(true)
@@ -161,10 +161,10 @@ public final class RecordingEngine: ObservableObject {
 
     public func start(configuration config: RecordingConfiguration) async throws {
         guard !state.isActive else {
-            throw RecordingError.estadoInvalido("ya hay una grabación en curso")
+            throw RecordingError.invalidState("ya hay una grabación en curso")
         }
         guard config.hasAnySource else {
-            throw RecordingError.sinFuentesActivas
+            throw RecordingError.noActiveSources
         }
         setState(.starting)
 
@@ -178,7 +178,7 @@ public final class RecordingEngine: ObservableObject {
             writer?.cancel()
             writer = nil
             if !isPreviewing { await teardownPipeline() }
-            let recError = (error as? RecordingError) ?? .capturaInterrumpida(error.localizedDescription)
+            let recError = (error as? RecordingError) ?? .captureInterrupted(error.localizedDescription)
             setState(.failed(recError))
             throw recError
         }
@@ -189,20 +189,20 @@ public final class RecordingEngine: ObservableObject {
         // grabación por algo detectable ahora.
         let report = await Preflight.check(requestingAccess: true)
         if config.capturesScreen || config.capturesSystemAudio {
-            guard report.screen.isUsable else { throw RecordingError.permisoPantallaDenegado }
+            guard report.screen.isUsable else { throw RecordingError.screenPermissionDenied }
         }
         if config.capturesCamera {
             switch report.camera {
             case .available: break
-            case .permissionDenied: throw RecordingError.permisoCamaraDenegado
-            case .unavailable: throw RecordingError.camaraNoDisponible
+            case .permissionDenied: throw RecordingError.cameraPermissionDenied
+            case .unavailable: throw RecordingError.cameraUnavailable
             }
         }
         if config.capturesMicrophone {
             switch report.microphone {
             case .available: break
-            case .permissionDenied: throw RecordingError.permisoMicrofonoDenegado
-            case .unavailable: throw RecordingError.microfonoNoDisponible
+            case .permissionDenied: throw RecordingError.microphonePermissionDenied
+            case .unavailable: throw RecordingError.microphoneUnavailable
             }
         }
 
@@ -299,7 +299,7 @@ public final class RecordingEngine: ObservableObject {
     public func stop() async throws -> URL {
         switch state {
         case .recording, .paused: break
-        default: throw RecordingError.estadoInvalido("no hay ninguna grabación en curso")
+        default: throw RecordingError.invalidState("no hay ninguna grabación en curso")
         }
         setState(.stopping)
 
@@ -312,8 +312,8 @@ public final class RecordingEngine: ObservableObject {
         }
 
         guard let writer else {
-            setState(.failed(.estadoInvalido("no había writer activo")))
-            throw RecordingError.estadoInvalido("no había writer activo")
+            setState(.failed(.invalidState("no había writer activo")))
+            throw RecordingError.invalidState("no había writer activo")
         }
         self.writer = nil
         do {
@@ -321,7 +321,7 @@ public final class RecordingEngine: ObservableObject {
             setState(.stopped(url))
             return url
         } catch {
-            let recError = (error as? RecordingError) ?? .escrituraFallida(error.localizedDescription)
+            let recError = (error as? RecordingError) ?? .writeFailed(error.localizedDescription)
             setState(.failed(recError))
             throw recError
         }
@@ -341,7 +341,7 @@ public final class RecordingEngine: ObservableObject {
                 self.writer = nil
                 _ = try? await writer.finish()
             }
-            setState(.failed(.capturaInterrumpida(error.localizedDescription)))
+            setState(.failed(.captureInterrupted(error.localizedDescription)))
         default:
             // Falló la vista previa (sin grabación): apagar en silencio.
             await teardownPipeline()

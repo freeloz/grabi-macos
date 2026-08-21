@@ -62,7 +62,7 @@ final class MovieWriter {
         do {
             writer = try AVAssetWriter(outputURL: outputURL, fileType: .mov)
         } catch {
-            throw RecordingError.escrituraFallida(error.localizedDescription)
+            throw RecordingError.writeFailed(error.localizedDescription)
         }
         hasVideoTrack = video != nil
 
@@ -121,7 +121,7 @@ final class MovieWriter {
         }
 
         guard writer.startWriting() else {
-            throw RecordingError.escrituraFallida(writer.error?.localizedDescription ?? "startWriting falló")
+            throw RecordingError.writeFailed(writer.error?.localizedDescription ?? "startWriting falló")
         }
     }
 
@@ -221,7 +221,7 @@ final class MovieWriter {
         try await withCheckedThrowingContinuation { continuation in
             queue.async { [self] in
                 guard !finished else {
-                    continuation.resume(throwing: RecordingError.estadoInvalido("el writer ya se finalizó"))
+                    continuation.resume(throwing: RecordingError.invalidState("el writer ya se finalizó"))
                     return
                 }
                 finished = true
@@ -233,9 +233,9 @@ final class MovieWriter {
                     writer.cancelWriting()
                     try? FileManager.default.removeItem(at: writer.outputURL)
                     if let underlying {
-                        continuation.resume(throwing: RecordingError.escrituraFallida(underlying))
+                        continuation.resume(throwing: RecordingError.writeFailed(underlying))
                     } else {
-                        continuation.resume(throwing: RecordingError.nadaGrabado)
+                        continuation.resume(throwing: RecordingError.nothingRecorded)
                     }
                     return
                 }
@@ -247,7 +247,7 @@ final class MovieWriter {
                     if writer.status == .completed {
                         continuation.resume(returning: writer.outputURL)
                     } else {
-                        continuation.resume(throwing: RecordingError.escrituraFallida(
+                        continuation.resume(throwing: RecordingError.writeFailed(
                             writer.error?.localizedDescription ?? "finishWriting falló"))
                     }
                 }

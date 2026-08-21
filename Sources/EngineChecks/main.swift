@@ -166,9 +166,9 @@ func checkNadaGrabado() async throws {
         includeMicrophone: false, includeSystemAudio: false)
     do {
         _ = try await writer.finish()
-        check(false, "finish debía lanzar nadaGrabado")
+        check(false, "finish debía lanzar nothingRecorded")
     } catch let error as RecordingError {
-        check(error == .nadaGrabado, "lanza nadaGrabado (lanzó \(error))")
+        check(error == .nothingRecorded, "lanza nothingRecorded (lanzó \(error))")
     }
     check(!FileManager.default.fileExists(atPath: url.path), "el archivo vacío se borró")
 }

@@ -57,7 +57,7 @@ public struct RecordButton: View {
         Button(action: onRecord) {
             HStack(spacing: GrabiSpace.s3) {
                 SemaforoDot(isEnabled ? .listo : .apagado, size: 14)
-                Text(L("ui.grabar"))
+                Text(L("ui.record"))
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(GrabiColor.text)
                 if let shortcutLabel {
@@ -87,7 +87,7 @@ public struct RecordButton: View {
         .onHover { hovering = $0 }
         .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
         .grabiFocusRing(Capsule())
-        .accessibilityLabel(L("ui.grabar"))
+        .accessibilityLabel(L("ui.record"))
         .keyboardShortcut(.defaultAction)
     }
 
@@ -112,7 +112,7 @@ public struct RecordButton: View {
         .clipShape(Capsule())
         .grabiShadow(.e2)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(String(format: L("ui.a11y.grabando"), elapsed))
+        .accessibilityLabel(String(format: L("ui.a11y.recording"), elapsed))
     }
 
     // pausado · ámbar + cronómetro atenuado + Reanudar.
@@ -123,7 +123,7 @@ public struct RecordButton: View {
                 Text(elapsed)
                     .font(GrabiFont.timer())
                     .foregroundStyle(GrabiColor.textSecondary)
-                Text(L("ui.reanudar"))
+                Text(L("ui.resume"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.brandStrong)
             }
@@ -135,7 +135,7 @@ public struct RecordButton: View {
         }
         .buttonStyle(.plain)
         .grabiFocusRing(Capsule())
-        .accessibilityLabel(String(format: L("ui.a11y.pausado"), elapsed))
+        .accessibilityLabel(String(format: L("ui.a11y.paused"), elapsed))
     }
 }
 
@@ -173,7 +173,7 @@ struct PillCircleButton: View {
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
         .animation(GrabiAnimation.standard(GrabiDuration.fast), value: hovering)
-        .accessibilityLabel(kind == .pausa ? L("ui.pausar") : kind == .stop ? L("ui.detener") : L("ui.reanudar"))
+        .accessibilityLabel(kind == .pausa ? L("ui.pause") : kind == .stop ? L("ui.stop") : L("ui.resume"))
     }
 }
 
@@ -228,19 +228,19 @@ public struct FloatingPill: View {
                 Rectangle().fill(GrabiColor.inkFixedSoft).frame(width: 1, height: 22)
                 if let cameraToggle {
                     PillSourceToggle(icon: .camCirculo, isOn: cameraToggle.isOn,
-                                     onLabel: L("ui.cam.ocultar"), offLabel: L("ui.cam.mostrar"),
+                                     onLabel: L("ui.cam.hide"), offLabel: L("ui.cam.show"),
                                      action: cameraToggle.action)
                 }
                 if let micToggle {
                     PillSourceToggle(icon: .microfono, isOn: micToggle.isOn,
-                                     onLabel: L("ui.mic.silenciar"), offLabel: L("ui.mic.activar"),
+                                     onLabel: L("ui.mic.mute"), offLabel: L("ui.mic.unmute"),
                                      action: micToggle.action)
                 }
                 if isPaused {
                     Button(action: onResume) {
                         HStack(spacing: 7) {
                             GrabiIconView(.reanudar, size: 12, tint: GrabiColor.inkFixed)
-                            Text(L("ui.reanudar"))
+                            Text(L("ui.resume"))
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundStyle(GrabiColor.inkFixed)
                         }
@@ -249,7 +249,7 @@ public struct FloatingPill: View {
                         .background(Capsule().fill(GrabiColor.ivoryFixed))
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(L("ui.reanudar"))
+                    .accessibilityLabel(L("ui.resume"))
                 } else {
                     PillCircleButton(kind: .pausa, action: onPause, size: 30)
                 }
@@ -266,7 +266,7 @@ public struct FloatingPill: View {
             withAnimation(GrabiAnimation.standard()) { collapsed.toggle() }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(String(format: isPaused ? L("ui.a11y.pillPausa") : L("ui.a11y.grabando"), elapsed))
+        .accessibilityLabel(String(format: isPaused ? L("ui.a11y.pillPause") : L("ui.a11y.recording"), elapsed))
     }
 }
 

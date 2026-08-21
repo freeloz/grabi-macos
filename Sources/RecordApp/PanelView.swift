@@ -11,8 +11,8 @@ struct PanelView: View {
     var body: some View {
         VStack(spacing: 14) {
             GrabiSegmented(items: [
-                GrabiSegmentItem(CaptureMode.pantalla, label: L("app.seg.pantalla"), icon: .pantalla),
-                GrabiSegmentItem(CaptureMode.ventana, label: L("app.seg.ventana"), icon: .ventana),
+                GrabiSegmentItem(CaptureMode.pantalla, label: L("app.seg.screen"), icon: .pantalla),
+                GrabiSegmentItem(CaptureMode.ventana, label: L("app.seg.window"), icon: .ventana),
                 GrabiSegmentItem(CaptureMode.region, label: L("app.seg.region"), icon: .region),
             ], selection: Binding(
                 get: { model.captureMode },
@@ -47,7 +47,7 @@ struct PanelView: View {
                     .disabled(model.isActive)
                 RowDivider()
                 SourceRow(icon: .audioSistema, title: RecordingSource.systemAudio.displayName,
-                          subtitle: model.systemAudioEnabled ? L("app.encendido") : L("app.apagado"),
+                          subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
                           status: model.status(for: .systemAudio),
                           isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
                           level: model.systemLevel > 0 ? model.systemLevel : nil,
@@ -81,14 +81,14 @@ struct PanelView: View {
         .onAppear { model.panelAppeared() }
         .onDisappear { model.panelDisappeared() }
         .confirmationDialog(
-            L("app.dialogo.fuentes.titulo"),
+            L("app.dialog.sources.title"),
             isPresented: $model.showUnavailableDialog,
             titleVisibility: .visible
         ) {
-            Button(LF("app.dialogo.grabarSin", model.unavailableSources.map(\.displayName).joined(separator: ", "))) {
+            Button(LF("app.dialog.recordWithout", model.unavailableSources.map(\.displayName).joined(separator: ", "))) {
                 model.startWithoutUnavailable()
             }
-            Button(L("app.cancelar"), role: .cancel) {}
+            Button(L("app.cancel"), role: .cancel) {}
         } message: {
             Text(model.unavailableSources
                 .compactMap { model.preflight?.status(for: $0).explanation }
@@ -120,7 +120,7 @@ struct PanelView: View {
                     .font(GrabiFont.caption)
                     .foregroundStyle(GrabiColor.textSecondary)
                 Spacer()
-                Button(L("app.cambiar")) { model.pickRegion() }
+                Button(L("app.change")) { model.pickRegion() }
                     .font(GrabiFont.caption)
                     .buttonStyle(.link)
                     .tint(GrabiColor.brandStrong)
@@ -138,7 +138,7 @@ struct PanelView: View {
                 .foregroundStyle(GrabiColor.textSecondary)
                 .lineLimit(1)
             Spacer()
-            Button(L("app.cambiar")) { model.pickCaptureSource() }
+            Button(L("app.change")) { model.pickCaptureSource() }
                 .font(GrabiFont.caption)
                 .buttonStyle(.link)
                 .tint(GrabiColor.brandStrong)
@@ -149,7 +149,7 @@ struct PanelView: View {
 
     private var footer: some View {
         HStack {
-            Button(L("app.vistaPrevia")) { model.openPreview() }
+            Button(L("app.preview")) { model.openPreview() }
                 .buttonStyle(.plain)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(GrabiColor.brandStrong)
@@ -160,20 +160,20 @@ struct PanelView: View {
                     GrabiIconView(.carpeta, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help(L("app.abrirCarpeta"))
+                .help(L("app.openFolder"))
                 Button { model.settingsController.show(model: model) } label: {
                     GrabiIconView(.ajustes, size: 16, tint: GrabiColor.textSecondary)
                 }
                 .buttonStyle(.plain)
-                .help(L("app.ajustes"))
+                .help(L("app.settings"))
                 Rectangle()
                     .fill(GrabiColor.border)
                     .frame(width: 1, height: 14)
-                Button(L("app.salir")) { model.quit() }
+                Button(L("app.quit")) { model.quit() }
                     .buttonStyle(.plain)
                     .font(.system(size: 12))
                     .foregroundStyle(GrabiColor.textSecondary)
-                    .help(L("app.salir.ayuda"))
+                    .help(L("app.quit.help"))
                     .keyboardShortcut("q")
             }
         }

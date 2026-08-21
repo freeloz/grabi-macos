@@ -50,7 +50,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             HStack {
                 Spacer()
-                Button(L("app.ob.omitir")) { finish(startRecording: false) }
+                Button(L("app.ob.skip")) { finish(startRecording: false) }
                     .buttonStyle(.plain)
                     .font(GrabiFont.caption)
                     .foregroundStyle(GrabiColor.textSecondary)
@@ -84,7 +84,7 @@ struct OnboardingView: View {
     private var page0: some View {
         VStack(spacing: 16) {
             MascotView(pose: .saludando, size: 116)
-            Text(L("app.ob.hola"))
+            Text(L("app.ob.hello"))
                 .font(.system(size: 24, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
             Text(L("app.ob.claim"))
@@ -93,7 +93,7 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
             Spacer().frame(height: 4)
-            GrabiButton(L("app.ob.empezar"), kind: .primario) { step = 1 }
+            GrabiButton(L("app.ob.start"), kind: .primario) { step = 1 }
         }
         .padding(.horizontal, 36)
     }
@@ -101,10 +101,10 @@ struct OnboardingView: View {
     private var page1: some View {
         VStack(spacing: 14) {
             MascotView(pose: .neutral, size: 76)
-            Text(L("app.ob.permisos.titulo"))
+            Text(L("app.ob.permissions.title"))
                 .font(.system(size: 21, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
-            Text(L("app.ob.permisos.sub"))
+            Text(L("app.ob.permissions.sub"))
                 .font(.system(size: 13.5))
                 .foregroundStyle(GrabiColor.textSecondary)
             VStack(spacing: 8) {
@@ -122,8 +122,8 @@ struct OnboardingView: View {
                         }
                     })
             }
-            GrabiButton(L("app.ob.continuar"), kind: .primario) { step = 2 }
-            Button(L("app.ob.despues")) { step = 2 }
+            GrabiButton(L("app.ob.continue"), kind: .primario) { step = 2 }
+            Button(L("app.ob.later")) { step = 2 }
                 .buttonStyle(.plain)
                 .font(.system(size: 12.5))
                 .foregroundStyle(GrabiColor.textSecondary)
@@ -139,12 +139,12 @@ struct OnboardingView: View {
                 .foregroundStyle(GrabiColor.text)
             Spacer()
             if granted {
-                Text(L("app.ob.concedido"))
+                Text(L("app.ob.granted"))
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(GrabiColor.exito)
             } else {
                 Button(action: action) {
-                    Text(L("app.ob.permitir"))
+                    Text(L("app.ob.allow"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(GrabiColor.onBrand)
                         .padding(.horizontal, 13)
@@ -165,10 +165,10 @@ struct OnboardingView: View {
     private var page2: some View {
         VStack(spacing: 14) {
             MascotView(pose: .grabando, size: 86)
-            Text(L("app.ob.primera.titulo"))
+            Text(L("app.ob.first.title"))
                 .font(.system(size: 21, weight: .heavy))
                 .foregroundStyle(GrabiColor.text)
-            Text(L("app.ob.primera.sub"))
+            Text(L("app.ob.first.sub"))
                 .font(.system(size: 13.5))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .multilineTextAlignment(.center)
@@ -177,7 +177,7 @@ struct OnboardingView: View {
             Button { finish(startRecording: true) } label: {
                 HStack(spacing: 10) {
                     SemaforoDot(.listo, size: 12)
-                    Text(L("app.ob.grabarPrueba"))
+                    Text(L("app.ob.testRecording"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(GrabiColor.text)
                 }
@@ -229,17 +229,17 @@ private struct PermissionView: View {
 
     private var titleText: String {
         switch source {
-        case .screen, .systemAudio: return L("app.perm.titulo.pantalla")
-        case .camera: return L("app.perm.titulo.camara")
-        case .microphone: return L("app.perm.titulo.microfono")
+        case .screen, .systemAudio: return L("app.perm.title.screen")
+        case .camera: return L("app.perm.title.camera")
+        case .microphone: return L("app.perm.title.microphone")
         }
     }
 
     private var settingsPane: String {
         switch source {
-        case .screen, .systemAudio: return L("app.perm.panel.pantalla")
-        case .camera: return L("app.perm.panel.camara")
-        case .microphone: return L("app.perm.panel.microfono")
+        case .screen, .systemAudio: return L("app.perm.panel.screen")
+        case .camera: return L("app.perm.panel.camera")
+        case .microphone: return L("app.perm.panel.microphone")
         }
     }
 
@@ -261,20 +261,20 @@ private struct PermissionView: View {
                     Text(titleText)
                         .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(GrabiColor.text)
-                    Text(L("app.perm.honesto"))
+                    Text(L("app.perm.honest"))
                         .font(GrabiFont.caption)
                         .foregroundStyle(GrabiColor.textSecondary)
                 }
             }
             VStack(alignment: .leading, spacing: 10) {
-                stepRow(1, text: L("app.perm.paso1"))
-                stepRow(2, text: LF("app.perm.paso2", settingsPane))
-                stepRow(3, text: L("app.perm.paso3"))
+                stepRow(1, text: L("app.perm.step1"))
+                stepRow(2, text: LF("app.perm.step2", settingsPane))
+                stepRow(3, text: L("app.perm.step3"))
             }
             HStack {
                 Spacer()
-                GrabiButton(L("app.perm.ahoraNo"), kind: .fantasma) { controller.close() }
-                GrabiButton(L("app.perm.abrirAjustes"), kind: .primario) {
+                GrabiButton(L("app.perm.notNow"), kind: .fantasma) { controller.close() }
+                GrabiButton(L("app.perm.openSettings"), kind: .primario) {
                     NSWorkspace.shared.open(settingsURL)
                 }
             }
@@ -305,7 +305,7 @@ final class SettingsWindowController: TitledWindowController {
     private let gallery = GalleryWindowController()
 
     func show(model: GrabiAppModel) {
-        present(title: L("app.ajustes.titulo"), size: NSSize(width: 420, height: 470),
+        present(title: L("app.settings.title"), size: NSSize(width: 420, height: 470),
                 content: SettingsView(model: model, gallery: gallery))
     }
 }
@@ -317,7 +317,7 @@ struct SettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: GrabiSpace.s6) {
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text(L("app.ajustes.carpeta"))
+                Text(L("app.settings.folder"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 HStack {
@@ -329,7 +329,7 @@ struct SettingsView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer()
-                    GrabiButton(L("app.cambiar"), kind: .secundario) { pickFolder() }
+                    GrabiButton(L("app.change"), kind: .secundario) { pickFolder() }
                 }
                 .padding(12)
                 .background(GrabiColor.surface)
@@ -338,7 +338,7 @@ struct SettingsView: View {
             }
 
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text(L("app.ajustes.calidad"))
+                Text(L("app.settings.quality"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 VStack(spacing: 0) {
@@ -350,20 +350,20 @@ struct SettingsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
                 if model.isActive {
-                    Text(L("app.ajustes.calidad.nota"))
+                    Text(L("app.settings.quality.note"))
                         .font(GrabiFont.caption)
                         .foregroundStyle(GrabiColor.textSecondary)
                 }
             }
 
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
-                Text(L("app.ajustes.atajos"))
+                Text(L("app.settings.shortcuts"))
                     .font(GrabiFont.bodySemibold)
                     .foregroundStyle(GrabiColor.text)
                 VStack(spacing: 0) {
-                    shortcutRow(L("app.ajustes.atajo.grabar"), keys: "⌘⇧2")
+                    shortcutRow(L("app.settings.shortcut.record"), keys: "⌘⇧2")
                     RowDivider()
-                    shortcutRow(L("app.ajustes.atajo.pausar"), keys: "⌘⇧P")
+                    shortcutRow(L("app.settings.shortcut.pause"), keys: "⌘⇧P")
                 }
                 .background(GrabiColor.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -373,16 +373,16 @@ struct SettingsView: View {
             Spacer()
 
             HStack {
-                Button(L("app.ajustes.verOnboarding")) {
+                Button(L("app.settings.showOnboarding")) {
                     model.onboardingController.show(model: model)
                 }
                 .buttonStyle(.link)
                 .font(GrabiFont.caption)
-                Button(L("app.ajustes.galeria")) { gallery.show() }
+                Button(L("app.settings.gallery")) { gallery.show() }
                     .buttonStyle(.link)
                     .font(GrabiFont.caption)
                 Spacer()
-                GrabiButton(L("app.ajustes.salir"), kind: .fantasma) { model.quit() }
+                GrabiButton(L("app.settings.quit"), kind: .fantasma) { model.quit() }
             }
         }
         .padding(20)
@@ -441,7 +441,7 @@ struct SettingsView: View {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
-        panel.prompt = L("app.ajustes.elegir")
+        panel.prompt = L("app.settings.choose")
         panel.directoryURL = model.destinationFolder
         if panel.runModal() == .OK, let url = panel.url {
             model.destinationFolder = url

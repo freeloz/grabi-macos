@@ -82,7 +82,7 @@ public struct ShareableContent: Sendable {
         do {
             content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         } catch {
-            throw RecordingError.permisoPantallaDenegado
+            throw RecordingError.screenPermissionDenied
         }
         storeRaw(content)
 

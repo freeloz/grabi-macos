@@ -20,8 +20,8 @@ enum RecordingQuality: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .estandar: return L("app.calidad.estandar")
-        case .nitida: return L("app.calidad.nitida")
+        case .estandar: return L("app.quality.standard")
+        case .nitida: return L("app.quality.sharp")
         }
     }
 
@@ -29,8 +29,8 @@ enum RecordingQuality: String, CaseIterable, Identifiable {
     /// movimiento; en nítida depende de la fuente — cifra por validar).
     var hint: String {
         switch self {
-        case .estandar: return L("app.calidad.estandar.pista")
-        case .nitida: return L("app.calidad.nitida.pista")
+        case .estandar: return L("app.quality.standard.hint")
+        case .nitida: return L("app.quality.sharp.hint")
         }
     }
 
@@ -230,19 +230,19 @@ final class GrabiAppModel: ObservableObject {
             if let id = selectedDisplayID, let d = availableDisplays.first(where: { $0.id == id }), !d.isMain {
                 return d.name
             }
-            return L("app.captura.pantallaCompleta")
+            return L("app.capture.fullScreen")
         case .ventana:
-            if let w = selectedWindow { return LF("app.captura.ventana", w.appName) }
-            return L("app.captura.eligeVentana")
+            if let w = selectedWindow { return LF("app.capture.window", w.appName) }
+            return L("app.capture.chooseWindow")
         case .region:
-            if let r = regionRect { return LF("app.captura.region", Int(r.width), Int(r.height)) }
-            return L("app.captura.dibujaRegion")
+            if let r = regionRect { return LF("app.capture.region", Int(r.width), Int(r.height)) }
+            return L("app.capture.drawRegion")
         }
     }
 
     var cameraSubtitle: String {
-        guard cameraEnabled else { return L("app.camara.apagada") }
-        return LF("app.camara.subtitulo", cameraLayout.shape.displayName)
+        guard cameraEnabled else { return L("app.camera.off") }
+        return LF("app.camera.subtitle", cameraLayout.shape.displayName)
     }
 
     var micDeviceName: String {
@@ -401,7 +401,7 @@ final class GrabiAppModel: ObservableObject {
             }
         }
         guard anySourceEnabled else {
-            errorMessage = RecordingError.sinFuentesActivas.errorDescription
+            errorMessage = RecordingError.noActiveSources.errorDescription
             return
         }
         startCountdown()

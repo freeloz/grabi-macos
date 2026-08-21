@@ -34,7 +34,7 @@ final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegat
                 contentRect: NSRect(x: 0, y: 0, width: 680, height: 470),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered, defer: false)
-            win.title = L("app.prev.titulo")
+            win.title = L("app.preview.title")
             win.isReleasedWhenClosed = false
             win.delegate = self
             win.contentView = NSHostingView(rootView: PreviewRoot(model: model, controller: self))
@@ -138,7 +138,7 @@ struct PreviewRoot: View {
                 set: { model.cameraLayout.shape = $0 }
             ))
             .disabled(!model.cameraEnabled)
-            Text(L("app.prev.pista"))
+            Text(L("app.preview.hint"))
                 .font(.system(size: 12))
                 .foregroundStyle(GrabiColor.textSecondary)
                 .lineLimit(2)
@@ -149,7 +149,7 @@ struct PreviewRoot: View {
                 Button { model.requestStart() } label: {
                     HStack(spacing: 9) {
                         SemaforoDot(model.anySourceEnabled ? .listo : .apagado, size: 11)
-                        Text(L("app.prev.grabar")).font(.system(size: 13, weight: .semibold))
+                        Text(L("app.preview.record")).font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(GrabiColor.text)
                     }
                     .padding(.horizontal, 18)
@@ -219,7 +219,7 @@ private struct CameraOverlay: View {
                 }
             }
             Divider()
-            Button(L("app.camara.ocultar")) { model.cameraEnabled = false }
+            Button(L("app.camera.hide")) { model.cameraEnabled = false }
         }
     }
 

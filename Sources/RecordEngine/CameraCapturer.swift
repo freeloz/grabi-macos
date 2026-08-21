@@ -21,7 +21,7 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
         } else {
             device = AVCaptureDevice.default(for: .video)
         }
-        guard let device else { throw RecordingError.camaraNoDisponible }
+        guard let device else { throw RecordingError.cameraUnavailable }
 
         session.beginConfiguration()
         defer { session.commitConfiguration() }
@@ -30,9 +30,9 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
         do {
             input = try AVCaptureDeviceInput(device: device)
         } catch {
-            throw RecordingError.permisoCamaraDenegado
+            throw RecordingError.cameraPermissionDenied
         }
-        guard session.canAddInput(input) else { throw RecordingError.camaraNoDisponible }
+        guard session.canAddInput(input) else { throw RecordingError.cameraUnavailable }
         session.addInput(input)
 
         // Preferimos 1080p; si la cámara no lo soporta (FaceTime 720p), caemos a 720p.
@@ -50,7 +50,7 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
         // cámara-sola preferimos saltar un frame antes que acumular latencia.
         output.alwaysDiscardsLateVideoFrames = true
         output.setSampleBufferDelegate(self, queue: queue)
-        guard session.canAddOutput(output) else { throw RecordingError.camaraNoDisponible }
+        guard session.canAddOutput(output) else { throw RecordingError.cameraUnavailable }
         session.addOutput(output)
     }
 

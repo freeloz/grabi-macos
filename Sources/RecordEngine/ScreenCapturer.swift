@@ -47,7 +47,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         do {
             content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
         } catch {
-            throw RecordingError.permisoPantallaDenegado
+            throw RecordingError.screenPermissionDenied
         }
 
         let ownPID = ProcessInfo.processInfo.processIdentifier
@@ -56,7 +56,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         func resolveDisplay(_ id: CGDirectDisplayID?) throws -> SCDisplay {
             let wanted = id ?? CGMainDisplayID()
             guard let display = content.displays.first(where: { $0.displayID == wanted }) ?? content.displays.first else {
-                throw RecordingError.pantallaNoEncontrada
+                throw RecordingError.displayNotFound
             }
             return display
         }
@@ -81,12 +81,12 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
             size = fittedSize(pointWidth: CGFloat(display.width), pointHeight: CGFloat(display.height))
         case .window(let windowID):
             guard let window = content.windows.first(where: { $0.windowID == windowID }) else {
-                throw RecordingError.ventanaNoEncontrada
+                throw RecordingError.windowNotFound
             }
             filter = SCContentFilter(desktopIndependentWindow: window)
             size = fittedSize(pointWidth: window.frame.width, pointHeight: window.frame.height)
         case .region(let id, let rect):
-            guard rect.width >= 16, rect.height >= 16 else { throw RecordingError.regionInvalida }
+            guard rect.width >= 16, rect.height >= 16 else { throw RecordingError.invalidRegion }
             let display = try resolveDisplay(id)
             filter = SCContentFilter(display: display, excludingApplications: ownApps, exceptingWindows: [])
             size = fittedSize(pointWidth: rect.width, pointHeight: rect.height)
@@ -126,7 +126,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
     /// Arranca la captura. Requiere `prepare(...)` previo.
     func start(captureVideo: Bool, captureAudio: Bool) async throws {
         guard let filter, let configuration else {
-            throw RecordingError.estadoInvalido("ScreenCapturer.start sin prepare previo")
+            throw RecordingError.invalidState("ScreenCapturer.start sin prepare previo")
         }
         stopping = false
         let stream = SCStream(filter: filter, configuration: configuration, delegate: self)
@@ -139,7 +139,7 @@ final class ScreenCapturer: NSObject, SCStreamOutput, SCStreamDelegate {
         do {
             try await stream.startCapture()
         } catch {
-            throw RecordingError.capturaInterrumpida("no se pudo iniciar la captura de pantalla: \(error.localizedDescription)")
+            throw RecordingError.captureInterrupted("no se pudo iniciar la captura de pantalla: \(error.localizedDescription)")
         }
         self.stream = stream
     }

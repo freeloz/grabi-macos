@@ -63,23 +63,23 @@ public enum Preflight {
             // las siguientes devuelve false en silencio.
             if CGRequestScreenCaptureAccess() { return .available }
         }
-        return .permissionDenied(help: RecordingError.permisoPantallaDenegado.errorDescription ?? "")
+        return .permissionDenied(help: RecordingError.screenPermissionDenied.errorDescription ?? "")
     }
 
     private static func cameraStatus(requestingAccess: Bool) async -> SourceStatus {
         guard AVCaptureDevice.default(for: .video) != nil else {
-            return .unavailable(reason: RecordingError.camaraNoDisponible.errorDescription ?? "")
+            return .unavailable(reason: RecordingError.cameraUnavailable.errorDescription ?? "")
         }
         return await mediaAuthStatus(for: .video, requestingAccess: requestingAccess,
-                                     deniedHelp: RecordingError.permisoCamaraDenegado.errorDescription ?? "")
+                                     deniedHelp: RecordingError.cameraPermissionDenied.errorDescription ?? "")
     }
 
     private static func microphoneStatus(requestingAccess: Bool) async -> SourceStatus {
         guard AVCaptureDevice.default(for: .audio) != nil else {
-            return .unavailable(reason: RecordingError.microfonoNoDisponible.errorDescription ?? "")
+            return .unavailable(reason: RecordingError.microphoneUnavailable.errorDescription ?? "")
         }
         return await mediaAuthStatus(for: .audio, requestingAccess: requestingAccess,
-                                     deniedHelp: RecordingError.permisoMicrofonoDenegado.errorDescription ?? "")
+                                     deniedHelp: RecordingError.microphonePermissionDenied.errorDescription ?? "")
     }
 
     private static func mediaAuthStatus(for mediaType: AVMediaType, requestingAccess: Bool, deniedHelp: String) async -> SourceStatus {

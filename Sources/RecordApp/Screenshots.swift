@@ -5,9 +5,9 @@ import RecordUI
 /// Herramienta de verificación i18n (solo desarrollo): renderiza las
 /// superficies principales a PNG en el idioma del proceso y termina.
 ///
-///   .build/debug/RecordApp --capturas <dir> -AppleLanguages "(de)"
+///   .build/debug/RecordApp --screenshots <dir> -AppleLanguages "(de)"
 @MainActor
-enum Capturas {
+enum Screenshots {
     static func renderAll(to dir: String, model: GrabiAppModel) {
         let url = URL(fileURLWithPath: dir, isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

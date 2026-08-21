@@ -93,7 +93,7 @@ final class ThumbnailStore: ObservableObject {
 @MainActor
 final class WindowPickerController: TitledWindowController {
     func show(model: GrabiAppModel) {
-        present(title: L("app.picker.titulo"), size: NSSize(width: 720, height: 540),
+        present(title: L("app.picker.title"), size: NSSize(width: 720, height: 540),
                 content: CapturePickerView(model: model, controller: self))
     }
 }
@@ -108,7 +108,7 @@ private struct CapturePickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: GrabiSpace.s6) {
-                section(L("app.picker.pantallas")) {
+                section(L("app.picker.displays")) {
                     LazyVGrid(columns: columns, alignment: .leading, spacing: GrabiSpace.s4) {
                         ForEach(model.availableDisplays) { display in
                             PickerCard(
@@ -125,11 +125,11 @@ private struct CapturePickerView: View {
                     }
                 }
 
-                section(L("app.picker.ventanas")) {
+                section(L("app.picker.windows")) {
                     if model.availableWindows.isEmpty {
                         HStack(spacing: GrabiSpace.s3) {
                             MascotView(pose: .neutral, size: 44)
-                            Text(L("app.picker.vacio"))
+                            Text(L("app.picker.empty"))
                                 .font(GrabiFont.body)
                                 .foregroundStyle(GrabiColor.textSecondary)
                         }
