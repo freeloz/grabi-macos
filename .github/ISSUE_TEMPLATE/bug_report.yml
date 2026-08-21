@@ -1,0 +1,45 @@
+name: "🐛 Something isn't working"
+description: "Tell us what happened — no technical knowledge needed."
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking a minute! Plain words are perfect — you don't need logs or technical terms.
+        *Puedes escribir en tu idioma (español, português, français, Deutsch…) — no hace falta inglés.*
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did Grabi do instead?
+      placeholder: "I clicked the red button and…"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we see it too?
+      description: The steps you took, one per line.
+      placeholder: |
+        1. Open Grabi
+        2. …
+  - type: input
+    id: app-version
+    attributes:
+      label: Grabi version
+      description: Pre-filled if you came from the app (Settings → Report a problem).
+    validations:
+      required: true
+  - type: input
+    id: macos-version
+    attributes:
+      label: macOS version
+  - type: input
+    id: chip
+    attributes:
+      label: Chip
+      description: Apple Silicon or Intel ( → About This Mac).
+  - type: input
+    id: language
+    attributes:
+      label: System language

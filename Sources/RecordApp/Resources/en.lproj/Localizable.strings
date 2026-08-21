@@ -83,3 +83,10 @@
 "app.notif.view" = "View";
 "app.notif.copy" = "Copy link";
 "app.notif.en" = "in %@";
+
+/* Updates (Settings) */
+"app.settings.updates" = "Updates";
+"app.settings.version" = "Version %@";
+"app.settings.updates.note" = "Grabi checks once a day, quietly. Updates install with one click.";
+"app.settings.checkUpdates" = "Check for updates…";
+"app.settings.report" = "Report a problem…";

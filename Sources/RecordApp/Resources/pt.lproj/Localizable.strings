@@ -83,3 +83,10 @@
 "app.notif.view" = "Ver";
 "app.notif.copy" = "Copiar link";
 "app.notif.en" = "em %@";
+
+/* Atualizações (Ajustes) */
+"app.settings.updates" = "Atualizações";
+"app.settings.version" = "Versão %@";
+"app.settings.updates.note" = "O Grabi verifica uma vez por dia, sem incomodar. As novidades se instalam com um clique.";
+"app.settings.checkUpdates" = "Buscar atualizações…";
+"app.settings.report" = "Relatar um problema…";

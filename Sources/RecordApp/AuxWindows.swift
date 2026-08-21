@@ -305,13 +305,14 @@ final class SettingsWindowController: TitledWindowController {
     private let gallery = GalleryWindowController()
 
     func show(model: GrabiAppModel) {
-        present(title: L("app.settings.title"), size: NSSize(width: 420, height: 470),
+        present(title: L("app.settings.title"), size: NSSize(width: 420, height: 580),
                 content: SettingsView(model: model, gallery: gallery))
     }
 }
 
 struct SettingsView: View {
     @ObservedObject var model: GrabiAppModel
+    @ObservedObject private var updater = UpdaterManager.shared
     let gallery: GalleryWindowController
 
     var body: some View {
@@ -370,6 +371,33 @@ struct SettingsView: View {
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
             }
 
+            VStack(alignment: .leading, spacing: GrabiSpace.s2) {
+                Text(L("app.settings.updates"))
+                    .font(GrabiFont.bodySemibold)
+                    .foregroundStyle(GrabiColor.text)
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(LF("app.settings.version", updater.appVersion))
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(GrabiColor.text)
+                        Text(L("app.settings.updates.note"))
+                            .font(GrabiFont.caption)
+                            .foregroundStyle(GrabiColor.textSecondary)
+                    }
+                    Spacer()
+                    if updater.isAvailable {
+                        GrabiButton(L("app.settings.checkUpdates"), kind: .secundario) {
+                            updater.checkForUpdates()
+                        }
+                        .disabled(!updater.canCheck)
+                    }
+                }
+                .padding(12)
+                .background(GrabiColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
+            }
+
             Spacer()
 
             HStack {
@@ -381,12 +409,15 @@ struct SettingsView: View {
                 Button(L("app.settings.gallery")) { gallery.show() }
                     .buttonStyle(.link)
                     .font(GrabiFont.caption)
+                Button(L("app.settings.report")) { AppLinks.open(AppLinks.newIssue()) }
+                    .buttonStyle(.link)
+                    .font(GrabiFont.caption)
                 Spacer()
                 GrabiButton(L("app.settings.quit"), kind: .fantasma) { model.quit() }
             }
         }
         .padding(20)
-        .frame(width: 420, height: 470)
+        .frame(width: 420, height: 580)
         .background(GrabiColor.bg)
     }
 

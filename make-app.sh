@@ -32,13 +32,18 @@ for l in Support/InfoPlist/*.lproj; do
   cp "$l/InfoPlist.strings" "$APP/Contents/Resources/$(basename "$l")/"
 done
 
+# Sparkle.framework (auto-updates) lives in Contents/Frameworks.
+scripts/embed-sparkle.sh "$APP"
+
 # Signing: with the stable local identity "Grabi Dev" if it exists (TCC
 # permissions survive rebuilds); otherwise ad-hoc (screen permissions are
 # lost on every new build).
 if security find-identity -v -p codesigning 2>/dev/null | grep -q "Grabi Dev"; then
+  codesign --force --sign "Grabi Dev" "$APP/Contents/Frameworks/Sparkle.framework"
   codesign --force --sign "Grabi Dev" "$APP"
   echo "Signed with stable identity: Grabi Dev"
 else
+  codesign --force --sign - "$APP/Contents/Frameworks/Sparkle.framework"
   codesign --force --sign - "$APP"
   echo "⚠️  Ad-hoc signature: macOS will re-ask for the screen permission after each rebuild"
 fi

@@ -7,6 +7,12 @@ let package = Package(
     platforms: [
         .macOS(.v13) // ScreenCaptureKit with system-audio capture requires macOS 13+
     ],
+    dependencies: [
+        // The ONLY external dependency, deliberately: Sparkle is the de facto
+        // open-source standard for macOS app updates. Everything else is
+        // Apple frameworks.
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.6"),
+    ],
     targets: [
         // Recording engine: no UI, Apple frameworks only.
         .target(
@@ -22,7 +28,10 @@ let package = Package(
         // The app.
         .executableTarget(
             name: "RecordApp",
-            dependencies: ["RecordEngine", "RecordUI"],
+            dependencies: [
+                "RecordEngine", "RecordUI",
+                .product(name: "Sparkle", package: "Sparkle"),
+            ],
             resources: [.process("Resources")],
             linkerSettings: [
                 // Embeds Info.plist in the binary (__info_plist section)

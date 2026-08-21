@@ -1,0 +1,15 @@
+name: "💡 An idea"
+description: "Something Grabi should do, or do better."
+labels: ["idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We read everything. *Puedes escribir en tu idioma — no hace falta inglés.*
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: What would it do, and when would you use it?
+    validations:
+      required: true

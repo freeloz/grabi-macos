@@ -50,13 +50,23 @@ for l in Support/InfoPlist/*.lproj; do
   cp "$l/InfoPlist.strings" "$APP/Contents/Resources/$(basename "$l")/"
 done
 
-# 3. Signing (no --deep: the app has no nested bundles)
+# 3. Embed Sparkle (auto-updates), then sign inside-out: Sparkle's nested
+#    executables first, then the framework, then the app. The entitlements
+#    include disable-library-validation because "Grabi Dev" has no Team ID.
+scripts/embed-sparkle.sh "$APP"
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
 if [[ "$HARDENED" == "1" ]]; then
+  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
+  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Updater.app"
+  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE"
   codesign --force --options runtime \
     --entitlements Support/Grabi.entitlements \
     --sign "$SIGN_IDENTITY" "$APP"
   echo "Signed: \"$SIGN_IDENTITY\" + hardened runtime (ready to notarize)"
 else
+  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
+  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Updater.app"
+  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE"
   codesign --force --sign "$SIGN_IDENTITY" "$APP"
   echo "Signed: \"$SIGN_IDENTITY\" (no hardened runtime)"
 fi
