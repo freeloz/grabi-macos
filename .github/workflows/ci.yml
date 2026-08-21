@@ -1,5 +1,5 @@
-# Verificación de build en cada push/PR. La publicación de releases es local
-# (necesita la identidad de firma del llavero): ./scripts/publish-release.sh
+# Build check on every push/PR. Release publishing is local (it needs the
+# signing identity from the keychain): ./scripts/publish-release.sh
 name: CI
 on:
   push:
