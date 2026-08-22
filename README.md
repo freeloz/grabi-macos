@@ -1,8 +1,9 @@
 # Grabi
 
 **Record your screen, no drama.** Grabi is a native macOS screen recorder
-that lives in the menu bar: open it, hit the red dot, done. The opposite
-of OBS.
+with one window that holds everything — record, your recordings, settings.
+Open it, hit the red dot, done. The opposite of OBS. It also keeps a menu
+bar item for recording without opening the window.
 
 - **4 independent sources**, any combination: screen (full display, a
   window, or a region), selfie camera, microphone, and system audio.
@@ -111,7 +112,8 @@ Sources/
 │   ├── Tokens.swift             Light/dark colors, spacing, radii, motion
 │   ├── Mascot.swift             The mascot and the traffic light (8 poses)
 │   └── …                        Buttons, source rows, segmented, toasts, gallery
-├── RecordApp/       The menu-bar app (panel, preview, overlays…)
+├── RecordApp/       The app: main window (record · library · settings),
+│                   menu bar quick access, overlays and the pill
 └── EngineChecks/    Engine integration verification
 ```
 
@@ -141,6 +143,8 @@ verify fidelity.
   scales proportionally with the pixel area to keep per-pixel quality,
   capped at 32 Mbps). Aspect ratio is always preserved.
 - **Recordings folder** and **global shortcuts** (⌘⇧2 · ⌘⇧P).
+- **Quick access in the menu bar**: on by default; turn it off to keep Grabi
+  in its window only.
 
 ## Languages
 
