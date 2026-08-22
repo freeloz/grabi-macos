@@ -89,7 +89,14 @@ final class GrabiAppModel: ObservableObject {
 
     // MARK: Preferences
     @Published var destinationFolder: URL {
-        didSet { UserDefaults.standard.set(destinationFolder.path, forKey: "destinationFolder") }
+        didSet {
+            UserDefaults.standard.set(destinationFolder.path, forKey: "destinationFolder")
+            refreshLibrary()
+        }
+    }
+    /// Menu bar item: quick access without opening the window (Phase 6).
+    @Published var quickAccessEnabled: Bool {
+        didSet { UserDefaults.standard.set(quickAccessEnabled, forKey: "quickAccessEnabled") }
     }
     @Published var onboardingDone: Bool {
         didSet { UserDefaults.standard.set(onboardingDone, forKey: "onboardingDone") }
@@ -101,8 +108,11 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
+    /// The recordings library (the destination folder's real contents).
+    let library = LibraryStore()
+
     // Managed windows
-    let previewController = PreviewWindowController()
+    let mainWindow = MainWindowController()
     let pillController = PillWindowController()
     let cameraWindowController = CameraWindowController()
     let countdownController = CountdownWindowController()
@@ -137,12 +147,18 @@ final class GrabiAppModel: ObservableObject {
             destinationFolder = defaultFolder
         }
         onboardingDone = UserDefaults.standard.bool(forKey: "onboardingDone")
+        quickAccessEnabled = UserDefaults.standard.object(forKey: "quickAccessEnabled") as? Bool ?? true
         quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .standard
 
         engine.$state
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in self?.engineStateChanged(state) }
             .store(in: &cancellables)
+
+        // One preview stream, delivered to whichever surface is on screen.
+        engine.onPreviewFrame = { [weak self] pixelBuffer in
+            DispatchQueue.main.async { self?.mainWindow.receive(pixelBuffer) }
+        }
 
         engine.onMicLevel = { [weak self] level in
             DispatchQueue.main.async { self?.micLevel = level }
@@ -171,6 +187,80 @@ final class GrabiAppModel: ObservableObject {
         }
 
         Task { await refreshAll(applyDefaults: true) }
+        refreshLibrary()
+    }
+
+    // MARK: - Main window (Phase 6)
+
+    func showMainWindow(tab: MainTab? = nil) {
+        mainWindow.show(model: self, tab: tab)
+    }
+
+    func mainWindowShown() {
+        refreshLibrary()
+        restartPreviewIfNeeded()
+    }
+
+    /// Stops the preview without touching an ongoing recording.
+    func pausePreview() {
+        guard !isActive else { return }
+        Task { await engine.stopPreview() }
+    }
+
+    func mainWindowClosed() {
+        // Closing the window must never stop a recording: only the preview.
+        if !isActive { Task { await engine.stopPreview() } }
+    }
+
+    /// The in-window welcome is done (permissions granted or postponed).
+    func finishWelcome(startRecording: Bool) {
+        onboardingDone = true
+        Task {
+            await refreshAll(applyDefaults: true)
+            restartPreviewIfNeeded()
+            if startRecording { requestStart() }
+        }
+    }
+
+    func refreshLibrary() {
+        library.refresh(folder: destinationFolder)
+    }
+
+    // MARK: - Status shown by the mascot in the sidebar
+
+    var statusPose: MascotPose {
+        if isActive { return .recording }
+        if !anySourceEnabled { return .worried }
+        if let report = preflight, enabledSources.contains(where: { !report.status(for: $0).isUsable }) {
+            return .worried
+        }
+        return .ready
+    }
+
+    var statusMessage: String {
+        if isActive { return L("app.status.recording") }
+        if !anySourceEnabled { return L("app.status.noSources") }
+        if let report = preflight, enabledSources.contains(where: { !report.status(for: $0).isUsable }) {
+            return L("app.status.permissions")
+        }
+        return L("app.status.ready")
+    }
+
+    var recordButtonState: RecordButtonState {
+        switch engineState {
+        case .recording, .starting, .stopping: return .recording
+        case .paused: return .paused
+        default: return .ready
+        }
+    }
+
+    private var enabledSources: [RecordingSource] {
+        var list: [RecordingSource] = []
+        if screenEnabled { list.append(.screen) }
+        if cameraEnabled { list.append(.camera) }
+        if micEnabled { list.append(.microphone) }
+        if systemAudioEnabled { list.append(.systemAudio) }
+        return list
     }
 
     // MARK: - Preflight and content
@@ -264,7 +354,14 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    private func buildConfiguration() throws -> RecordingConfiguration {
+    /// The preview is for framing, not for pixel-peeping: capping it at
+    /// 1440 px and 15 fps keeps a 4K "Sharp" setup from pinning the CPU
+    /// while the window merely sits open. Recording rebuilds the pipeline
+    /// at full quality during the 3·2·1 countdown.
+    private static let previewWidth = 1280
+    private static let previewFPS = 10
+
+    private func buildConfiguration(forPreview: Bool = false) throws -> RecordingConfiguration {
         try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
         // Neutral branded name, identical in every language (v0.1.2
         // decision): fixed format, POSIX calendar/locale so it doesn't
@@ -276,10 +373,12 @@ final class GrabiAppModel: ObservableObject {
         return RecordingConfiguration(
             capturesScreen: screenEnabled,
             capturesCamera: cameraEnabled,
-            capturesMicrophone: micEnabled,
-            capturesSystemAudio: systemAudioEnabled,
+            // The microphone only ever runs while recording.
+            capturesMicrophone: micEnabled && !forPreview,
+            capturesSystemAudio: systemAudioEnabled && !forPreview,
             outputURL: url,
-            targetWidth: quality.targetWidth,
+            targetWidth: forPreview ? min(quality.targetWidth, Self.previewWidth) : quality.targetWidth,
+            framesPerSecond: forPreview ? Self.previewFPS : 30,
             target: currentTarget,
             cameraLayout: cameraLayout)
     }
@@ -287,25 +386,20 @@ final class GrabiAppModel: ObservableObject {
     // MARK: - Preview
 
     func openPreview() {
-        previewController.show(model: self)
-        restartPreviewIfNeeded()
+        showMainWindow(tab: .record)
     }
 
     func restartPreviewIfNeeded() {
-        guard previewController.isVisible else { return }
+        guard mainWindow.showsPreview else { return }
         guard screenEnabled || cameraEnabled else {
             Task { await engine.stopPreview() }
             return
         }
         Task {
-            if let config = try? buildConfiguration() {
+            if let config = try? buildConfiguration(forPreview: true) {
                 try? await engine.startPreview(configuration: config)
             }
         }
-    }
-
-    func previewClosed() {
-        Task { await engine.stopPreview() }
     }
 
     private func sourcesChanged() {
@@ -445,6 +539,8 @@ final class GrabiAppModel: ObservableObject {
         do {
             let url = try await engine.stop()
             lastRecordingURL = url
+            library.newestURL = url
+            refreshLibrary()
             NotificationManager.shared.showRecordingDone(url: url, duration: elapsed, model: self)
         } catch {
             errorMessage = error.localizedDescription

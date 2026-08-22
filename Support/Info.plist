@@ -30,8 +30,6 @@
 	<string>7</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
-	<key>LSUIElement</key>
-	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Grabi uses the camera to include you in your recordings. Only for recording — nothing leaves your Mac.</string>
 	<key>NSHighResolutionCapable</key>

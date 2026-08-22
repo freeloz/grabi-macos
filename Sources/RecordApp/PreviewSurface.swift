@@ -4,49 +4,39 @@ import CoreVideo
 import RecordEngine
 import RecordUI
 
-/// "Preview — Grabi" window (Phase 3 §02): what you see is what gets
-/// recorded. The camera drags freely, resizes from the bottom-right corner
-/// and changes shape via right-click or from the bar.
-/// It is excluded from the recording (the app's own window).
-@MainActor
-final class PreviewWindowController: NSObject, ObservableObject, NSWindowDelegate {
-    private var window: NSWindow?
-    let renderView = PixelBufferNSView()
-    /// Size of the last frame (to map the overlay to the video's real area).
-    @Published var videoSize = CGSize(width: 16, height: 10)
-    private weak var model: GrabiAppModel?
+/// The live preview surface (Phase 3 §02, Phase 6): what you see is what
+/// gets recorded. It lives inside the main window; the camera drags freely,
+/// resizes from any corner and changes shape via right-click.
+/// Grabi's own windows are excluded from the recording.
+struct LivePreview: View {
+    @ObservedObject var model: GrabiAppModel
+    let renderView: PixelBufferNSView
+    let videoSize: CGSize
 
-    var isVisible: Bool { window?.isVisible ?? false }
-
-    func show(model: GrabiAppModel) {
-        self.model = model
-        model.engine.onPreviewFrame = { [weak self] pixelBuffer in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                let size = CGSize(width: CVPixelBufferGetWidth(pixelBuffer),
-                                  height: CVPixelBufferGetHeight(pixelBuffer))
-                if size != self.videoSize { self.videoSize = size }
-                self.renderView.render(pixelBuffer)
+    var body: some View {
+        GeometryReader { geo in
+            let fitted = fittedRect(in: geo.size)
+            ZStack(alignment: .topLeading) {
+                PixelBufferView(view: renderView)
+                if model.screenEnabled, model.cameraEnabled {
+                    CameraOverlay(model: model, contentRect: fitted)
+                }
             }
         }
-        if window == nil {
-            let win = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 680, height: 470),
-                styleMask: [.titled, .closable, .miniaturizable, .resizable],
-                backing: .buffered, defer: false)
-            win.title = L("app.preview.title")
-            win.isReleasedWhenClosed = false
-            win.delegate = self
-            win.contentView = NSHostingView(rootView: PreviewRoot(model: model, controller: self))
-            win.center()
-            window = win
-        }
-        window?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        .background(Color.black)
     }
 
-    func windowWillClose(_ notification: Notification) {
-        model?.previewClosed()
+    /// Rect of the video within the view (the layer uses resizeAspect).
+    private func fittedRect(in size: CGSize) -> CGRect {
+        let videoAspect = videoSize.width / max(videoSize.height, 1)
+        let viewAspect = size.width / max(size.height, 1)
+        if videoAspect > viewAspect {
+            let h = size.width / videoAspect
+            return CGRect(x: 0, y: (size.height - h) / 2, width: size.width, height: h)
+        } else {
+            let w = size.height * videoAspect
+            return CGRect(x: (size.width - w) / 2, y: 0, width: w, height: size.height)
+        }
     }
 }
 
@@ -88,91 +78,16 @@ final class PixelBufferNSView: NSView {
     }
 }
 
-private struct PixelBufferView: NSViewRepresentable {
+struct PixelBufferView: NSViewRepresentable {
     let view: PixelBufferNSView
     func makeNSView(context: Context) -> PixelBufferNSView { view }
     func updateNSView(_ nsView: PixelBufferNSView, context: Context) {}
 }
 
-struct PreviewRoot: View {
-    @ObservedObject var model: GrabiAppModel
-    @ObservedObject var controller: PreviewWindowController
-
-    var body: some View {
-        VStack(spacing: 0) {
-            GeometryReader { geo in
-                let fitted = fittedRect(in: geo.size)
-                ZStack(alignment: .topLeading) {
-                    PixelBufferView(view: controller.renderView)
-                    if model.screenEnabled, model.cameraEnabled {
-                        CameraOverlay(model: model, contentRect: fitted)
-                    }
-                }
-            }
-            .background(Color.black)
-            bottomBar
-        }
-        .frame(minWidth: 560, minHeight: 380)
-        .background(GrabiColor.bg)
-    }
-
-    /// Rect of the video within the view (the layer uses resizeAspect).
-    private func fittedRect(in size: CGSize) -> CGRect {
-        let videoAspect = controller.videoSize.width / max(controller.videoSize.height, 1)
-        let viewAspect = size.width / max(size.height, 1)
-        if videoAspect > viewAspect {
-            let h = size.width / videoAspect
-            return CGRect(x: 0, y: (size.height - h) / 2, width: size.width, height: h)
-        } else {
-            let w = size.height * videoAspect
-            return CGRect(x: (size.width - w) / 2, y: 0, width: w, height: size.height)
-        }
-    }
-
-    private var bottomBar: some View {
-        HStack(spacing: GrabiSpace.s3) {
-            GrabiSegmented(items: CameraShape.allCases.map {
-                GrabiSegmentItem($0, icon: .forShape($0))
-            }, selection: Binding(
-                get: { model.cameraLayout.shape },
-                set: { model.cameraLayout.shape = $0 }
-            ))
-            .disabled(!model.cameraEnabled)
-            Text(L("app.preview.hint"))
-                .font(.system(size: 12))
-                .foregroundStyle(GrabiColor.textSecondary)
-                .lineLimit(2)
-            Spacer(minLength: GrabiSpace.s2)
-            if model.isActive {
-                RecBadge(elapsed: model.elapsedText)
-            } else {
-                Button { model.requestStart() } label: {
-                    HStack(spacing: 9) {
-                        SemaforoDot(model.anySourceEnabled ? .ready : .apagado, size: 11)
-                        Text(L("app.preview.record")).font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(GrabiColor.text)
-                    }
-                    .padding(.horizontal, 18)
-                    .frame(height: 36)
-                    .background(GrabiColor.surface)
-                    .overlay(Capsule().strokeBorder(GrabiColor.borderStrong, lineWidth: 1.5))
-                    .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(!model.anySourceEnabled)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 11)
-        .background(GrabiColor.surface)
-        .overlay(Rectangle().fill(GrabiColor.border).frame(height: 1), alignment: .top)
-    }
-}
-
 /// The camera in the preview: draggable with magnets to corners/edges,
 /// resizable from the bottom-right corner (fixed proportion),
 /// brand border + 4 handles, shape context menu.
-private struct CameraOverlay: View {
+struct CameraOverlay: View {
     @ObservedObject var model: GrabiAppModel
     let contentRect: CGRect
 

@@ -33,6 +33,8 @@ public enum GrabiColor {
     /// Strong border (secondary buttons, record-button pill).
     public static let borderStrong = dynamicColor(light: "D8CDB8", dark: "4A4438")
     public static let divider = dynamicColor(light: "F3EEE3", dark: "26221C")
+    /// Sidebar / inert areas of the main window (Phase 6).
+    public static let sidebar = dynamicColor(light: "F3EEE3", dark: "1B1916")
 
     // The red rule: `rec` only as SHAPE (dot, badge, mascot);
     // `error` only as text with an icon. They never mix.

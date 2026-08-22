@@ -149,11 +149,10 @@ struct PanelView: View {
 
     private var footer: some View {
         HStack {
-            Button(L("app.preview")) { model.openPreview() }
+            Button(L("app.openWindow")) { model.showMainWindow() }
                 .buttonStyle(.plain)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(GrabiColor.brandStrong)
-                .disabled(!model.screenEnabled && !model.cameraEnabled)
             Spacer()
             HStack(spacing: 14) {
                 Button { model.openRecordingsFolder() } label: {

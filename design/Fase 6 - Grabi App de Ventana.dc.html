@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:ital,wght@0,400..700;1,400&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin:0; background:#EFEAE0; color:#26221C; font-family:'Instrument Sans',sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#C93A32; } a:hover { color:#8F2E22; }
+  @keyframes recPulse { 0% { opacity:.55; } 50% { opacity:.08; } 100% { opacity:.55; } }
+</style>
+</helmet>
+
+<section style="padding:56px 48px 96px; display:flex; flex-direction:column; gap:36px">
+  <header style="display:flex; flex-direction:column; gap:12px; max-width:900px">
+    <div style="display:flex; align-items:center; gap:10px; font-size:13px; letter-spacing:0.14em; font-weight:600; color:#C93A32">
+      <span style="width:10px; height:10px; border-radius:50%; background:#E5483F"></span>
+      FASE 6 · GRABI COMO APP DE VENTANA — 3 VARIACIONES MEZCLABLES
+    </div>
+    <h1 style="font-family:'Bricolage Grotesque',sans-serif; font-size:44px; line-height:1.06; font-weight:760; margin:0">De la barra de menú a la ventana</h1>
+    <p style="font-size:15.5px; line-height:1.6; color:#5C5548; margin:0; text-wrap:pretty">Tres enfoques de la ventana principal (~880×620), cada uno con su pantalla de Grabaciones y sus estados clave. La barra de menú queda como acceso rápido opcional. Todo usa los tokens de la Fase 2 y los patrones de las Fases 3–4. Mi recomendación: base <a href="#6a">6a</a> (sidebar, cero sorpresas) + la tira de recientes de <a href="#6b">6b</a> + la primera vez guiada de <a href="#6c">6c</a>. Honestidad aplicada: 4K a 30 fps, sin editor ni nube.</p>
+  </header>
+
+  <div style="display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap">
+
+    <!-- ============ 6a SIDEBAR ============ -->
+    <div id="6a" style="display:flex; flex-direction:column; gap:18px; width:900px">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span style="background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700; padding:5px 12px; border-radius:8px">6a</span>
+        <strong style="font-size:18px">Sidebar clásica macOS</strong>
+        <span style="font-size:12.5px; color:#5C5548">se siente como Notas o Finder: cero que aprender</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">estado: listo para grabar</span>
+        <div style="width:880px; height:620px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3; flex-shrink:0">
+            <span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span>
+            <span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="width:36px"></span>
+          </div>
+          <div style="flex:1; display:flex; min-height:0">
+            <div style="width:196px; background:#F3EEE3; border-right:1px solid #EAE3D6; padding:16px 12px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; box-sizing:border-box">
+              <div style="display:flex; align-items:center; gap:8px; padding:0 8px 14px">
+                <svg viewBox="0 0 96 96" width="24" height="24"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="37" cy="41" r="5.5" fill="#FFF6F0"></circle><circle cx="59" cy="41" r="5.5" fill="#FFF6F0"></circle><rect x="38" y="58" width="20" height="7" rx="3.5" fill="#FFF6F0"></rect></svg>
+                <span style="font-family:'Bricolage Grotesque',sans-serif; font-size:17px; font-weight:780; color:#26221C">grab<span style="position:relative; display:inline-block">ı<span style="position:absolute; left:50%; top:0.02em; transform:translateX(-50%); width:0.17em; height:0.17em; border-radius:50%; background:#E5483F"></span></span></span>
+              </div>
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.1); font-size:13.5px; font-weight:600"><span style="width:11px; height:11px; border-radius:50%; background:#E5483F"></span>Grabar</span>
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color:#5C5548"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"></rect><path d="M3 10 h18 M8 5 l3 5 M14 5 l3 5"></path></svg>Grabaciones</span>
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color:#5C5548"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 3 v2.5 M12 18.5 V21 M3 12 h2.5 M18.5 12 H21 M5.6 5.6 l1.8 1.8 M16.6 16.6 l1.8 1.8 M18.4 5.6 l-1.8 1.8 M7.4 16.6 l-1.8 1.8"></path></svg>Ajustes</span>
+              <span style="flex:1"></span>
+              <div style="display:flex; align-items:center; gap:9px; padding:10px; background:#FFFFFF; border:1px solid #EAE3D6; border-radius:11px">
+                <svg viewBox="0 0 96 96" width="30" height="30"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+                <span style="font-size:11.5px; line-height:1.4; color:#4A4438"><strong style="color:#2E7D4C">Todo listo.</strong> Presiona Grabar cuando quieras.</span>
+              </div>
+            </div>
+            <div style="flex:1; padding:18px 20px; display:flex; flex-direction:column; gap:12px; min-width:0; box-sizing:border-box">
+              <div style="flex:1; position:relative; background:linear-gradient(140deg,#F4B76B 0%,#DF6E5E 48%,#6E5397 100%); border-radius:12px; overflow:hidden; min-height:0">
+                <span style="position:absolute; top:10px; left:12px; font-family:ui-monospace,monospace; font-size:10.5px; color:#3A2B1D; background:rgba(250,247,241,0.85); padding:3px 8px; border-radius:6px">vista previa en vivo — lo que ves es lo que se graba</span>
+                <div style="position:absolute; left:8%; top:16%; width:52%; bottom:20%; background:#FFFDF9; border-radius:8px; box-shadow:0 12px 30px rgba(20,18,16,0.3); overflow:hidden">
+                  <div style="display:flex; align-items:center; gap:5px; padding:6px 9px; background:#F1ECE2"><span style="width:8px; height:8px; border-radius:50%; background:#FF5F57"></span><span style="width:8px; height:8px; border-radius:50%; background:#FEBC2E"></span><span style="width:8px; height:8px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:8.5px; font-weight:600; color:#7A6F5C">La fotosíntesis — clase 4</span></div>
+                  <div style="padding:12px 14px; display:flex; flex-direction:column; gap:7px"><span style="font-size:13px; font-weight:800; color:#2E2318">¿Qué necesita una planta?</span><span style="font-size:9.5px; color:#4A4438">☀️ Luz solar · 💧 Agua · 🌱 CO₂</span><div style="display:flex; align-items:flex-end; gap:6px; height:52px; border-bottom:1.5px solid #E3DCCD; padding:0 4px; width:60%"><span style="flex:1; height:38%; background:#F2B04A; border-radius:3px 3px 0 0"></span><span style="flex:1; height:62%; background:#4A90D9; border-radius:3px 3px 0 0"></span><span style="flex:1; height:85%; background:#58B368; border-radius:3px 3px 0 0"></span></div></div>
+                </div>
+                <span style="position:absolute; bottom:16px; right:18px; width:96px; height:96px; border-radius:50%; border:2.5px solid #C93A32; box-shadow:0 8px 24px rgba(20,18,16,0.35); overflow:hidden; display:block"><image-slot id="v6a-selfie" shape="circle" fit="cover" placeholder="tu selfie"></image-slot></span>
+                <span style="position:absolute; bottom:107px; right:109px; width:10px; height:10px; border-radius:50%; background:#FFFFFF; border:2px solid #C93A32"></span>
+                <span style="position:absolute; bottom:10px; right:12px; width:10px; height:10px; border-radius:50%; background:#FFFFFF; border:2px solid #C93A32; cursor:nwse-resize"></span>
+              </div>
+              <div style="display:flex; gap:10px; align-items:center">
+                <span style="display:inline-flex; background:#EFE8DA; border-radius:10px; padding:2.5px; gap:2px; flex-shrink:0">
+                  <span style="padding:7px 14px; border-radius:8px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.12); font-size:12.5px; font-weight:600">Pantalla</span>
+                  <span style="padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:500; color:#5C5548">Ventana</span>
+                  <span style="padding:7px 14px; border-radius:8px; font-size:12.5px; font-weight:500; color:#5C5548">Región</span>
+                </span>
+                <span style="flex:1"></span>
+                <span style="display:inline-flex; background:#EFE8DA; border-radius:10px; padding:2.5px; gap:2px; flex-shrink:0">
+                  <span style="padding:6px 11px; border-radius:8px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.12)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#26221C" stroke-width="2"><circle cx="12" cy="12" r="8"></circle></svg></span>
+                  <span style="padding:6px 11px; border-radius:8px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"></rect></svg></span>
+                  <span style="padding:6px 11px; border-radius:8px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="3"></rect></svg></span>
+                </span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px">
+                <span style="display:flex; align-items:center; gap:8px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:11px; padding:10px 11px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg><span style="flex:1; font-size:11.5px; font-weight:600">Pantalla</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative; flex-shrink:0"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></span>
+                <span style="display:flex; align-items:center; gap:8px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:11px; padding:10px 11px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg><span style="flex:1; font-size:11.5px; font-weight:600">Cámara</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative; flex-shrink:0"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></span>
+                <span style="display:flex; align-items:center; gap:8px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:11px; padding:10px 11px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg><span style="flex:1; font-size:11.5px; font-weight:600">Micro</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative; flex-shrink:0"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></span>
+                <span style="display:flex; align-items:center; gap:8px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:11px; padding:10px 11px"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 h3 l4 -4 v14 l-4 -4 H4 z"></path><path d="M15 9 a4.5 4.5 0 0 1 0 6"></path></svg><span style="flex:1; font-size:11.5px; font-weight:600">Audio</span><span style="width:32px; height:19px; border-radius:99px; background:#C4B89F; position:relative; flex-shrink:0"><span style="position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px">
+                <span style="flex:1; height:52px; border-radius:99px; background:#FFFFFF; border:1.5px solid #D8CDB8; box-shadow:0 1px 3px rgba(38,34,28,0.1); display:flex; align-items:center; justify-content:center; gap:11px"><span style="width:13px; height:13px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:15px; font-weight:600">Grabar</span><span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F; background:#F3EEE3; border-radius:6px; padding:3px 7px">⌘⇧2</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">grabaciones · cuadrícula con acciones</span>
+        <div style="width:880px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi — Grabaciones</span><span style="width:36px"></span></div>
+          <div style="display:flex">
+            <div style="width:196px; background:#F3EEE3; border-right:1px solid #EAE3D6; padding:16px 12px; display:flex; flex-direction:column; gap:4px; flex-shrink:0; box-sizing:border-box">
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color:#5C5548"><span style="width:11px; height:11px; border-radius:50%; background:#E5483F"></span>Grabar</span>
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.1); font-size:13.5px; font-weight:600"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"></rect><path d="M3 10 h18 M8 5 l3 5 M14 5 l3 5"></path></svg>Grabaciones</span>
+              <span style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; font-size:13.5px; font-weight:500; color:#5C5548"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 3 v2.5 M12 18.5 V21 M3 12 h2.5 M18.5 12 H21 M5.6 5.6 l1.8 1.8 M16.6 16.6 l1.8 1.8 M18.4 5.6 l-1.8 1.8 M7.4 16.6 l-1.8 1.8"></path></svg>Ajustes</span>
+            </div>
+            <div style="flex:1; padding:18px 20px; display:flex; flex-direction:column; gap:14px; box-sizing:border-box">
+              <div style="display:flex; align-items:baseline; gap:10px"><span style="font-size:17px; font-weight:700">Tus grabaciones</span><span style="font-size:12px; color:#9A917F">6 videos · 2,1 GB · en ~/Grabaciones</span></div>
+              <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px">
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <div style="position:relative; aspect-ratio:16/10; background:linear-gradient(140deg,#F4B76B,#DF6E5E); border-radius:10px; overflow:hidden"><span style="position:absolute; bottom:6px; right:7px; font-size:10px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:5px; padding:2px 6px; font-variant-numeric:tabular-nums">12:34</span></div>
+                  <span style="font-size:12px; font-weight:600">Clase 4 — fotosíntesis</span>
+                  <div style="display:flex; align-items:center; gap:6px"><span style="font-size:10.5px; color:#9A917F">hoy, 9:41</span><span style="flex:1"></span><svg viewBox="0 0 24 24" width="13" height="13" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <div style="position:relative; aspect-ratio:16/10; background:linear-gradient(140deg,#6EC383,#43759F); border-radius:10px; overflow:hidden"><span style="position:absolute; bottom:6px; right:7px; font-size:10px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:5px; padding:2px 6px; font-variant-numeric:tabular-nums">2:08</span></div>
+                  <span style="font-size:12px; font-weight:600">Cómo subir la tarea</span>
+                  <div style="display:flex; align-items:center; gap:6px"><span style="font-size:10.5px; color:#9A917F">ayer</span><span style="flex:1"></span><svg viewBox="0 0 24 24" width="13" height="13" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:7px">
+                  <div style="position:relative; aspect-ratio:16/10; background:linear-gradient(140deg,#A08BD0,#DF6E5E); border-radius:10px; overflow:hidden; outline:2px solid #C93A32; outline-offset:2px"><span style="position:absolute; inset:0; background:rgba(38,34,28,0.35); display:flex; align-items:center; justify-content:center; gap:10px"><span style="width:30px; height:30px; border-radius:50%; background:rgba(250,247,241,0.95); display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="#26221C"><path d="M8 5 l12 7 -12 7 z"></path></svg></span><span style="width:30px; height:30px; border-radius:50%; background:rgba(250,247,241,0.95); display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg></span></span><span style="position:absolute; bottom:6px; right:7px; font-size:10px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:5px; padding:2px 6px; font-variant-numeric:tabular-nums">0:47</span></div>
+                  <span style="font-size:12px; font-weight:600">Mensaje para el equipo <span style="font-family:ui-monospace,monospace; font-size:9px; color:#C93A32">← hover</span></span>
+                  <div style="display:flex; align-items:center; gap:6px"><span style="font-size:10.5px; color:#9A917F">18 ago</span><span style="flex:1"></span><svg viewBox="0 0 24 24" width="13" height="13" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+                </div>
+              </div>
+              <span style="font-size:11.5px; color:#9A917F">Acciones por video: reproducir · mostrar en Finder · copiar (listo para pegar en Mensajes o Slack) · borrar (con confirmación). Doble clic = Vista Rápida.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">estado: primera vez · permisos con la mascota</span>
+        <div style="width:880px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="width:36px"></span></div>
+          <div style="display:flex; align-items:center; justify-content:center; padding:44px 40px; gap:44px">
+            <svg viewBox="0 0 96 96" width="130" height="130" style="flex-shrink:0"><path d="M73 52 q13 -5 11 -20" fill="none" stroke="#E5483F" stroke-width="7" stroke-linecap="round"></path><circle cx="84" cy="30" r="5.5" fill="#E5483F"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M52 45 q4 -4 8 0" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+            <div style="display:flex; flex-direction:column; gap:14px; max-width:430px">
+              <span style="font-size:22px; font-weight:800; letter-spacing:-0.01em">Hola, soy Grabi. Preparemos tu Mac.</span>
+              <span style="font-size:13.5px; line-height:1.55; color:#5C5548">Tres permisos y grabamos. Son solo para grabar — nada sale de tu Mac.</span>
+              <div style="display:flex; flex-direction:column; gap:8px">
+                <div style="display:flex; align-items:center; gap:11px; border:1px solid #EAE3D6; border-radius:12px; padding:12px 14px; background:#EDF5EE"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#2E7D4C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg><span style="flex:1; font-size:13px; font-weight:600">Pantalla</span><span style="font-size:12px; font-weight:600; color:#2E7D4C">Concedido ✓</span></div>
+                <div style="display:flex; align-items:center; gap:11px; border:1px solid #EAE3D6; border-radius:12px; padding:12px 14px; background:#FFFFFF"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg><span style="flex:1; font-size:13px; font-weight:600">Cámara</span><span style="height:28px; padding:0 13px; border-radius:8px; background:#C93A32; color:#FFFFFF; font-size:12px; font-weight:600; display:inline-flex; align-items:center">Permitir</span></div>
+                <div style="display:flex; align-items:center; gap:11px; border:1px solid #EAE3D6; border-radius:12px; padding:12px 14px; background:#FFFFFF"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg><span style="flex:1; font-size:13px; font-weight:600">Micrófono</span><span style="height:28px; padding:0 13px; border-radius:8px; background:#C93A32; color:#FFFFFF; font-size:12px; font-weight:600; display:inline-flex; align-items:center">Permitir</span></div>
+              </div>
+              <span style="font-size:12.5px; color:#9A917F">Puedes darlos después — la ventana te los pedirá cuando hagan falta.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:18px 20px; font-size:13.5px; line-height:1.6; color:#4A4438">
+        <strong>Por qué sí:</strong> patrón que cualquier usuario de Mac ya conoce; Grabaciones y Ajustes tienen casa propia; escala si mañana hay más secciones. <strong>Por qué no:</strong> la sidebar gasta 196 px que en «solo grabar» no hacen nada. <strong>Mezclable:</strong> admite la tira de recientes de <a href="#6b">6b</a> bajo la vista previa y la primera vez de <a href="#6c">6c</a> como flujo guiado inicial.
+      </div>
+    </div>
+
+    <!-- ============ 6b UNA SOLA PANTALLA ============ -->
+    <div id="6b" style="display:flex; flex-direction:column; gap:18px; width:900px">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span style="background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700; padding:5px 12px; border-radius:8px">6b</span>
+        <strong style="font-size:18px">Una sola pantalla, sin navegación</strong>
+        <span style="font-size:12.5px; color:#5C5548">todo a la vista: preview + fuentes + ajustes + recientes</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">estado: listo para grabar (ajustes integrados a la derecha)</span>
+        <div style="width:880px; height:620px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3; flex-shrink:0"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="width:36px"></span></div>
+          <div style="flex:1; display:flex; gap:14px; padding:16px 18px 12px; min-height:0; box-sizing:border-box">
+            <div style="flex:1.5; display:flex; flex-direction:column; gap:10px; min-width:0">
+              <div style="flex:1; position:relative; background:linear-gradient(140deg,#F4B76B 0%,#DF6E5E 48%,#6E5397 100%); border-radius:12px; overflow:hidden; min-height:0">
+                <span style="position:absolute; top:10px; left:12px; font-family:ui-monospace,monospace; font-size:10px; color:#3A2B1D; background:rgba(250,247,241,0.85); padding:3px 8px; border-radius:6px">vista previa en vivo</span>
+                <span style="position:absolute; bottom:14px; right:16px; width:84px; height:84px; border-radius:50%; border:2.5px solid #C93A32; box-shadow:0 8px 24px rgba(20,18,16,0.35); overflow:hidden; display:block"><image-slot id="v6b-selfie" shape="circle" fit="cover" placeholder="tu selfie"></image-slot></span>
+              </div>
+              <div style="display:flex; align-items:center; gap:9px">
+                <span style="font-size:11.5px; font-weight:600; color:#5C5548; flex-shrink:0">Recientes</span>
+                <span style="position:relative; width:74px; height:44px; border-radius:8px; background:linear-gradient(140deg,#F4B76B,#DF6E5E); flex-shrink:0"><span style="position:absolute; bottom:3px; right:4px; font-size:8px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:4px; padding:1px 4px">12:34</span></span>
+                <span style="position:relative; width:74px; height:44px; border-radius:8px; background:linear-gradient(140deg,#6EC383,#43759F); flex-shrink:0"><span style="position:absolute; bottom:3px; right:4px; font-size:8px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:4px; padding:1px 4px">2:08</span></span>
+                <span style="position:relative; width:74px; height:44px; border-radius:8px; background:linear-gradient(140deg,#A08BD0,#DF6E5E); flex-shrink:0"><span style="position:absolute; bottom:3px; right:4px; font-size:8px; font-weight:600; color:#F2EDE4; background:rgba(38,34,28,0.85); border-radius:4px; padding:1px 4px">0:47</span></span>
+                <span style="flex:1"></span>
+                <span style="font-size:11.5px; font-weight:600; color:#C93A32">Ver todas →</span>
+              </div>
+            </div>
+            <div style="width:264px; display:flex; flex-direction:column; gap:9px; flex-shrink:0; box-sizing:border-box">
+              <span style="display:inline-flex; background:#EFE8DA; border-radius:10px; padding:2.5px; gap:2px">
+                <span style="flex:1; padding:6px 0; border-radius:8px; background:#FFFFFF; box-shadow:0 1px 3px rgba(38,34,28,0.12); font-size:11.5px; font-weight:600; text-align:center">Pantalla</span>
+                <span style="flex:1; padding:6px 0; border-radius:8px; font-size:11.5px; font-weight:500; color:#5C5548; text-align:center">Ventana</span>
+                <span style="flex:1; padding:6px 0; border-radius:8px; font-size:11.5px; font-weight:500; color:#5C5548; text-align:center">Región</span>
+              </span>
+              <div style="border:1px solid #EAE3D6; border-radius:12px; background:#FFFFFF; overflow:hidden">
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid #F3EEE3"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg><span style="flex:1; font-size:11.5px; font-weight:600">Pantalla</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid #F3EEE3"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg><span style="flex:1; font-size:11.5px; font-weight:600">Cámara · círculo</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid #F3EEE3"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg><span style="flex:1; font-size:11.5px; font-weight:600">Micrófono</span><span style="width:32px; height:19px; border-radius:99px; background:#2E7D4C; position:relative"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 h3 l4 -4 v14 l-4 -4 H4 z"></path><path d="M15 9 a4.5 4.5 0 0 1 0 6"></path></svg><span style="flex:1; font-size:11.5px; font-weight:600">Audio del sistema</span><span style="width:32px; height:19px; border-radius:99px; background:#C4B89F; position:relative"><span style="position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:#FFFFFF"></span></span></div>
+              </div>
+              <div style="border:1px solid #EAE3D6; border-radius:12px; background:#FFFFFF; padding:11px; display:flex; flex-direction:column; gap:9px">
+                <div style="display:flex; align-items:center; gap:8px"><span style="font-size:11px; font-weight:600; color:#5C5548; width:52px">Calidad</span><span style="display:inline-flex; background:#EFE8DA; border-radius:8px; padding:2px; gap:2px; flex:1"><span style="flex:1; padding:4px 0; border-radius:6px; font-size:10.5px; font-weight:500; color:#5C5548; text-align:center">Estándar</span><span style="flex:1; padding:4px 0; border-radius:6px; background:#FFFFFF; box-shadow:0 1px 2px rgba(38,34,28,0.12); font-size:10.5px; font-weight:600; text-align:center">Nítida</span></span></div>
+                <span style="font-size:10px; color:#9A917F; padding-left:60px; margin-top:-4px">hasta 4K · 30 fps</span>
+                <div style="display:flex; align-items:center; gap:8px"><span style="font-size:11px; font-weight:600; color:#5C5548; width:52px">Guardar</span><span style="flex:1; display:inline-flex; align-items:center; gap:6px; border:1px solid #EAE3D6; border-radius:7px; padding:5px 8px; font-size:10.5px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg>~/Grabaciones<span style="margin-left:auto; color:#9A917F">▾</span></span></div>
+                <div style="display:flex; align-items:center; gap:8px"><span style="font-size:11px; font-weight:600; color:#5C5548; width:52px">Atajos</span><span style="font-family:ui-monospace,monospace; font-size:10px; background:#F3EEE3; border-radius:5px; padding:3px 6px; color:#5C5548">⌘⇧2 grabar</span><span style="font-family:ui-monospace,monospace; font-size:10px; background:#F3EEE3; border-radius:5px; padding:3px 6px; color:#5C5548">⌘⇧P pausar</span></div>
+              </div>
+              <span style="flex:1"></span>
+              <span style="height:52px; border-radius:99px; background:#FFFFFF; border:1.5px solid #D8CDB8; box-shadow:0 1px 3px rgba(38,34,28,0.1); display:flex; align-items:center; justify-content:center; gap:10px"><span style="width:13px; height:13px; border-radius:50%; background:#2E7D4C"></span><span style="font-size:15px; font-weight:600">Grabar</span></span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:8px 18px 12px; flex-shrink:0">
+            <svg viewBox="0 0 96 96" width="22" height="22"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+            <span style="font-size:11px; color:#5C5548"><strong style="color:#2E7D4C">Todo listo.</strong> Tu video quedará en ~/Grabaciones, solo en tu Mac.</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">grabaciones · hoja sobre la misma ventana («Ver todas»)</span>
+        <div style="width:880px; height:500px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; position:relative; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="position:absolute; inset:0; background:rgba(27,25,22,0.4)"></div>
+          <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:640px; background:#FAF7F1; border:1px solid #EAE3D6; border-radius:16px; box-shadow:0 24px 60px rgba(20,18,16,0.4); padding:20px 22px; display:flex; flex-direction:column; gap:14px; box-sizing:border-box">
+            <div style="display:flex; align-items:baseline; gap:10px"><span style="font-size:16px; font-weight:700">Tus grabaciones</span><span style="font-size:11.5px; color:#9A917F">6 videos · 2,1 GB</span><span style="flex:1"></span><span style="font-size:12px; color:#5C5548; cursor:pointer">✕ Cerrar</span></div>
+            <div style="display:flex; flex-direction:column">
+              <div style="display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid #F3EEE3"><span style="position:relative; width:64px; height:38px; border-radius:7px; background:linear-gradient(140deg,#F4B76B,#DF6E5E); flex-shrink:0"></span><span style="flex:1; display:flex; flex-direction:column"><span style="font-size:12.5px; font-weight:600">Clase 4 — fotosíntesis</span><span style="font-size:10.5px; color:#9A917F">hoy, 9:41 · 12:34 · 1,1 GB</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+              <div style="display:flex; align-items:center; gap:12px; padding:9px 6px; border-bottom:1px solid #F3EEE3"><span style="position:relative; width:64px; height:38px; border-radius:7px; background:linear-gradient(140deg,#6EC383,#43759F); flex-shrink:0"></span><span style="flex:1; display:flex; flex-direction:column"><span style="font-size:12.5px; font-weight:600">Cómo subir la tarea</span><span style="font-size:10.5px; color:#9A917F">ayer · 2:08 · 190 MB</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+              <div style="display:flex; align-items:center; gap:12px; padding:9px 6px"><span style="position:relative; width:64px; height:38px; border-radius:7px; background:linear-gradient(140deg,#A08BD0,#DF6E5E); flex-shrink:0"></span><span style="flex:1; display:flex; flex-direction:column"><span style="font-size:12.5px; font-weight:600">Mensaje para el equipo</span><span style="font-size:10.5px; color:#9A917F">18 ago · 0:47 · 70 MB</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="#5C5548"><path d="M8 5 l12 7 -12 7 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 z"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#5C5548" stroke-width="2" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8 V6 a2 2 0 0 0 -2 -2 H6 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h2"></path></svg><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#B3372B" stroke-width="2" stroke-linecap="round"><path d="M4 7 h16 M9 7 V5 a1 1 0 0 1 1 -1 h4 a1 1 0 0 1 1 1 v2 M6 7 l1 13 h10 l1 -13"></path></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">estado: primera vez · la mascota ocupa el lugar de la vista previa</span>
+        <div style="width:880px; height:400px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="width:36px"></span></div>
+          <div style="flex:1; display:flex; gap:14px; padding:16px 18px; box-sizing:border-box">
+            <div style="flex:1.5; background:#F3EEE3; border:1.5px dashed #C4B89F; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px">
+              <svg viewBox="0 0 96 96" width="88" height="88"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><ellipse cx="48" cy="61" rx="4.5" ry="3.5" fill="#FFF6F0"></ellipse></svg>
+              <span style="font-size:14px; font-weight:700">Aquí verás tu pantalla en vivo</span>
+              <span style="font-size:11.5px; color:#5C5548; max-width:300px; text-align:center; line-height:1.5">En cuanto me des el permiso de pantalla, esta caja se convierte en tu vista previa.</span>
+              <span style="height:32px; padding:0 16px; border-radius:9px; background:#C93A32; color:#FFFFFF; font-size:12px; font-weight:600; display:inline-flex; align-items:center">Dar permiso de pantalla</span>
+            </div>
+            <div style="width:264px; display:flex; flex-direction:column; gap:9px; opacity:0.45">
+              <span style="display:inline-flex; background:#EFE8DA; border-radius:10px; padding:2.5px"><span style="flex:1; padding:6px 0; border-radius:8px; background:#FFFFFF; font-size:11.5px; font-weight:600; text-align:center">Pantalla</span><span style="flex:1; padding:6px 0; font-size:11.5px; color:#5C5548; text-align:center">Ventana</span><span style="flex:1; padding:6px 0; font-size:11.5px; color:#5C5548; text-align:center">Región</span></span>
+              <div style="border:1px solid #EAE3D6; border-radius:12px; background:#FFFFFF; height:120px"></div>
+              <span style="height:52px; border-radius:99px; background:#FFFFFF; border:1.5px solid #EAE3D6; display:flex; align-items:center; justify-content:center; gap:10px"><span style="width:13px; height:13px; border-radius:50%; background:#9A917F"></span><span style="font-size:15px; font-weight:600">Grabar</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:18px 20px; font-size:13.5px; line-height:1.6; color:#4A4438">
+        <strong>Por qué sí:</strong> cero navegación — literalmente imposible perderse; los ajustes viven a la vista (calidad, carpeta, atajos) sin ventana aparte; el flujo entero cabe en una mirada. <strong>Por qué no:</strong> la densidad sube; con más features futuros la columna derecha se llena. <strong>Mezclable:</strong> su tira de «Recientes» y su pie de mascota-estado encajan en <a href="#6a">6a</a> y <a href="#6c">6c</a> tal cual.
+      </div>
+    </div>
+
+    <!-- ============ 6c GUIADA ============ -->
+    <div id="6c" style="display:flex; flex-direction:column; gap:18px; width:900px">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span style="background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700; padding:5px 12px; border-radius:8px">6c</span>
+        <strong style="font-size:18px">Guiada paso a paso por la mascota</strong>
+        <span style="font-size:12.5px; color:#5C5548">Grabi pregunta, tú respondes: 3 pasos y grabando</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">paso 1 de 3 · ¿qué grabamos?</span>
+        <div style="width:880px; height:620px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3; flex-shrink:0"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="display:inline-flex; gap:14px; font-size:12px; font-weight:600"><span style="color:#26221C; border-bottom:2px solid #C93A32; padding-bottom:2px">Grabar</span><span style="color:#9A917F">Tus videos</span></span></div>
+          <div style="flex:1; display:flex; flex-direction:column; padding:36px 48px; gap:28px; box-sizing:border-box">
+            <div style="display:flex; align-items:center; gap:18px">
+              <svg viewBox="0 0 96 96" width="72" height="72" style="flex-shrink:0"><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><circle cx="56" cy="45" r="4.2" fill="#FFF6F0"></circle><rect x="41" y="58" width="14" height="5.5" rx="2.75" fill="#FFF6F0"></rect></svg>
+              <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:16px 16px 16px 4px; padding:16px 20px; display:flex; flex-direction:column; gap:4px">
+                <span style="font-size:19px; font-weight:800; letter-spacing:-0.01em">¿Qué grabamos hoy?</span>
+                <span style="font-size:13px; color:#5C5548">Elige una opción — luego afinamos cámara y sonido.</span>
+              </div>
+              <span style="margin-left:auto; font-size:12px; font-weight:600; color:#9A917F; flex-shrink:0">Paso 1 de 3</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; flex:1">
+              <div style="border:2px solid #C93A32; background:#FFFFFF; border-radius:16px; padding:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; box-shadow:0 6px 18px rgba(38,34,28,0.1)">
+                <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#26221C" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>
+                <span style="font-size:15px; font-weight:700">Toda la pantalla</span>
+                <span style="font-size:11.5px; color:#5C5548; text-align:center; line-height:1.5">Lo más simple: se graba todo lo que ves.</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#C93A32" stroke-width="3" stroke-linecap="round"><path d="M5 13 l4 4 10 -10"></path></svg>
+              </div>
+              <div style="border:1px solid #EAE3D6; background:#FFFFFF; border-radius:16px; padding:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px">
+                <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#5C5548" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="14" rx="2"></rect><line x1="4" y1="9.5" x2="20" y2="9.5"></line></svg>
+                <span style="font-size:15px; font-weight:700; color:#4A4438">Una ventana</span>
+                <span style="font-size:11.5px; color:#5C5548; text-align:center; line-height:1.5">Solo una app; lo demás no existe.</span>
+              </div>
+              <div style="border:1px solid #EAE3D6; background:#FFFFFF; border-radius:16px; padding:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px">
+                <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="#5C5548" stroke-width="1.8" stroke-linecap="round"><path d="M4 9 V6 a2 2 0 0 1 2 -2 h3"></path><path d="M15 4 h3 a2 2 0 0 1 2 2 v3"></path><path d="M20 15 v3 a2 2 0 0 1 -2 2 h-3"></path><path d="M9 20 H6 a2 2 0 0 1 -2 -2 v-3"></path></svg>
+                <span style="font-size:15px; font-weight:700; color:#4A4438">Un pedacito</span>
+                <span style="font-size:11.5px; color:#5C5548; text-align:center; line-height:1.5">Dibujas la región exacta que se graba.</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px">
+              <div style="display:flex; gap:6px"><span style="width:8px; height:8px; border-radius:50%; background:#C93A32"></span><span style="width:8px; height:8px; border-radius:50%; background:#EAE3D6"></span><span style="width:8px; height:8px; border-radius:50%; background:#EAE3D6"></span></div>
+              <span style="flex:1"></span>
+              <span style="font-size:13px; font-weight:600; color:#9A917F">Ya sé usar Grabi — modo directo</span>
+              <span style="height:44px; padding:0 26px; border-radius:99px; background:#C93A32; color:#FFFFFF; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px">Siguiente →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">paso 3 de 3 · resumen honesto + grabar</span>
+        <div style="width:880px; height:480px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3; flex-shrink:0"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="width:36px"></span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:30px; box-sizing:border-box">
+            <svg viewBox="0 0 96 96" width="96" height="96"><circle cx="48" cy="50" r="42" fill="none" stroke="#E5483F" stroke-width="2.5" style="animation:recPulse 1.6s ease-in-out infinite"></circle><circle cx="48" cy="50" r="36" fill="none" stroke="#E5483F" stroke-width="2.5" opacity="0.35"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><rect x="35.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="51.5" y="43" width="9" height="4.5" rx="2.25" fill="#FFF6F0"></rect><rect x="42" y="58" width="12" height="5" rx="2.5" fill="#FFF6F0"></rect></svg>
+            <span style="font-size:21px; font-weight:800; letter-spacing:-0.01em">Todo listo. ¿Grabamos?</span>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center">
+              <span style="display:inline-flex; align-items:center; gap:6px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:99px; padding:6px 13px; font-size:12px; font-weight:600"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg>Toda la pantalla</span>
+              <span style="display:inline-flex; align-items:center; gap:6px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:99px; padding:6px 13px; font-size:12px; font-weight:600"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#26221C" stroke-width="2"><circle cx="12" cy="12" r="8"></circle></svg>Cámara círculo</span>
+              <span style="display:inline-flex; align-items:center; gap:6px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:99px; padding:6px 13px; font-size:12px; font-weight:600"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#26221C" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg>Micrófono sí</span>
+              <span style="display:inline-flex; align-items:center; gap:6px; border:1px solid #EAE3D6; background:#FFFFFF; border-radius:99px; padding:6px 13px; font-size:12px; font-weight:500; color:#9A917F">Audio del sistema no</span>
+            </div>
+            <span style="height:56px; padding:0 34px; border-radius:99px; background:#C93A32; color:#FFFFFF; font-size:16px; font-weight:600; display:inline-flex; align-items:center; gap:11px; box-shadow:0 6px 18px rgba(38,34,28,0.2)"><span style="width:13px; height:13px; border-radius:50%; background:#FFF6F0"></span>Grabar ahora</span>
+            <span style="font-size:12.5px; color:#9A917F">‹ Cambiar algo · cuenta regresiva de 3 segundos antes de empezar</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">tus videos · lista con estado vacío amable</span>
+        <div style="width:880px; height:400px; background:#FAF7F1; border:1px solid #D8CDB8; border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #EAE3D6; background:#F3EEE3; flex-shrink:0"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#5C5548">Grabi</span><span style="display:inline-flex; gap:14px; font-size:12px; font-weight:600"><span style="color:#9A917F">Grabar</span><span style="color:#26221C; border-bottom:2px solid #C93A32; padding-bottom:2px">Tus videos</span></span></div>
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px">
+            <svg viewBox="0 0 96 96" width="76" height="76"><path d="M73 52 q13 -5 11 -20" fill="none" stroke="#E5483F" stroke-width="7" stroke-linecap="round"></path><circle cx="84" cy="30" r="5.5" fill="#E5483F"></circle><circle cx="48" cy="50" r="30" fill="#E5483F"></circle><circle cx="40" cy="45" r="4.2" fill="#FFF6F0"></circle><path d="M52 45 q4 -4 8 0" fill="none" stroke="#FFF6F0" stroke-width="3.2" stroke-linecap="round"></path><path d="M39 57 q9 10 18 0" fill="none" stroke="#FFF6F0" stroke-width="4" stroke-linecap="round"></path></svg>
+            <span style="font-size:16px; font-weight:700">Aún no hay grabaciones</span>
+            <span style="font-size:13px; color:#5C5548">La primera está a un clic. Cuando grabes, tus videos aparecerán aquí.</span>
+            <span style="height:40px; padding:0 22px; border-radius:99px; background:#C93A32; color:#FFFFFF; font-size:13.5px; font-weight:600; display:inline-flex; align-items:center; gap:9px"><span style="width:11px; height:11px; border-radius:50%; background:#FFF6F0"></span>Grabar mi primer video</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:18px 20px; font-size:13.5px; line-height:1.6; color:#4A4438">
+        <strong>Por qué sí:</strong> imposible equivocarse — una decisión por pantalla, la mascota hace de guía real (no decoración) y la primera vez ES el flujo normal. <strong>Por qué no:</strong> al décimo uso los 3 pasos estorban; por eso el enlace «modo directo» salta a <a href="#6b">6b</a>/<a href="#6a">6a</a>. <strong>Mezclable:</strong> ideal como primera vez de cualquiera de las otras dos; después la app recuerda tu configuración y abre en modo directo.
+      </div>
+    </div>
+
+    <!-- ============ compartidos ============ -->
+    <div id="6d" style="display:flex; flex-direction:column; gap:18px; width:900px">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span style="background:#26221C; color:#FAF7F1; font-size:13px; font-weight:700; padding:5px 12px; border-radius:8px">6d</span>
+        <strong style="font-size:18px">Estado grabando + modo oscuro</strong>
+        <span style="font-size:12.5px; color:#5C5548">compartidos por las tres variaciones</span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">grabando · la ventana se aparta: pastilla + PiP + borde rojo + barra de menú honesta</span>
+        <div style="width:880px; height:520px; background:linear-gradient(140deg,#F4B76B 0%,#DF6E5E 48%,#6E5397 100%); border-radius:12px; box-shadow:0 20px 50px rgba(38,34,28,0.18); overflow:hidden; position:relative; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <span style="position:absolute; inset:6px; border:2.5px solid #E5483F; border-radius:8px; pointer-events:none; z-index:5"></span>
+          <div style="position:absolute; top:0; left:0; right:0; box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:5px 16px; background:rgba(250,247,241,0.8); backdrop-filter:blur(8px); font-size:12px; color:#26221C; z-index:4">
+            <span style="font-weight:700"></span><span style="font-weight:600">Keynote</span><span style="flex:1"></span>
+            <span style="display:inline-flex; align-items:center; gap:6px"><span style="width:9px; height:9px; border-radius:50%; background:#E5483F; animation:recPulse 1.6s ease-in-out infinite"></span><span style="font-weight:600; font-variant-numeric:tabular-nums">12:34</span></span>
+            <span>mié 20 ago · 9:41</span>
+          </div>
+          <div style="position:absolute; left:10%; top:16%; width:54%; bottom:22%; background:#FFFDF9; border-radius:9px; box-shadow:0 14px 34px rgba(20,18,16,0.3); overflow:hidden">
+            <div style="display:flex; align-items:center; gap:5px; padding:7px 10px; background:#F1ECE2"><span style="width:9px; height:9px; border-radius:50%; background:#FF5F57"></span><span style="width:9px; height:9px; border-radius:50%; background:#FEBC2E"></span><span style="width:9px; height:9px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:9px; font-weight:600; color:#7A6F5C">La fotosíntesis — clase 4</span></div>
+            <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px"><span style="font-size:14px; font-weight:800; color:#2E2318">¿Qué necesita una planta?</span><span style="font-size:10px; color:#4A4438">Hoy: luz, agua y aire — con un experimento en vivo.</span></div>
+          </div>
+          <span style="position:absolute; bottom:20px; right:22px; width:104px; height:104px; border-radius:50%; border:2.5px solid #C93A32; box-shadow:0 8px 24px rgba(20,18,16,0.4); overflow:hidden; display:block; z-index:3"><image-slot id="v6d-selfie" shape="circle" fit="cover" placeholder="tu selfie"></image-slot></span>
+          <div style="position:absolute; top:44px; left:50%; transform:translateX(-50%); display:inline-flex; align-items:center; gap:12px; background:rgba(38,34,28,0.94); backdrop-filter:blur(8px); border-radius:99px; padding:10px 16px 10px 12px; box-shadow:0 12px 32px rgba(0,0,0,0.4); z-index:6">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="#5C5548"><circle cx="8" cy="7" r="1.6"></circle><circle cx="16" cy="7" r="1.6"></circle><circle cx="8" cy="12" r="1.6"></circle><circle cx="16" cy="12" r="1.6"></circle><circle cx="8" cy="17" r="1.6"></circle><circle cx="16" cy="17" r="1.6"></circle></svg>
+            <span style="width:11px; height:11px; border-radius:50%; background:#FF6B5E; animation:recPulse 1.6s ease-in-out infinite"></span>
+            <span style="font-size:16px; font-weight:600; color:#F2EDE4; font-variant-numeric:tabular-nums">12:34</span>
+            <span style="width:1px; height:20px; background:#3A342C"></span>
+            <span style="width:29px; height:29px; border-radius:50%; border:1.5px solid #4A4438; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#F2EDE4" stroke-width="2.5" stroke-linecap="round"><line x1="9" y1="6" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="18"></line></svg></span>
+            <span style="width:29px; height:29px; border-radius:50%; border:1.5px solid #4A4438; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11 a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="21"></line></svg></span>
+            <span style="width:29px; height:29px; border-radius:50%; border:1.5px solid #4A4438; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg></span>
+            <span style="width:29px; height:29px; border-radius:50%; background:#FF6B5E; display:inline-flex; align-items:center; justify-content:center"><svg viewBox="0 0 24 24" width="12" height="12"><rect x="7" y="7" width="10" height="10" rx="2" fill="#26221C"></rect></svg></span>
+          </div>
+          <div style="position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; align-items:flex-end; gap:9px; padding:7px 12px; background:rgba(255,252,246,0.4); backdrop-filter:blur(10px); border-radius:15px; z-index:4">
+            <span style="width:30px; height:30px; border-radius:8px; background:linear-gradient(160deg,#5FA2E0,#3E77BF)"></span>
+            <span style="width:30px; height:30px; border-radius:8px; background:linear-gradient(160deg,#6EC383,#43A05C)"></span>
+            <span style="position:relative; width:30px; height:30px; border-radius:8px; background:#FFF6F0; display:flex; align-items:center; justify-content:center"><svg viewBox="0 0 96 96" width="21" height="21"><circle cx="48" cy="48" r="40" fill="#E5483F"></circle><circle cx="36" cy="44" r="6.5" fill="#FFF6F0"></circle><circle cx="60" cy="44" r="6.5" fill="#FFF6F0"></circle></svg><span style="position:absolute; bottom:-5px; width:3.5px; height:3.5px; border-radius:50%; background:#26221C"></span></span>
+            <span style="width:30px; height:30px; border-radius:8px; background:linear-gradient(160deg,#A08BD0,#7B62B4)"></span>
+          </div>
+          <span style="position:absolute; bottom:66px; left:50%; transform:translateX(-50%); font-family:ui-monospace,monospace; font-size:10px; color:#3A2B1D; background:rgba(250,247,241,0.85); padding:3px 8px; border-radius:6px; z-index:4">la ventana de Grabi se ocultó — sigue viva en el Dock y en la barra de menú</span>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:6px">
+        <span style="font-family:ui-monospace,monospace; font-size:11px; color:#9A917F">modo oscuro · mismos tokens (ejemplo sobre 6b)</span>
+        <div style="width:880px; height:430px; background:#1B1916; border:1px solid #3A342C; border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.5); overflow:hidden; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif">
+          <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid #3A342C; background:#242019; flex-shrink:0"><span style="width:12px; height:12px; border-radius:50%; background:#FF5F57"></span><span style="width:12px; height:12px; border-radius:50%; background:#FEBC2E"></span><span style="width:12px; height:12px; border-radius:50%; background:#28C840"></span><span style="flex:1; text-align:center; font-size:13px; font-weight:600; color:#B3AA9B">Grabi</span><span style="width:36px"></span></div>
+          <div style="flex:1; display:flex; gap:14px; padding:16px 18px; min-height:0; box-sizing:border-box">
+            <div style="flex:1.5; position:relative; background:linear-gradient(140deg,#3A2E4E 0%,#6E3B4C 55%,#2A2320 100%); border-radius:12px; overflow:hidden">
+              <span style="position:absolute; top:10px; left:12px; font-family:ui-monospace,monospace; font-size:10px; color:#F2EDE4; background:rgba(27,25,22,0.75); padding:3px 8px; border-radius:6px">vista previa en vivo</span>
+              <span style="position:absolute; bottom:14px; right:16px; width:80px; height:80px; border-radius:50%; background:repeating-linear-gradient(-45deg,#4A4438,#4A4438 8px,#3A342C 8px,#3A342C 16px); border:2.5px solid #FF6B5E; box-shadow:0 8px 24px rgba(0,0,0,0.5)"></span>
+            </div>
+            <div style="width:264px; display:flex; flex-direction:column; gap:9px; flex-shrink:0; box-sizing:border-box">
+              <span style="display:inline-flex; background:#1B1916; border:1px solid #3A342C; border-radius:10px; padding:2.5px; gap:2px"><span style="flex:1; padding:6px 0; border-radius:8px; background:#3A342C; font-size:11.5px; font-weight:600; color:#F2EDE4; text-align:center">Pantalla</span><span style="flex:1; padding:6px 0; font-size:11.5px; color:#B3AA9B; text-align:center">Ventana</span><span style="flex:1; padding:6px 0; font-size:11.5px; color:#B3AA9B; text-align:center">Región</span></span>
+              <div style="border:1px solid #3A342C; border-radius:12px; background:#2E2A23; overflow:hidden">
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border-bottom:1px solid #26221C"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="2"></rect><line x1="9" y1="20" x2="15" y2="20"></line></svg><span style="flex:1; font-size:11.5px; font-weight:600; color:#F2EDE4">Pantalla</span><span style="width:32px; height:19px; border-radius:99px; background:#6FCE96; position:relative"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#1B1916"></span></span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 11px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#F2EDE4" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="10.5" r="2.5"></circle><path d="M7.5 18 a5.5 5.5 0 0 1 9 0"></path></svg><span style="flex:1; font-size:11.5px; font-weight:600; color:#F2EDE4">Cámara · círculo</span><span style="width:32px; height:19px; border-radius:99px; background:#6FCE96; position:relative"><span style="position:absolute; top:2px; left:15px; width:15px; height:15px; border-radius:50%; background:#1B1916"></span></span></div>
+              </div>
+              <span style="flex:1"></span>
+              <span style="height:52px; border-radius:99px; background:#2E2A23; border:1.5px solid #4A4438; display:flex; align-items:center; justify-content:center; gap:10px"><span style="width:13px; height:13px; border-radius:50%; background:#6FCE96"></span><span style="font-size:15px; font-weight:600; color:#F2EDE4">Grabar</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF; border:1px solid #EAE3D6; border-radius:14px; padding:18px 20px; font-size:13.5px; line-height:1.6; color:#4A4438">
+        La pastilla suma dos controles nuevos del brief: <strong>silenciar micro</strong> y <strong>apagar cámara</strong> sin detener. El punto de la barra de menú y el badge del Dock (la mascota con puntito) duplican el estado por honestidad. Al detener: notificación con miniatura (patrón de Fase 3) y la ventana vuelve mostrando Grabaciones con el video nuevo arriba.
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

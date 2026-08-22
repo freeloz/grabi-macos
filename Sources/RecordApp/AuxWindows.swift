@@ -37,13 +37,19 @@ class TitledWindowController: NSObject, NSWindowDelegate {
 final class OnboardingWindowController: TitledWindowController {
     func show(model: GrabiAppModel) {
         present(title: "", size: NSSize(width: 520, height: 460),
-                content: OnboardingView(model: model, controller: self))
+                content: OnboardingView(model: model, onFinish: { [weak self] startRecording in
+                    model.onboardingDone = true
+                    self?.close()
+                    if startRecording { model.requestStart() }
+                })
+                .frame(width: 520, height: 460))
     }
 }
 
 struct OnboardingView: View {
     @ObservedObject var model: GrabiAppModel
-    let controller: OnboardingWindowController
+    /// true → the user wants to record right away when the welcome ends.
+    let onFinish: (Bool) -> Void
     @State private var step = 0
 
     var body: some View {
@@ -76,7 +82,8 @@ struct OnboardingView: View {
             }
             .padding(.bottom, 24)
         }
-        .frame(width: 520, height: 460)
+        .frame(maxWidth: 560, maxHeight: 520)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GrabiColor.bg)
         .task { await model.refreshAll() }
     }
@@ -193,11 +200,7 @@ struct OnboardingView: View {
     }
 
     private func finish(startRecording: Bool) {
-        model.onboardingDone = true
-        controller.close()
-        if startRecording {
-            model.requestStart()
-        }
+        onFinish(startRecording)
     }
 }
 
@@ -306,7 +309,8 @@ final class SettingsWindowController: TitledWindowController {
 
     func show(model: GrabiAppModel) {
         present(title: L("app.settings.title"), size: NSSize(width: 420, height: 580),
-                content: SettingsView(model: model, gallery: gallery))
+                content: SettingsView(model: model, gallery: gallery)
+                    .frame(width: 420, height: 580))
     }
 }
 
@@ -365,6 +369,24 @@ struct SettingsView: View {
                     shortcutRow(L("app.settings.shortcut.record"), keys: "⌘⇧2")
                     RowDivider()
                     shortcutRow(L("app.settings.shortcut.pause"), keys: "⌘⇧P")
+                    RowDivider()
+                    HStack(spacing: 11) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L("app.settings.quickAccess"))
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(GrabiColor.text)
+                            Text(L("app.settings.quickAccess.sub"))
+                                .font(GrabiFont.caption)
+                                .foregroundStyle(GrabiColor.textSecondary)
+                        }
+                        Spacer(minLength: 0)
+                        Toggle("", isOn: Binding(get: { model.quickAccessEnabled },
+                                                 set: { model.quickAccessEnabled = $0 }))
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .tint(GrabiColor.success)
+                    }
+                    .padding(12)
                 }
                 .background(GrabiColor.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -417,7 +439,7 @@ struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 420, height: 580)
+        .frame(minWidth: 380, maxWidth: 560, minHeight: 520, alignment: .top)
         .background(GrabiColor.bg)
     }
 
