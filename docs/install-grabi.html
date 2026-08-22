@@ -56,7 +56,7 @@
 
   <h2>1 · Install</h2>
   <div class="card step"><span class="num">1</span><p>Open the
-    <span class="ui">Grabi-0.1.1.dmg</span> file we sent you.</p></div>
+    <span class="ui">Grabi-….dmg</span> file you downloaded.</p></div>
   <div class="card step"><span class="num">2</span><p>In the window that
     appears, <strong>drag Grabi to the Applications folder</strong>
     (the arrow shows you where). You can now eject the disk.</p></div>
@@ -77,6 +77,20 @@
     password or Touch ID and one last confirmation:
     <span class="ui">Open Anyway</span>. This happens
     <strong>only once</strong> — from here on, Grabi opens normally.</p></div>
+
+  <div class="honest">
+    <strong>Plan B — macOS says "Grabi is damaged" or nothing happens.</strong>
+    On some recent macOS versions the warning doesn't offer "Open Anyway".
+    Grabi is fine — it's the same beta check. Open
+    <span class="ui">Terminal</span> (⌘Space, type "Terminal"), paste this
+    line, press Enter, and open Grabi again:
+    <br/><br/>
+    <code>xattr -cr /Applications/Grabi.app</code>
+    <br/><br/>
+    It removes the "downloaded from the internet" mark — nothing else. Make
+    sure Grabi is in <strong>Applications</strong> first (step 1·2), not
+    running from inside the DMG.
+  </div>
 
   <h2>3 · The recording permissions</h2>
   <div class="card step"><span class="num">1</span><p>Grabi lives in the

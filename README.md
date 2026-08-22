@@ -38,8 +38,11 @@ shasum -a 256 Grabi-*.dmg   # must match the published .sha256
 ```
 
 > Interim signing: local "Grabi Dev" certificate with hardened runtime (no
-> Apple notarization yet). The first time, right-click → Open. The official
-> site is [grabi.net](https://grabi.net).
+> Apple notarization yet). First launch: System Settings → Privacy &
+> Security → "Open Anyway". If macOS claims the app "is damaged" (recent
+> versions do this to non-notarized apps), run
+> `xattr -cr /Applications/Grabi.app` once — it only clears the download
+> mark. The official site is [grabi.net](https://grabi.net).
 
 ## Updates
 

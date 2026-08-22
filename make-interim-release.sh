@@ -29,18 +29,18 @@ if ! security find-identity -v -p codesigning | grep -q "$SIGN_IDENTITY"; then
   exit 1
 fi
 
-# 2. Release build + bundle
-swift build -c release
+# 2. Release build + bundle — universal (Apple Silicon + Intel)
+swift build -c release --arch arm64 --arch x86_64
 rm -rf "$APP" "$STAGE" "$DMG"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp .build/release/RecordApp "$APP/Contents/MacOS/Grabi"
+cp .build/apple/Products/Release/RecordApp "$APP/Contents/MacOS/Grabi"
 cp Support/Info.plist "$APP/Contents/Info.plist"
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
 # SPM resource bundles (each target's Localizable.strings): Bundle.module
 # looks for them in the .app's Contents/Resources.
-BUILD_DIR=".build/release"
+BUILD_DIR=".build/apple/Products/Release"
 for b in "$BUILD_DIR"/Record_*.bundle; do
   [[ -d "$b" ]] && cp -R "$b" "$APP/Contents/Resources/"
 done

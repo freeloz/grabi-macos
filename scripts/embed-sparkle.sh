@@ -17,6 +17,7 @@ mkdir -p "$APP/Contents/Frameworks"
 rm -rf "$APP/Contents/Frameworks/Sparkle.framework"
 cp -R "$SRC" "$APP/Contents/Frameworks/"
 rm -rf "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices"
+rm -f  "$APP/Contents/Frameworks/Sparkle.framework/XPCServices"  # now-dangling top-level symlink
 
 # The SwiftPM-linked binary loads @rpath/Sparkle.framework/...; inside the
 # bundle that resolves via Contents/Frameworks.
