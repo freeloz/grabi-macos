@@ -8,6 +8,16 @@ import RecordUI
 ///   .build/debug/RecordApp --screenshots <dir> -AppleLanguages "(de)"
 @MainActor
 enum Screenshots {
+    /// Opens the window, then closes it: lets us measure that closing really
+    /// releases the capture pipeline instead of leaving it running. Dev only.
+    static func idleTest(model: GrabiAppModel) {
+        model.showMainWindow()
+        RunLoop.main.run(until: Date().addingTimeInterval(8))
+        print("window open — closing now")
+        model.mainWindow.window?.close()
+        RunLoop.main.run(until: Date().addingTimeInterval(600))
+    }
+
     /// End-to-end check of the record path (dev only): opens the window so
     /// the preview is running, records for a few seconds, stops, and reports
     /// the resulting file. Catches regressions in the preview→record

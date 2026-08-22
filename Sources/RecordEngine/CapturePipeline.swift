@@ -110,7 +110,10 @@ final class CapturePipeline {
         // 1. Camera first (without starting it) to learn its dimensions.
         if config.capturesCamera {
             let cam = CameraCapturer()
-            try cam.configure(deviceID: config.cameraDeviceID)
+            // PiP → 720p is plenty; camera-only → the camera IS the video.
+            try cam.configure(deviceID: config.cameraDeviceID,
+                              preferredHeight: config.capturesScreen ? 720 : 1080,
+                              fps: config.framesPerSecond)
             camera = cam
         }
 

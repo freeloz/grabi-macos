@@ -24,6 +24,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Screenshots.captureWindow(to: CommandLine.arguments[idx + 1], model: AppShared.model)
             exit(0)
         }
+        if CommandLine.arguments.contains("--idletest") {
+            NSApp.setActivationPolicy(.regular)
+            Screenshots.idleTest(model: AppShared.model)
+            exit(0)
+        }
         if CommandLine.arguments.contains("--selftest") {
             NSApp.setActivationPolicy(.regular)
             MainMenuBuilder.install(model: AppShared.model)
