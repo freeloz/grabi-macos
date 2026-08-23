@@ -50,7 +50,7 @@ final class ThumbnailStore: ObservableObject {
     }
 
     private nonisolated static func captureWindow(_ id: CGWindowID, targetWidth: CGFloat) async -> NSImage? {
-        if #available(macOS 14.0, *), let scWindow = ShareableContent.scWindow(for: id) {
+        if #available(macOS 14.0, *), let scWindow = ScreenContent.scWindow(for: id) {
             let config = SCStreamConfiguration()
             let scale = min(1, targetWidth / max(scWindow.frame.width, 1))
             config.width = max(Int(scWindow.frame.width * scale), 2)
@@ -71,7 +71,7 @@ final class ThumbnailStore: ObservableObject {
     }
 
     private nonisolated static func captureDisplay(_ id: CGDirectDisplayID, targetWidth: CGFloat) async -> NSImage? {
-        if #available(macOS 14.0, *), let scDisplay = ShareableContent.scDisplay(for: id) {
+        if #available(macOS 14.0, *), let scDisplay = ScreenContent.scDisplay(for: id) {
             let config = SCStreamConfiguration()
             let scale = targetWidth / max(CGFloat(scDisplay.width), 1)
             config.width = max(Int(CGFloat(scDisplay.width) * scale), 2)

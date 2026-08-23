@@ -5,6 +5,7 @@ import AVFoundation
 import RecordEngine
 import RecordUI
 import GrabiDomain
+import GrabiUseCases
 
 /// Display names live with the strings that back them: the domain types
 /// themselves stay free of localization.
@@ -28,7 +29,20 @@ extension RecordingQuality {
 
 @MainActor
 final class GrabiAppModel: ObservableObject {
-    let engine = RecordingEngine()
+    /// Composition root: ports and use cases. The model coordinates the
+    /// screens; the policy lives in the use cases, where it is tested.
+    let environment: AppEnvironment
+    var engine: RecordingEngine { environment.engine }
+
+    /// The current selection as a value the use cases understand.
+    var sourceSelection: SourceSelection {
+        SourceSelection(screen: screenEnabled, camera: cameraEnabled,
+                        microphone: micEnabled, systemAudio: systemAudioEnabled)
+    }
+
+    var deviceSelection: DeviceSelection {
+        DeviceSelection(cameraID: cameraDeviceID, microphoneID: microphoneDeviceID)
+    }
 
     // MARK: Sources
     @Published var screenEnabled = true { didSet { sourcesChanged() } }
@@ -36,7 +50,7 @@ final class GrabiAppModel: ObservableObject {
     @Published var micEnabled = true { didSet { sourcesChanged() } }
     @Published var systemAudioEnabled = true { didSet { sourcesChanged() } }
 
-    @Published private(set) var preflight: PreflightReport?
+    @Published private(set) var preflight: PermissionReport?
     @Published private(set) var celebrating: Set<RecordingSource> = []
 
     // MARK: Capture
@@ -48,10 +62,10 @@ final class GrabiAppModel: ObservableObject {
     @Published var regionRect: CGRect? { didSet { sourcesChanged() } }
 
     // MARK: Camera (persisted across sessions)
-    @Published var cameraLayout: CameraLayout = GrabiAppModel.loadCameraLayout() {
+    @Published var cameraLayout: CameraLayout = .default {
         didSet {
-            engine.updateCameraLayout(cameraLayout)
-            Self.saveCameraLayout(cameraLayout)
+            environment.capture.update(cameraLayout: cameraLayout)
+            environment.preferences.cameraLayout = cameraLayout
         }
     }
 
@@ -72,7 +86,7 @@ final class GrabiAppModel: ObservableObject {
     // MARK: Preferences
     @Published var destinationFolder: URL {
         didSet {
-            UserDefaults.standard.set(destinationFolder.path, forKey: "destinationFolder")
+            environment.preferences.destinationFolder = destinationFolder
             refreshLibrary()
         }
     }
@@ -80,13 +94,13 @@ final class GrabiAppModel: ObservableObject {
     /// record with external webcams and USB mics, not only the built-in ones.
     @Published var cameraDeviceID: String? {
         didSet {
-            UserDefaults.standard.set(cameraDeviceID, forKey: "cameraDeviceID")
+            environment.preferences.devices = deviceSelection
             sourcesChanged()
         }
     }
     @Published var microphoneDeviceID: String? {
         didSet {
-            UserDefaults.standard.set(microphoneDeviceID, forKey: "microphoneDeviceID")
+            environment.preferences.devices = deviceSelection
             restartMicMonitoringIfNeeded()
         }
     }
@@ -96,22 +110,21 @@ final class GrabiAppModel: ObservableObject {
     /// In-app language: Grabi can speak a different language than the Mac.
     @Published var language: AppLanguage {
         didSet {
-            UserDefaults.standard.set(language.rawValue, forKey: "appLanguage")
-            GrabiLocale.set(language)
+            environment.changeLanguage(language)
             objectWillChange.send() // every visible string is re-read
         }
     }
 
     /// Menu bar item: quick access without opening the window (Phase 6).
     @Published var quickAccessEnabled: Bool {
-        didSet { UserDefaults.standard.set(quickAccessEnabled, forKey: "quickAccessEnabled") }
+        didSet { environment.preferences.quickAccessEnabled = quickAccessEnabled }
     }
     @Published var onboardingDone: Bool {
-        didSet { UserDefaults.standard.set(onboardingDone, forKey: "onboardingDone") }
+        didSet { environment.preferences.onboardingDone = onboardingDone }
     }
     @Published var quality: RecordingQuality {
         didSet {
-            UserDefaults.standard.set(quality.rawValue, forKey: "recordingQuality")
+            environment.preferences.quality = quality
             sourcesChanged() // the preview restarts at the new resolution
         }
     }
@@ -149,22 +162,24 @@ final class GrabiAppModel: ObservableObject {
         screenEnabled || cameraEnabled || micEnabled || systemAudioEnabled
     }
 
-    init() {
-        let defaultFolder = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Movies/Grabi", isDirectory: true)
-        if let stored = UserDefaults.standard.string(forKey: "destinationFolder") {
-            destinationFolder = URL(fileURLWithPath: stored, isDirectory: true)
-        } else {
-            destinationFolder = defaultFolder
-        }
-        onboardingDone = UserDefaults.standard.bool(forKey: "onboardingDone")
-        quickAccessEnabled = UserDefaults.standard.object(forKey: "quickAccessEnabled") as? Bool ?? true
-        cameraDeviceID = UserDefaults.standard.string(forKey: "cameraDeviceID")
-        microphoneDeviceID = UserDefaults.standard.string(forKey: "microphoneDeviceID")
-        let storedLanguage = AppLanguage(rawValue: UserDefaults.standard.string(forKey: "appLanguage") ?? "") ?? .system
+    convenience init() {
+        self.init(environment: AppEnvironment())
+    }
+
+    init(environment: AppEnvironment) {
+        self.environment = environment
+        let preferences = environment.preferences
+        destinationFolder = preferences.destinationFolder
+        onboardingDone = preferences.onboardingDone
+        quickAccessEnabled = preferences.quickAccessEnabled
+        let storedDevices = preferences.devices
+        cameraDeviceID = storedDevices.cameraID
+        microphoneDeviceID = storedDevices.microphoneID
+        let storedLanguage = preferences.language
         language = storedLanguage
-        GrabiLocale.set(storedLanguage)
-        quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .standard
+        quality = preferences.quality
+        cameraLayout = preferences.cameraLayout
+        environment.localization.apply(storedLanguage)
 
         engine.$state
             .receive(on: DispatchQueue.main)
@@ -217,12 +232,6 @@ final class GrabiAppModel: ObservableObject {
         updateCapture()
     }
 
-    /// Stops the preview without touching an ongoing recording.
-    func pausePreview() {
-        guard !isActive else { return }
-        Task { await engine.stopPreview() }
-    }
-
     func mainWindowClosed() {
         // Closing the window must never stop a recording: only the preview.
         updateCapture()
@@ -233,7 +242,7 @@ final class GrabiAppModel: ObservableObject {
         onboardingDone = true
         Task {
             await refreshAll(applyDefaults: true)
-            restartPreviewIfNeeded()
+            updateCapture()
             if startRecording { requestStart() }
         }
     }
@@ -395,66 +404,15 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    /// The preview is for framing, not for pixel-peeping: capping it at
-    /// 1440 px and 15 fps keeps a 4K "Sharp" setup from pinning the CPU
-    /// while the window merely sits open. Recording rebuilds the pipeline
-    /// at full quality during the 3·2·1 countdown.
-    private static let previewWidth = 1280
-    private static let previewFPS = 10
-
-    private func buildConfiguration(forPreview: Bool = false) throws -> RecordingConfiguration {
-        try FileManager.default.createDirectory(at: destinationFolder, withIntermediateDirectories: true)
-        // Neutral branded name, identical in every language (v0.1.2
-        // decision): fixed format, POSIX calendar/locale so it doesn't
-        // change with the regional settings.
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd HH.mm.ss"
-        let url = destinationFolder.appendingPathComponent("Grabi \(formatter.string(from: Date())).mov")
-        return RecordingConfiguration(
-            capturesScreen: screenEnabled,
-            capturesCamera: cameraEnabled,
-            // The microphone has its own monitoring session while framing
-            // (that is what feeds the level meter), so the pipeline only
-            // captures it while recording. System audio stays on: it is
-            // cheap and its meter has to show something real.
-            capturesMicrophone: micEnabled && !forPreview,
-            capturesSystemAudio: systemAudioEnabled,
-            outputURL: url,
-            targetWidth: forPreview ? min(quality.targetWidth, Self.previewWidth) : quality.targetWidth,
-            framesPerSecond: forPreview ? Self.previewFPS : 30,
-            target: currentTarget,
-            cameraLayout: cameraLayout,
-            cameraDeviceID: cameraDeviceID,
-            microphoneDeviceID: microphoneDeviceID)
-    }
-
     // MARK: - Preview
 
     func openPreview() {
         showMainWindow(tab: .record)
     }
 
-    func restartPreviewIfNeeded() {
-        guard mainWindow.showsPreview else { return }
-        guard screenEnabled || cameraEnabled else {
-            Task { await engine.stopPreview() }
-            return
-        }
-        Task {
-            if let config = try? buildConfiguration(forPreview: true) {
-                try? await engine.startPreview(configuration: config)
-            }
-        }
-    }
-
+    /// Any change to what is captured goes through the one lifecycle rule.
     private func sourcesChanged() {
-        restartPreviewIfNeeded()
-        if micEnabled {
-            startMicMonitoringIfNeeded()
-        } else {
-            stopMicMonitoring()
-        }
+        updateCapture()
     }
 
     // MARK: - Capture lifecycle
@@ -464,28 +422,33 @@ final class GrabiAppModel: ObservableObject {
     /// closing or covering the window releases the devices: no camera light
     /// and no screen-sharing indicator when nobody is looking.
     func updateCapture() {
-        guard !isActive else { return } // a recording owns the devices
-        if mainWindow.showsPreview || panelIsOpen {
-            restartPreviewIfNeeded()
-            startMicMonitoringIfNeeded()
-        } else {
-            pausePreview()
-            stopMicMonitoring()
+        let demand = CaptureDemand(
+            previewVisible: mainWindow.showsPreview,
+            panelOpen: panelIsOpen,
+            recordingActive: isActive,
+            sources: sourceSelection,
+            permissions: preflight ?? .allAvailable)
+        let plan = previewPlan()
+        let monitoring = micMonitoringWanted
+        let device = microphoneDeviceID
+        // The decision is the use case's; the model only remembers what it
+        // asked for so it does not re-open a session that is already open.
+        micMonitoringWanted = SyncCaptureUseCase.intent(for: demand).wantsMicrophoneMonitor
+        Task {
+            await environment.syncCapture(demand: demand, plan: plan,
+                                          monitoringMicrophone: monitoring, deviceID: device)
         }
     }
 
-    private func startMicMonitoringIfNeeded() {
-        guard !isActive, micEnabled, preflight?.microphone.isUsable == true,
-              !micMonitoringWanted else { return }
-        micMonitoringWanted = true
-        let device = microphoneDeviceID
-        Task { await engine.startMicrophoneMonitoring(deviceID: device) }
-    }
-
-    private func stopMicMonitoring() {
-        guard micMonitoringWanted else { return }
-        micMonitoringWanted = false
-        Task { await engine.stopMicrophoneMonitoring() }
+    /// What the preview should be showing right now, or nil when there is
+    /// nothing with picture to show.
+    private func previewPlan() -> RecordingPlan? {
+        guard sourceSelection.hasVideo else { return nil }
+        return .preview(sources: sourceSelection,
+                        target: currentTarget,
+                        devices: deviceSelection,
+                        cameraLayout: cameraLayout,
+                        quality: quality)
     }
 
     /// Picking another microphone re-opens the monitoring session on it.
@@ -493,10 +456,8 @@ final class GrabiAppModel: ObservableObject {
         guard micMonitoringWanted else { return }
         let device = microphoneDeviceID
         Task {
-            await engine.stopMicrophoneMonitoring()
-            micMonitoringWanted = false
-            startMicMonitoringIfNeeded()
-            _ = device
+            await environment.microphone.stop()
+            await environment.microphone.start(deviceID: device)
         }
     }
 
@@ -545,29 +506,22 @@ final class GrabiAppModel: ObservableObject {
     }
 
     func togglePause() {
-        if isPaused {
-            engine.resume()
-        } else if isRecording {
-            engine.pause()
-        }
+        environment.togglePause()
     }
 
     func requestStart() {
         errorMessage = nil
         guard anySourceEnabled else { return }
         Task {
-            let report = await RecordingEngine.preflight(requestingAccess: true)
+            let report = await environment.permissions.report(requestingAccess: true)
             preflight = report
-            var enabled: [RecordingSource] = []
-            if screenEnabled { enabled.append(.screen) }
-            if cameraEnabled { enabled.append(.camera) }
-            if micEnabled { enabled.append(.microphone) }
-            if systemAudioEnabled { enabled.append(.systemAudio) }
-            let unusable = enabled.filter { !report.status(for: $0).isUsable }
-            if unusable.isEmpty {
+            switch environment.evaluateRecordability(sources: sourceSelection, permissions: report) {
+            case .ready:
                 startCountdown()
-            } else {
-                unavailableSources = unusable
+            case .noSources:
+                errorMessage = RecordingError.noActiveSources.errorDescription
+            case .blocked(let sources):
+                unavailableSources = sources
                 showUnavailableDialog = true
             }
         }
@@ -616,21 +570,31 @@ final class GrabiAppModel: ObservableObject {
         micMuted = false
         cameraHidden = false
         do {
-            let config = try buildConfiguration()
-            try await engine.start(configuration: config)
+            let blocked = try await environment.startRecording(.init(
+                sources: sourceSelection,
+                target: currentTarget,
+                devices: deviceSelection,
+                cameraLayout: cameraLayout,
+                quality: quality,
+                destinationFolder: destinationFolder))
+            if !blocked.isEmpty {
+                unavailableSources = blocked
+                showUnavailableDialog = true
+            }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = (error as? RecordingError)?.errorDescription ?? error.localizedDescription
         }
     }
 
     func stop() async {
         guard isActive else { return }
         do {
-            let url = try await engine.stop()
+            // The use case stops, releases the capture and notifies: the
+            // camera light must go out the moment the user says stop.
+            let url = try await environment.stopRecording(elapsed: elapsed)
             lastRecordingURL = url
             library.newestURL = url
             refreshLibrary()
-            NotificationManager.shared.showRecordingDone(url: url, duration: elapsed, model: self)
 
             // The pipeline that fed the writer stays alive to keep feeding the
             // preview — but it was built for RECORDING: full quality, 30 fps,
@@ -778,24 +742,4 @@ final class GrabiAppModel: ObservableObject {
         }
     }
 
-    // MARK: - Camera layout persistence
-
-    private static func loadCameraLayout() -> CameraLayout {
-        let d = UserDefaults.standard
-        guard d.object(forKey: "camLayout.h") != nil,
-              let shape = CameraShape(rawValue: d.string(forKey: "camLayout.shape") ?? "")
-        else { return .default }
-        return CameraLayout(
-            shape: shape,
-            origin: CGPoint(x: d.double(forKey: "camLayout.x"), y: d.double(forKey: "camLayout.y")),
-            height: d.double(forKey: "camLayout.h"))
-    }
-
-    private static func saveCameraLayout(_ layout: CameraLayout) {
-        let d = UserDefaults.standard
-        d.set(layout.shape.rawValue, forKey: "camLayout.shape")
-        d.set(layout.origin.x, forKey: "camLayout.x")
-        d.set(layout.origin.y, forKey: "camLayout.y")
-        d.set(layout.height, forKey: "camLayout.h")
-    }
 }

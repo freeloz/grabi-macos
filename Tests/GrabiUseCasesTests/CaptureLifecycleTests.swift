@@ -53,13 +53,13 @@ final class CaptureIntentTests: XCTestCase {
 
     func testADeniedMicrophoneIsNotMonitored() {
         let denied = PermissionReport(screen: .available, camera: .available,
-                                      microphone: .permissionDenied, systemAudio: .available)
+                                      microphone: .permissionDenied(help: "Allow it in System Settings"), systemAudio: .available)
         let intent = SyncCaptureUseCase.intent(for: demand(previewVisible: true, permissions: denied))
         XCTAssertFalse(intent.wantsMicrophoneMonitor)
     }
 
     func testADeniedScreenDoesNotStartAScreenPreview() {
-        let denied = PermissionReport(screen: .permissionDenied, camera: .available,
+        let denied = PermissionReport(screen: .permissionDenied(help: "Allow it in System Settings"), camera: .available,
                                       microphone: .available, systemAudio: .available)
         let intent = SyncCaptureUseCase.intent(for: demand(previewVisible: true, permissions: denied))
         XCTAssertFalse(intent.wantsPreview)

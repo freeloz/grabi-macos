@@ -28,7 +28,7 @@ final class SourceSelectionTests: XCTestCase {
 final class PermissionReportTests: XCTestCase {
     func testBlockedListsOnlyRequestedSources() {
         let report = PermissionReport(screen: .available,
-                                      camera: .permissionDenied,
+                                      camera: .permissionDenied(help: "Allow it in System Settings"),
                                       microphone: .unavailable(reason: "no mic"),
                                       systemAudio: .available)
         let screenOnly = SourceSelection(screen: true, camera: false, microphone: false, systemAudio: false)
@@ -36,7 +36,7 @@ final class PermissionReportTests: XCTestCase {
                       "a denied camera must not block a screen-only recording")
 
         let withCamera = SourceSelection(screen: true, camera: true, microphone: true, systemAudio: false)
-        XCTAssertEqual(Set(report.blocked(in: withCamera)), [.camera, .microphone])
+        XCTAssertEqual(Set(report.blocked(in: withCamera)), Set<RecordingSource>([.camera, .microphone]))
     }
 }
 

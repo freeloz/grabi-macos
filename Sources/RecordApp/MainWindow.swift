@@ -28,8 +28,15 @@ final class MainWindowController: NSObject, ObservableObject, NSWindowDelegate {
     /// fully covered by another window, capturing would be wasted work.
     var showsPreview: Bool {
         guard let window, window.isVisible, !window.isMiniaturized else { return false }
-        return tab == .record && window.occlusionState.contains(.visible)
+        // Occlusion is only trusted once macOS has actually told us the
+        // window got covered: polling occlusionState right after ordering a
+        // window front reports "not visible" and would silently kill the
+        // preview on launch.
+        return tab == .record && !isCovered
     }
+
+    /// Set from the occlusion notification, never polled.
+    private var isCovered = false
 
     func show(model: GrabiAppModel, tab: MainTab? = nil) {
         self.model = model
@@ -86,15 +93,12 @@ final class MainWindowController: NSObject, ObservableObject, NSWindowDelegate {
     }
 
     func windowDidChangeOcclusionState(_ notification: Notification) {
-        if showsPreview {
-            model?.restartPreviewIfNeeded()
-        } else {
-            model?.pausePreview()
-        }
+        isCovered = !(window?.occlusionState.contains(.visible) ?? true)
+        model?.updateCapture()
     }
 
-    func windowDidMiniaturize(_ notification: Notification) { model?.pausePreview() }
-    func windowDidDeminiaturize(_ notification: Notification) { model?.restartPreviewIfNeeded() }
+    func windowDidMiniaturize(_ notification: Notification) { model?.updateCapture() }
+    func windowDidDeminiaturize(_ notification: Notification) { model?.updateCapture() }
 }
 
 // MARK: - Root

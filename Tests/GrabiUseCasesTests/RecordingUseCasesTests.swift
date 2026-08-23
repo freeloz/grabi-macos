@@ -11,15 +11,15 @@ final class EvaluateRecordabilityTests: XCTestCase {
     }
 
     func testBlockedSourcesAreNamed() {
-        let denied = PermissionReport(screen: .available, camera: .permissionDenied,
+        let denied = PermissionReport(screen: .available, camera: .permissionDenied(help: "Allow it in System Settings"),
                                       microphone: .available, systemAudio: .available)
         XCTAssertEqual(evaluate(sources: SourceSelection(), permissions: denied), .blocked([.camera]))
     }
 
     func testReadyWhenEverythingRequestedIsUsable() {
         let screenOnly = SourceSelection(screen: true, camera: false, microphone: false, systemAudio: false)
-        let denied = PermissionReport(screen: .available, camera: .permissionDenied,
-                                      microphone: .permissionDenied, systemAudio: .available)
+        let denied = PermissionReport(screen: .available, camera: .permissionDenied(help: "Allow it in System Settings"),
+                                      microphone: .permissionDenied(help: "Allow it in System Settings"), systemAudio: .available)
         XCTAssertEqual(evaluate(sources: screenOnly, permissions: denied), .ready)
     }
 }
@@ -55,7 +55,7 @@ final class StartRecordingUseCaseTests: XCTestCase {
 
     func testReportsBlockedSourcesInsteadOfRecordingHalfOfThem() async throws {
         var permissions = FakePermissions()
-        permissions.reportToReturn = PermissionReport(screen: .available, camera: .permissionDenied,
+        permissions.reportToReturn = PermissionReport(screen: .available, camera: .permissionDenied(help: "Allow it in System Settings"),
                                                       microphone: .available, systemAudio: .available)
         let engine = FakeEngine()
         let start = StartRecordingUseCase(engine: engine, permissions: permissions, clock: clock)

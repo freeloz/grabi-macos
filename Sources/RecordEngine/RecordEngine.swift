@@ -60,13 +60,13 @@ public final class RecordingEngine: ObservableObject {
     // MARK: - Discovery
 
     /// Preflight check: which sources are available and permitted.
-    public static func preflight(requestingAccess: Bool = true) async -> PreflightReport {
+    public static func preflight(requestingAccess: Bool = true) async -> PermissionReport {
         await Preflight.check(requestingAccess: requestingAccess)
     }
 
     /// Displays and windows available for capture.
     public static func availableContent() async throws -> ShareableContent {
-        try await ShareableContent.current()
+        try await ScreenContent.current()
     }
 
     // MARK: - Microphone level monitoring (feedback before recording)

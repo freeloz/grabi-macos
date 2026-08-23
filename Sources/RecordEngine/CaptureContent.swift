@@ -3,11 +3,10 @@ import CoreGraphics
 import ScreenCaptureKit
 import GrabiDomain
 
-/// Content available according to ScreenCaptureKit (requires screen permission).
-public struct ShareableContent: Sendable {
-    public let displays: [DisplayInfo]
-    public let windows: [WindowInfo]
-
+/// Reads what ScreenCaptureKit offers and hands back the domain's view of
+/// it, keeping the raw SCK objects around so the picker's thumbnails are
+/// instant (a fresh SCShareableContent fetch costs ~1-2 s).
+public enum ScreenContent {
     // Cache of the raw SCK content from the last `current()`: the picker's
     // thumbnails reuse it to capture instantly without repeating the
     // SCShareableContent fetch (which takes ~1-2 s).

@@ -95,7 +95,23 @@ Endurance test (stable memory during long recordings):
 
 ## Architecture
 
-Swift Package with three targets:
+Layered, with the dependencies pointing inward — see
+[ARCHITECTURE.md](ARCHITECTURE.md) for the full picture and how to extend it:
+
+```
+GrabiDomain    entities, value objects and ports — no frameworks, testable anywhere
+GrabiUseCases  what the app does (capture lifecycle, record, devices, library)
+RecordApp      SwiftUI screens + the adapters that satisfy each port
+RecordEngine   ScreenCaptureKit / AVFoundation capture and writing
+RecordUI       the design system as SwiftUI components
+```
+
+```bash
+swift test              # domain + use cases with in-memory fakes
+swift run EngineChecks  # engine integration checks
+```
+
+The capture targets in detail:
 
 ```
 Sources/

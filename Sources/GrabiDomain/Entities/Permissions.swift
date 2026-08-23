@@ -3,10 +3,24 @@ import Foundation
 /// Whether a source can be used, and why not when it can't.
 public enum SourceStatus: Equatable, Sendable {
     case available
-    case permissionDenied
+    /// Denied by macOS. `help` is the already-localized way out, supplied by
+    /// the adapter thatknows the real System Settings pane.
+    case permissionDenied(help: String)
     case unavailable(reason: String)
 
-    public var isUsable: Bool { self == .available }
+    public var isUsable: Bool {
+        if case .available = self { return true }
+        return false
+    }
+
+    /// What to tell the user when the source cannot be used.
+    public var explanation: String? {
+        switch self {
+        case .available: return nil
+        case .permissionDenied(let help): return help
+        case .unavailable(let reason): return reason
+        }
+    }
 }
 
 /// Status of every source at a point in time.
