@@ -276,41 +276,7 @@ private struct RecordPanel: View {
                 .disabled(!model.cameraEnabled)
             }
 
-            HStack(alignment: .top, spacing: GrabiSpace.s3) {
-                SourceList {
-                    SourceRow(icon: .screen, title: RecordingSource.screen.displayName,
-                              subtitle: model.captureLabel,
-                              status: model.status(for: .screen),
-                              isOn: Binding(get: { model.screenEnabled }, set: { model.screenEnabled = $0 }),
-                              onPermissionTap: { model.openPermissionFlow(for: .screen) })
-                        .disabled(model.isActive)
-                    RowDivider()
-                    SourceRow(icon: .forShape(model.cameraLayout.shape),
-                              title: RecordingSource.camera.displayName,
-                              subtitle: model.cameraRowSubtitle,
-                              status: model.status(for: .camera),
-                              isOn: Binding(get: { model.cameraEnabled }, set: { model.cameraEnabled = $0 }),
-                              onPermissionTap: { model.openPermissionFlow(for: .camera) })
-                        .disabled(model.isActive)
-                }
-                SourceList {
-                    SourceRow(icon: .microphone, title: RecordingSource.microphone.displayName,
-                              subtitle: model.micDeviceName,
-                              status: model.status(for: .microphone),
-                              isOn: Binding(get: { model.micEnabled }, set: { model.micEnabled = $0 }),
-                              level: model.micLevel,
-                              onPermissionTap: { model.openPermissionFlow(for: .microphone) })
-                        .disabled(model.isActive)
-                    RowDivider()
-                    SourceRow(icon: .systemAudio, title: RecordingSource.systemAudio.displayName,
-                              subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
-                              status: model.status(for: .systemAudio),
-                              isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
-                              level: model.systemLevel,
-                              onPermissionTap: { model.openPermissionFlow(for: .systemAudio) })
-                        .disabled(model.isActive)
-                }
-            }
+            SourceCards(model: model, levels: model.levels)
 
             if !library.items.isEmpty {
                 recents
@@ -365,6 +331,52 @@ private struct RecordPanel: View {
                 .buttonStyle(.plain)
                 .font(.system(size: 11.5, weight: .semibold))
                 .foregroundStyle(GrabiColor.brandStrong)
+        }
+    }
+}
+
+
+/// The four source rows. Their own view because the level meters update
+/// several times a second: this is the only part that redraws with them.
+private struct SourceCards: View {
+    @ObservedObject var model: GrabiAppModel
+    @ObservedObject var levels: AudioLevels
+
+    var body: some View {
+            HStack(alignment: .top, spacing: GrabiSpace.s3) {
+            SourceList {
+                SourceRow(icon: .screen, title: RecordingSource.screen.displayName,
+                          subtitle: model.captureLabel,
+                          status: model.status(for: .screen),
+                          isOn: Binding(get: { model.screenEnabled }, set: { model.screenEnabled = $0 }),
+                          onPermissionTap: { model.openPermissionFlow(for: .screen) })
+                    .disabled(model.isActive)
+                RowDivider()
+                SourceRow(icon: .forShape(model.cameraLayout.shape),
+                          title: RecordingSource.camera.displayName,
+                          subtitle: model.cameraRowSubtitle,
+                          status: model.status(for: .camera),
+                          isOn: Binding(get: { model.cameraEnabled }, set: { model.cameraEnabled = $0 }),
+                          onPermissionTap: { model.openPermissionFlow(for: .camera) })
+                    .disabled(model.isActive)
+            }
+            SourceList {
+                SourceRow(icon: .microphone, title: RecordingSource.microphone.displayName,
+                          subtitle: model.micDeviceName,
+                          status: model.status(for: .microphone),
+                          isOn: Binding(get: { model.micEnabled }, set: { model.micEnabled = $0 }),
+                          level: levels.microphone,
+                          onPermissionTap: { model.openPermissionFlow(for: .microphone) })
+                    .disabled(model.isActive)
+                RowDivider()
+                SourceRow(icon: .systemAudio, title: RecordingSource.systemAudio.displayName,
+                          subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
+                          status: model.status(for: .systemAudio),
+                          isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
+                          level: levels.system,
+                          onPermissionTap: { model.openPermissionFlow(for: .systemAudio) })
+                    .disabled(model.isActive)
+            }
         }
     }
 }

@@ -75,8 +75,9 @@ final class GrabiAppModel: ObservableObject {
     @Published private(set) var countdown: Int?
     @Published var errorMessage: String?
     @Published private(set) var lastRecordingURL: URL?
-    @Published private(set) var micLevel: Double = 0
-    @Published private(set) var systemLevel: Double = 0
+    /// Levels live in their own object: they change dozens of times a
+    /// second and must not re-render the window with them.
+    let levels = AudioLevels()
     @Published var showUnavailableDialog = false
     @Published private(set) var unavailableSources: [RecordingSource] = []
     /// Live controls during recording (floating pill).
@@ -192,10 +193,10 @@ final class GrabiAppModel: ObservableObject {
         }
 
         engine.onMicLevel = { [weak self] level in
-            DispatchQueue.main.async { self?.micLevel = level }
+            Task { @MainActor in self?.levels.report(microphone: level) }
         }
         engine.onSystemAudioLevel = { [weak self] level in
-            DispatchQueue.main.async { self?.systemLevel = level }
+            Task { @MainActor in self?.levels.report(system: level) }
         }
 
         // Global shortcuts: ⌘⇧2 record/stop · ⌘⇧P pause/resume.

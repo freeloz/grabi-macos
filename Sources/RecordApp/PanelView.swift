@@ -8,6 +8,12 @@ import GrabiDomain
 /// one single big button at the bottom. Fixed width 360.
 struct PanelView: View {
     @ObservedObject var model: GrabiAppModel
+    @ObservedObject private var levels: AudioLevels
+
+    init(model: GrabiAppModel) {
+        self.model = model
+        self.levels = model.levels
+    }
 
     var body: some View {
         VStack(spacing: 14) {
@@ -43,7 +49,7 @@ struct PanelView: View {
                 SourceRow(icon: .microphone, title: RecordingSource.microphone.displayName, subtitle: model.micDeviceName,
                           status: model.status(for: .microphone),
                           isOn: Binding(get: { model.micEnabled }, set: { model.micEnabled = $0 }),
-                          level: model.micLevel,
+                          level: levels.microphone,
                           onPermissionTap: { model.openPermissionFlow(for: .microphone) })
                     .disabled(model.isActive)
                 RowDivider()
@@ -51,7 +57,7 @@ struct PanelView: View {
                           subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
                           status: model.status(for: .systemAudio),
                           isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
-                          level: model.systemLevel,
+                          level: levels.system,
                           onPermissionTap: { model.openPermissionFlow(for: .systemAudio) })
                     .disabled(model.isActive)
             }

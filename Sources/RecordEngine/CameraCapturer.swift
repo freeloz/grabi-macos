@@ -50,16 +50,6 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
             dimensions = (1280, 720)
         }
 
-        // Cap the frame rate to what the pipeline consumes.
-        if let range = device.activeFormat.videoSupportedFrameRateRanges.first {
-            let target = Double(max(1, fps))
-            let clamped = min(max(target, range.minFrameRate), range.maxFrameRate)
-            if (try? device.lockForConfiguration()) != nil {
-                device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: CMTimeScale(clamped.rounded()))
-                device.unlockForConfiguration()
-            }
-        }
-
         let output = AVCaptureVideoDataOutput()
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         // Discard late frames: in PiP only the most recent one matters, and in
@@ -68,6 +58,26 @@ final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelega
         output.setSampleBufferDelegate(self, queue: queue)
         guard session.canAddOutput(output) else { throw RecordingError.cameraUnavailable }
         session.addOutput(output)
+
+        // Cap the frame rate to what the pipeline consumes. This has to come
+        // AFTER addOutput: attaching an output resets the format's frame
+        // duration, so doing it earlier silently does nothing (macOS keeps
+        // running the camera — and its per-frame Vision work — at 30 fps).
+        if let range = device.activeFormat.videoSupportedFrameRateRanges.first {
+            let target = Double(max(1, fps))
+            let clamped = min(max(target, range.minFrameRate), range.maxFrameRate)
+            if (try? device.lockForConfiguration()) != nil {
+                device.activeVideoMinFrameDuration = CMTime(value: 1, timescale: CMTimeScale(clamped.rounded()))
+                device.unlockForConfiguration()
+            }
+        }
+        // Many built-in cameras only offer 30–30 fps, so the device-level cap
+        // above is a no-op there and macOS keeps its own per-frame work at 30.
+        // The connection cap always applies: frames we would not use never
+        // reach the compositor.
+        if let connection = output.connection(with: .video) {
+            connection.videoMinFrameDuration = CMTime(value: 1, timescale: CMTimeScale(max(1, fps)))
+        }
     }
 
     /// `startRunning` blocks; it is called off the main thread.
