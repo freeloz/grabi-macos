@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import CoreVideo
+import GrabiDomain
 
 /// Writes a single .mov streamed straight to disk with up to 1 video
 /// track (hardware HEVC) and up to 2 SEPARATE AAC audio tracks

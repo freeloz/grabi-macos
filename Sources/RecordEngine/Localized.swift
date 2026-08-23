@@ -1,4 +1,5 @@
 import Foundation
+import GrabiDomain
 
 /// Lookup of the engine's localized strings, honoring the in-app language.
 func L(_ key: String) -> String {

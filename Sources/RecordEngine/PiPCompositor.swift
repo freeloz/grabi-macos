@@ -3,6 +3,7 @@ import CoreImage
 import CoreVideo
 import CoreGraphics
 import Metal
+import GrabiDomain
 
 /// Composites the camera over the screen frame on the GPU (Core Image +
 /// Metal), with the shape (circle / square / rounded rectangle), position and

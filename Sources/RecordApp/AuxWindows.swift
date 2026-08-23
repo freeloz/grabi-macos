@@ -3,6 +3,7 @@ import AppKit
 import AVFoundation
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 /// Simple reusable titled window.
 @MainActor

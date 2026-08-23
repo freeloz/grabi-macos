@@ -2,6 +2,7 @@ import Foundation
 import ScreenCaptureKit
 import AVFoundation
 import CoreGraphics
+import GrabiDomain
 
 /// Captures display/window/region and/or system audio with ScreenCaptureKit.
 ///

@@ -2,24 +2,7 @@ import Foundation
 import AVFoundation
 import CoreVideo
 import Combine
-
-/// Observable states of the engine.
-public enum RecordingState: Equatable {
-    case idle
-    case starting
-    case recording
-    case paused
-    case stopping
-    case stopped(URL)
-    case failed(RecordingError)
-
-    public var isActive: Bool {
-        switch self {
-        case .starting, .recording, .paused, .stopping: return true
-        default: return false
-        }
-    }
-}
+import GrabiDomain
 
 /// Public facade of the recording engine.
 ///
@@ -180,7 +163,7 @@ public final class RecordingEngine: ObservableObject {
             writer = nil
             if !isPreviewing { await teardownPipeline() }
             let recError = (error as? RecordingError) ?? .captureInterrupted(error.localizedDescription)
-            setState(.failed(recError))
+            setState(.failed(recError.errorDescription ?? ""))
             throw recError
         }
     }
@@ -313,7 +296,7 @@ public final class RecordingEngine: ObservableObject {
         }
 
         guard let writer else {
-            setState(.failed(.invalidState("there was no active writer")))
+            setState(.failed(RecordingError.invalidState("there was no active writer").errorDescription ?? ""))
             throw RecordingError.invalidState("there was no active writer")
         }
         self.writer = nil
@@ -323,7 +306,7 @@ public final class RecordingEngine: ObservableObject {
             return url
         } catch {
             let recError = (error as? RecordingError) ?? .writeFailed(error.localizedDescription)
-            setState(.failed(recError))
+            setState(.failed(recError.errorDescription ?? ""))
             throw recError
         }
     }
@@ -342,7 +325,7 @@ public final class RecordingEngine: ObservableObject {
                 self.writer = nil
                 _ = try? await writer.finish()
             }
-            setState(.failed(.captureInterrupted(error.localizedDescription)))
+            setState(.failed(RecordingError.captureInterrupted(error.localizedDescription).errorDescription ?? ""))
         default:
             // The preview failed (no recording): shut down silently.
             await teardownPipeline()

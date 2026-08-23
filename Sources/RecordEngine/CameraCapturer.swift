@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import CoreVideo
+import GrabiDomain
 
 /// Captures the camera with AVFoundation and delivers uncompressed BGRA pixels.
 final class CameraCapturer: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {

@@ -1,17 +1,11 @@
 import Foundation
 import CoreGraphics
+import GrabiDomain
 
-/// Available recording sources.
-public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
-    case screen
-    case camera
-    case microphone
-    case systemAudio
-
-    public var id: String { rawValue }
-
-    /// Display name for the UI.
-    public var displayName: String {
+/// Display names live where their strings live (this target's catalogs).
+/// The domain types stay free of any localization.
+public extension RecordingSource {
+    var displayName: String {
         switch self {
         case .screen: return L("source.screen")
         case .camera: return L("source.camera")
@@ -21,57 +15,19 @@ public enum RecordingSource: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Shape of the camera in the video (per the design system: circle,
-/// square, or 3:2 rectangle; square and rectangle with rounded corners).
-public enum CameraShape: String, CaseIterable, Identifiable, Sendable {
-    case circle
-    case square
-    case rectangle
-
-    public var id: String { rawValue }
-
-    public var displayName: String {
+public extension CameraShape {
+    var displayName: String {
         switch self {
         case .circle: return L("shape.circle")
         case .square: return L("shape.square")
         case .rectangle: return L("shape.rectangle")
         }
     }
-
-    /// Width/height ratio of the shape (from the prototype: rect = 1.5 × height).
-    public var aspectRatio: CGFloat {
-        self == .rectangle ? 1.5 : 1.0
-    }
 }
 
-/// Position/size/shape of the camera over the canvas, in normalized
-/// coordinates (0–1) so the same configuration works for the live
-/// preview and the recorded video. Modifiable LIVE while recording.
-public struct CameraLayout: Equatable, Sendable {
-    public var shape: CameraShape
-    /// Top-left corner, normalized: x over the canvas width,
-    /// y over the height.
-    public var origin: CGPoint
-    /// Height normalized over the canvas height. Width is derived from the shape.
-    public var height: CGFloat
-
-    /// Default value from the approved prototype: circle, bottom right
-    /// (cam {x:486, y:206, s:130} over a 640×360 canvas).
-    public static let `default` = CameraLayout(
-        shape: .circle,
-        origin: CGPoint(x: 486.0 / 640.0, y: 206.0 / 360.0),
-        height: 130.0 / 360.0)
-
-    public init(shape: CameraShape, origin: CGPoint, height: CGFloat) {
-        self.shape = shape
-        self.origin = origin
-        self.height = height
-    }
-
-    /// Corner radius relative to the height (from the prototype: radius 12 at s=130).
-    public var cornerRadiusFraction: CGFloat {
-        shape == .circle ? 0.5 : 12.0 / 130.0
-    }
+public extension AppLanguage {
+    /// Its own name, or "same as my Mac" for the system option.
+    var displayName: String { endonym ?? L("lang.system") }
 }
 
 /// Configuration of a recording. Each source is an independent toggle;

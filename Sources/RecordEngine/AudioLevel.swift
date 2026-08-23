@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import Accelerate
+import GrabiDomain
 
 /// RMS level 0–1 of a PCM buffer, mapped logarithmically (−50 dB → 0,
 /// 0 dB → 1) so the meter moves naturally with the voice.

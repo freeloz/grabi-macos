@@ -3,6 +3,7 @@ import AppKit
 import CoreVideo
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 enum MainTab: String, CaseIterable, Identifiable {
     case record, library, settings

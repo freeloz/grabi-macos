@@ -1,5 +1,6 @@
 import SwiftUI
 import RecordEngine
+import GrabiDomain
 
 /// Internal gallery (debug only): every component in all of its states,
 /// to verify fidelity against the prototype before assembling screens.

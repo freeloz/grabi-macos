@@ -1,4 +1,5 @@
 import Foundation
+import GrabiDomain
 
 /// Engine errors: actionable and localized (the target's
 /// Localizable.strings; the permission instructions use the REAL System

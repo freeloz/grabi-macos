@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import CoreVideo
+import GrabiDomain
 
 /// Thread-safe box for "the latest camera frame". The camera queue
 /// writes and the screen queue reads (for PiP compositing).

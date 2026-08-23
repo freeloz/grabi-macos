@@ -14,22 +14,33 @@ let package = Package(
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.6"),
     ],
     targets: [
-        // Recording engine: no UI, Apple frameworks only.
+        // ---- Layers ------------------------------------------------------
+        // Domain: entities, value objects and ports. Pure Swift — no
+        // AVFoundation, no AppKit, no SwiftUI. Runs (and tests) anywhere.
+        .target(name: "GrabiDomain"),
+        // Use cases: the application's behavior, written against the ports.
+        .target(name: "GrabiUseCases", dependencies: ["GrabiDomain"]),
+        .testTarget(name: "GrabiDomainTests", dependencies: ["GrabiDomain"]),
+        .testTarget(name: "GrabiUseCasesTests", dependencies: ["GrabiUseCases", "GrabiDomain"]),
+
+        // Infrastructure: the adapters that implement the ports with
+        // ScreenCaptureKit, AVFoundation and the file system.
         .target(
             name: "RecordEngine",
+            dependencies: ["GrabiDomain"],
             resources: [.process("Resources")]
         ),
         // Grabi design system: tokens, icons, mascot, and SwiftUI components.
         .target(
             name: "RecordUI",
-            dependencies: ["RecordEngine"],
+            dependencies: ["GrabiDomain", "RecordEngine"],
             resources: [.process("Resources")]
         ),
         // The app.
         .executableTarget(
             name: "RecordApp",
             dependencies: [
-                "RecordEngine", "RecordUI",
+                "GrabiDomain", "GrabiUseCases", "RecordEngine", "RecordUI",
                 .product(name: "Sparkle", package: "Sparkle"),
             ],
             resources: [.process("Resources")],
@@ -49,7 +60,7 @@ let package = Package(
         // `swift run EngineChecks` — synthetic sources, no TCC permissions.
         .executableTarget(
             name: "EngineChecks",
-            dependencies: ["RecordEngine"]
+            dependencies: ["GrabiDomain", "RecordEngine"]
         ),
     ]
 )

@@ -4,20 +4,11 @@ import Combine
 import AVFoundation
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
-/// Capture mode chosen in the panel's segmented control.
-enum CaptureMode: String, CaseIterable {
-    case screen, window, region
-}
-
-/// Recording quality (Settings, v0.1.1). "Standard" is the v0.1 behavior;
-/// "Sharp" captures at the source's native resolution (up to 4K) and the
-/// engine scales the bitrate by area to keep the per-pixel quality.
-enum RecordingQuality: String, CaseIterable, Identifiable {
-    case standard, sharp
-
-    var id: String { rawValue }
-
+/// Display names live with the strings that back them: the domain types
+/// themselves stay free of localization.
+extension RecordingQuality {
     var displayName: String {
         switch self {
         case .standard: return L("app.quality.standard")
@@ -26,24 +17,15 @@ enum RecordingQuality: String, CaseIterable, Identifiable {
     }
 
     /// Honest hint about the cost (measured: ~2.9 GB/h at 1080p with moving
-    /// content; in sharp it depends on the source — figure pending validation).
+    /// content; sharp depends on the source).
     var hint: String {
         switch self {
         case .standard: return L("app.quality.standard.hint")
         case .sharp: return L("app.quality.sharp.hint")
         }
     }
-
-    /// Width cap in pixels; the aspect ratio is always preserved.
-    var targetWidth: Int {
-        switch self {
-        case .standard: return 1920
-        case .sharp: return 3840
-        }
-    }
 }
 
-/// Grabi UI state: sources, capture, camera, recording, and windows.
 @MainActor
 final class GrabiAppModel: ObservableObject {
     let engine = RecordingEngine()
@@ -696,8 +678,8 @@ final class GrabiAppModel: ObservableObject {
             pillController.close()
             cameraWindowController.close()
             borderController.close()
-            if case .failed(let error) = state {
-                errorMessage = error.errorDescription
+            if case .failed(let message) = state {
+                errorMessage = message
             }
         default:
             break

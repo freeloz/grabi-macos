@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import GrabiDomain
 
 /// Captures the microphone with AVFoundation and delivers PCM buffers.
 final class MicrophoneCapturer: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {

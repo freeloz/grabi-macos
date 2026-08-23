@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import CoreGraphics
+import GrabiDomain
 
 /// Status of a source according to the preflight check.
 public enum SourceStatus: Equatable, Sendable {

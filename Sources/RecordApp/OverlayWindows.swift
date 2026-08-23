@@ -3,6 +3,7 @@ import AppKit
 import Combine
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 /// Non-activating floating panel: base for the pill and overlays.
 private func makeFloatingPanel(level: NSWindow.Level) -> NSPanel {

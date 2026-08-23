@@ -4,6 +4,7 @@ import CoreGraphics
 import ScreenCaptureKit
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 /// Thumbnails for the visual picker, with an in-memory cache: reopening the
 /// picker shows the thumbnails INSTANTLY (the ones from last time) and

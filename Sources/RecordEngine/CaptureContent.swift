@@ -1,53 +1,7 @@
 import Foundation
 import CoreGraphics
 import ScreenCaptureKit
-
-/// What to capture as the "screen": a full display, a window of another
-/// app, or a rectangular region of a display.
-public enum CaptureTarget: Equatable, Sendable {
-    /// Full display. `nil` → main display.
-    case display(CGDirectDisplayID?)
-    /// A specific window (CGWindow / SCWindow ID).
-    case window(CGWindowID)
-    /// Region of a display. `rect` in points, with a top-left origin
-    /// relative to that display (the same coordinate system as
-    /// `SCStreamConfiguration.sourceRect`).
-    case region(displayID: CGDirectDisplayID?, rect: CGRect)
-
-    public static let mainDisplay = CaptureTarget.display(nil)
-}
-
-extension CaptureTarget: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        switch self {
-        case .display(let id):
-            hasher.combine(0); hasher.combine(id)
-        case .window(let id):
-            hasher.combine(1); hasher.combine(id)
-        case .region(let id, let rect):
-            hasher.combine(2); hasher.combine(id)
-            hasher.combine(rect.origin.x); hasher.combine(rect.origin.y)
-            hasher.combine(rect.width); hasher.combine(rect.height)
-        }
-    }
-}
-
-/// Display available for capture.
-public struct DisplayInfo: Identifiable, Equatable, Sendable {
-    public let id: CGDirectDisplayID
-    /// "Built-in Display", "Display 2", …
-    public let name: String
-    public let frame: CGRect
-    public let isMain: Bool
-}
-
-/// Window available for capture.
-public struct WindowInfo: Identifiable, Equatable, Sendable {
-    public let id: CGWindowID
-    public let appName: String
-    public let title: String
-    public let frame: CGRect
-}
+import GrabiDomain
 
 /// Content available according to ScreenCaptureKit (requires screen permission).
 public struct ShareableContent: Sendable {

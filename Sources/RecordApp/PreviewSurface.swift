@@ -3,6 +3,7 @@ import AppKit
 import CoreVideo
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 /// The live preview surface (Phase 3 §02, Phase 6): what you see is what
 /// gets recorded. It lives inside the main window; the camera drags freely,

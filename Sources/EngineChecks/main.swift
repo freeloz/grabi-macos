@@ -4,6 +4,7 @@
 import Foundation
 import AVFoundation
 import CoreVideo
+import GrabiDomain
 @testable import RecordEngine
 
 // Engine integration checker with SYNTHETIC SOURCES: exercises the real

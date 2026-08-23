@@ -1,6 +1,7 @@
 import SwiftUI
 import RecordEngine
 import RecordUI
+import GrabiDomain
 
 /// Menu bar panel (Phase 3 §01): the 5-second test.
 /// What gets captured at the top, which sources go into it in the middle,

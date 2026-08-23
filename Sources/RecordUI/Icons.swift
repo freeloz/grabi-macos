@@ -1,4 +1,5 @@
 import SwiftUI
+import GrabiDomain
 
 /// Grabi custom icons (Phase 1 §06): 24 px grid, stroke 2, round caps,
 /// they inherit the context color (`foregroundStyle`). The red fill only

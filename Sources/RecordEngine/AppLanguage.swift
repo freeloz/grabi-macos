@@ -1,25 +1,5 @@
 import Foundation
-
-/// The language Grabi speaks. `.system` follows the Mac; the rest override it
-/// so a user can read Grabi in one language while the system is in another
-/// (common on shared or work machines).
-public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
-    case system, en, es, pt, fr, de
-
-    public var id: String { rawValue }
-
-    /// Name written in its own language — how language pickers should read.
-    public var displayName: String {
-        switch self {
-        case .system: return L("lang.system")
-        case .en: return "English"
-        case .es: return "Español"
-        case .pt: return "Português"
-        case .fr: return "Français"
-        case .de: return "Deutsch"
-        }
-    }
-}
+import GrabiDomain
 
 /// Resolves which localization bundle every module should read from.
 ///

@@ -1,5 +1,6 @@
 import SwiftUI
 import RecordEngine
+import GrabiDomain
 
 /// State of a source row (Phase 2 §04 and Phase 3 §04):
 /// active · inactive · no permission (action) · unavailable · celebration.

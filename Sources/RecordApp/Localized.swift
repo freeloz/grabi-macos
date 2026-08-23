@@ -1,5 +1,6 @@
 import Foundation
 import RecordEngine
+import GrabiDomain
 
 /// Localized strings for the app, honoring the in-app language.
 func L(_ key: String) -> String {

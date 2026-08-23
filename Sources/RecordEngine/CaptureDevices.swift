@@ -1,19 +1,6 @@
 import Foundation
 import AVFoundation
-
-/// A camera or microphone the user can pick.
-public struct CaptureDeviceInfo: Identifiable, Equatable, Sendable {
-    public let id: String
-    public let name: String
-    /// The one macOS would pick on its own.
-    public let isSystemDefault: Bool
-
-    public init(id: String, name: String, isSystemDefault: Bool) {
-        self.id = id
-        self.name = name
-        self.isSystemDefault = isSystemDefault
-    }
-}
+import GrabiDomain
 
 /// Cameras and microphones available right now. Grabi lists what exists
 /// instead of assuming the built-in one: people record with external
