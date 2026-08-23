@@ -94,6 +94,32 @@ final class GrabiAppModel: ObservableObject {
             refreshLibrary()
         }
     }
+    /// Chosen camera / microphone (nil = whatever macOS picks). People
+    /// record with external webcams and USB mics, not only the built-in ones.
+    @Published var cameraDeviceID: String? {
+        didSet {
+            UserDefaults.standard.set(cameraDeviceID, forKey: "cameraDeviceID")
+            sourcesChanged()
+        }
+    }
+    @Published var microphoneDeviceID: String? {
+        didSet {
+            UserDefaults.standard.set(microphoneDeviceID, forKey: "microphoneDeviceID")
+            restartMicMonitoringIfNeeded()
+        }
+    }
+    @Published private(set) var availableCameras: [CaptureDeviceInfo] = []
+    @Published private(set) var availableMicrophones: [CaptureDeviceInfo] = []
+
+    /// In-app language: Grabi can speak a different language than the Mac.
+    @Published var language: AppLanguage {
+        didSet {
+            UserDefaults.standard.set(language.rawValue, forKey: "appLanguage")
+            GrabiLocale.set(language)
+            objectWillChange.send() // every visible string is re-read
+        }
+    }
+
     /// Menu bar item: quick access without opening the window (Phase 6).
     @Published var quickAccessEnabled: Bool {
         didSet { UserDefaults.standard.set(quickAccessEnabled, forKey: "quickAccessEnabled") }
@@ -129,6 +155,9 @@ final class GrabiAppModel: ObservableObject {
     private var segmentStart: Date?
     private var accumulated: TimeInterval = 0
     private var micMonitoringWanted = false
+    private var panelIsOpen = false
+    /// Exposed for the lifecycle self-check.
+    var isMonitoringMic: Bool { micMonitoringWanted }
 
     var isRecording: Bool { engineState == .recording }
     var isPaused: Bool { engineState == .paused }
@@ -148,6 +177,11 @@ final class GrabiAppModel: ObservableObject {
         }
         onboardingDone = UserDefaults.standard.bool(forKey: "onboardingDone")
         quickAccessEnabled = UserDefaults.standard.object(forKey: "quickAccessEnabled") as? Bool ?? true
+        cameraDeviceID = UserDefaults.standard.string(forKey: "cameraDeviceID")
+        microphoneDeviceID = UserDefaults.standard.string(forKey: "microphoneDeviceID")
+        let storedLanguage = AppLanguage(rawValue: UserDefaults.standard.string(forKey: "appLanguage") ?? "") ?? .system
+        language = storedLanguage
+        GrabiLocale.set(storedLanguage)
         quality = RecordingQuality(rawValue: UserDefaults.standard.string(forKey: "recordingQuality") ?? "") ?? .standard
 
         engine.$state
@@ -198,7 +232,7 @@ final class GrabiAppModel: ObservableObject {
 
     func mainWindowShown() {
         refreshLibrary()
-        restartPreviewIfNeeded()
+        updateCapture()
     }
 
     /// Stops the preview without touching an ongoing recording.
@@ -209,7 +243,7 @@ final class GrabiAppModel: ObservableObject {
 
     func mainWindowClosed() {
         // Closing the window must never stop a recording: only the preview.
-        if !isActive { Task { await engine.stopPreview() } }
+        updateCapture()
     }
 
     /// The in-window welcome is done (permissions granted or postponed).
@@ -290,6 +324,16 @@ final class GrabiAppModel: ObservableObject {
             }
         }
 
+        availableCameras = CaptureDevices.cameras()
+        availableMicrophones = CaptureDevices.microphones()
+        // A device that got unplugged falls back to the system default.
+        if let id = cameraDeviceID, !availableCameras.contains(where: { $0.id == id }) {
+            cameraDeviceID = nil
+        }
+        if let id = microphoneDeviceID, !availableMicrophones.contains(where: { $0.id == id }) {
+            microphoneDeviceID = nil
+        }
+
         if report.screen.isUsable, let content = try? await RecordingEngine.availableContent() {
             availableDisplays = content.displays
             availableWindows = content.windows
@@ -336,7 +380,22 @@ final class GrabiAppModel: ObservableObject {
     }
 
     var micDeviceName: String {
-        AVCaptureDevice.default(for: .audio)?.localizedName ?? RecordingSource.microphone.displayName
+        CaptureDevices.name(forMicrophone: microphoneDeviceID)
+            ?? AVCaptureDevice.default(for: .audio)?.localizedName
+            ?? RecordingSource.microphone.displayName
+    }
+
+    /// "Circle · FaceTime HD Camera" — shape plus which camera is feeding it.
+    var cameraRowSubtitle: String {
+        guard cameraEnabled else { return L("app.camera.off") }
+        let shape = LF("app.camera.subtitle", cameraLayout.shape.displayName)
+        guard let name = cameraDeviceName else { return shape }
+        return "\(shape) · \(name)"
+    }
+
+    var cameraDeviceName: String? {
+        CaptureDevices.name(forCamera: cameraDeviceID)
+            ?? AVCaptureDevice.default(for: .video)?.localizedName
     }
 
     // MARK: - Configuration
@@ -373,14 +432,19 @@ final class GrabiAppModel: ObservableObject {
         return RecordingConfiguration(
             capturesScreen: screenEnabled,
             capturesCamera: cameraEnabled,
-            // The microphone only ever runs while recording.
+            // The microphone has its own monitoring session while framing
+            // (that is what feeds the level meter), so the pipeline only
+            // captures it while recording. System audio stays on: it is
+            // cheap and its meter has to show something real.
             capturesMicrophone: micEnabled && !forPreview,
-            capturesSystemAudio: systemAudioEnabled && !forPreview,
+            capturesSystemAudio: systemAudioEnabled,
             outputURL: url,
             targetWidth: forPreview ? min(quality.targetWidth, Self.previewWidth) : quality.targetWidth,
             framesPerSecond: forPreview ? Self.previewFPS : 30,
             target: currentTarget,
-            cameraLayout: cameraLayout)
+            cameraLayout: cameraLayout,
+            cameraDeviceID: cameraDeviceID,
+            microphoneDeviceID: microphoneDeviceID)
     }
 
     // MARK: - Preview
@@ -404,24 +468,67 @@ final class GrabiAppModel: ObservableObject {
 
     private func sourcesChanged() {
         restartPreviewIfNeeded()
+        if micEnabled {
+            startMicMonitoringIfNeeded()
+        } else {
+            stopMicMonitoring()
+        }
     }
 
-    // MARK: - Mic monitoring (panel open)
+    // MARK: - Capture lifecycle
+
+    /// Everything that captures — screen, camera, microphone — runs only
+    /// while a surface that shows it is on screen. Leaving the Record tab,
+    /// closing or covering the window releases the devices: no camera light
+    /// and no screen-sharing indicator when nobody is looking.
+    func updateCapture() {
+        guard !isActive else { return } // a recording owns the devices
+        if mainWindow.showsPreview || panelIsOpen {
+            restartPreviewIfNeeded()
+            startMicMonitoringIfNeeded()
+        } else {
+            pausePreview()
+            stopMicMonitoring()
+        }
+    }
+
+    private func startMicMonitoringIfNeeded() {
+        guard !isActive, micEnabled, preflight?.microphone.isUsable == true,
+              !micMonitoringWanted else { return }
+        micMonitoringWanted = true
+        let device = microphoneDeviceID
+        Task { await engine.startMicrophoneMonitoring(deviceID: device) }
+    }
+
+    private func stopMicMonitoring() {
+        guard micMonitoringWanted else { return }
+        micMonitoringWanted = false
+        Task { await engine.stopMicrophoneMonitoring() }
+    }
+
+    /// Picking another microphone re-opens the monitoring session on it.
+    private func restartMicMonitoringIfNeeded() {
+        guard micMonitoringWanted else { return }
+        let device = microphoneDeviceID
+        Task {
+            await engine.stopMicrophoneMonitoring()
+            micMonitoringWanted = false
+            startMicMonitoringIfNeeded()
+            _ = device
+        }
+    }
 
     func panelAppeared() {
+        panelIsOpen = true
         Task {
             await refreshAll()
-            if micEnabled, preflight?.microphone.isUsable == true {
-                micMonitoringWanted = true
-                await engine.startMicrophoneMonitoring()
-            }
+            updateCapture()
         }
     }
 
     func panelDisappeared() {
-        guard micMonitoringWanted else { return }
-        micMonitoringWanted = false
-        Task { await engine.stopMicrophoneMonitoring() }
+        panelIsOpen = false
+        updateCapture()
     }
 
     // MARK: - Record
@@ -551,7 +658,7 @@ final class GrabiAppModel: ObservableObject {
             // Release it, and land on the recording that was just made.
             await engine.stopPreview()
             if mainWindow.isVisible { mainWindow.tab = .library }
-            restartPreviewIfNeeded()
+            updateCapture()
         } catch {
             errorMessage = error.localizedDescription
         }

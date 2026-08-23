@@ -1,8 +1,9 @@
 import Foundation
+import RecordEngine
 
-/// Localized strings for the app (the target's Bundle.module).
+/// Localized strings for the app, honoring the in-app language.
 func L(_ key: String) -> String {
-    NSLocalizedString(key, bundle: .module, comment: "")
+    GrabiLocale.bundle(for: .module).localizedString(forKey: key, value: nil, table: nil)
 }
 
 func LF(_ key: String, _ args: CVarArg...) -> String {

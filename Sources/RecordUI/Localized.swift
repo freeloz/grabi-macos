@@ -1,6 +1,7 @@
 import Foundation
+import RecordEngine
 
-/// Localized strings for the components (the target's Bundle.module).
+/// Localized strings for the components, honoring the in-app language.
 func L(_ key: String) -> String {
-    NSLocalizedString(key, bundle: .module, comment: "")
+    GrabiLocale.bundle(for: .module).localizedString(forKey: key, value: nil, table: nil)
 }

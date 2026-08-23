@@ -8,6 +8,37 @@ import RecordUI
 ///   .build/debug/RecordApp --screenshots <dir> -AppleLanguages "(de)"
 @MainActor
 enum Screenshots {
+    /// Runtime check of the capture lifecycle and the in-app language.
+    static func lifecycleTest(model: GrabiAppModel) {
+        model.showMainWindow(tab: .record)
+        RunLoop.main.run(until: Date().addingTimeInterval(4))
+        print("Record tab   → previewing=\(model.engine.isPreviewing) micMonitoring=\(model.isMonitoringMic)")
+        model.mainWindow.tab = .library
+        model.updateCapture()
+        RunLoop.main.run(until: Date().addingTimeInterval(3))
+        print("Recordings   → previewing=\(model.engine.isPreviewing) micMonitoring=\(model.isMonitoringMic)")
+        model.mainWindow.tab = .settings
+        model.updateCapture()
+        RunLoop.main.run(until: Date().addingTimeInterval(2))
+        print("Settings     → previewing=\(model.engine.isPreviewing) micMonitoring=\(model.isMonitoringMic)")
+        model.mainWindow.tab = .record
+        model.updateCapture()
+        RunLoop.main.run(until: Date().addingTimeInterval(3))
+        print("back to Record → previewing=\(model.engine.isPreviewing) micMonitoring=\(model.isMonitoringMic)")
+        print("cameras: \(model.availableCameras.map(\.name))")
+        print("microphones: \(model.availableMicrophones.map(\.name))")
+        let before = model.language
+        model.language = .es
+        print("language es → nav.record = '\(L("app.nav.record"))'")
+        model.language = .de
+        print("language de → nav.record = '\(L("app.nav.record"))'")
+        model.language = before
+        print("restored     → nav.record = '\(L("app.nav.record"))'")
+        model.mainWindow.tab = .library
+        model.updateCapture()
+        RunLoop.main.run(until: Date().addingTimeInterval(2))
+    }
+
     /// Opens the window, then closes it: lets us measure that closing really
     /// releases the capture pipeline instead of leaving it running. Dev only.
     static func idleTest(model: GrabiAppModel) {

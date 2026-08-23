@@ -321,6 +321,57 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: GrabiSpace.s6) {
+            // Devices: which camera and which microphone. Disabled — with an
+            // honest line — when the Mac has none connected.
+            VStack(alignment: .leading, spacing: GrabiSpace.s2) {
+                Text(L("app.settings.devices"))
+                    .font(GrabiFont.bodySemibold)
+                    .foregroundStyle(GrabiColor.text)
+                VStack(spacing: 0) {
+                    devicePicker(
+                        title: L("app.settings.camera"),
+                        empty: L("app.settings.noCamera"),
+                        devices: model.availableCameras,
+                        selection: Binding(get: { model.cameraDeviceID },
+                                           set: { model.cameraDeviceID = $0 }))
+                    RowDivider()
+                    devicePicker(
+                        title: L("app.settings.microphone"),
+                        empty: L("app.settings.noMicrophone"),
+                        devices: model.availableMicrophones,
+                        selection: Binding(get: { model.microphoneDeviceID },
+                                           set: { model.microphoneDeviceID = $0 }))
+                }
+                .background(GrabiColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
+            }
+
+            // Language: Grabi can speak a different language than the Mac.
+            VStack(alignment: .leading, spacing: GrabiSpace.s2) {
+                Text(L("app.settings.language"))
+                    .font(GrabiFont.bodySemibold)
+                    .foregroundStyle(GrabiColor.text)
+                HStack(spacing: 11) {
+                    Text(L("app.settings.language.sub"))
+                        .font(GrabiFont.caption)
+                        .foregroundStyle(GrabiColor.textSecondary)
+                    Spacer(minLength: 0)
+                    Picker("", selection: Binding(get: { model.language },
+                                                  set: { model.language = $0 })) {
+                        ForEach(AppLanguage.allCases) { language in
+                            Text(language.displayName).tag(language)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 170)
+                }
+                .padding(12)
+                .background(GrabiColor.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(GrabiColor.border, lineWidth: 1))
+            }
+
             VStack(alignment: .leading, spacing: GrabiSpace.s2) {
                 Text(L("app.settings.folder"))
                     .font(GrabiFont.bodySemibold)
@@ -441,6 +492,44 @@ struct SettingsView: View {
         .padding(20)
         .frame(minWidth: 380, maxWidth: 560, minHeight: 520, alignment: .top)
         .background(GrabiColor.bg)
+    }
+
+    /// Device row: a menu with what is connected, or a disabled row with an
+    /// honest line when there is nothing to pick.
+    @ViewBuilder
+    private func devicePicker(title: String, empty: String,
+                              devices: [CaptureDeviceInfo],
+                              selection: Binding<String?>) -> some View {
+        HStack(spacing: 11) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(devices.isEmpty ? GrabiColor.textSecondary : GrabiColor.text)
+                if devices.isEmpty {
+                    Text(empty)
+                        .font(GrabiFont.caption)
+                        .foregroundStyle(GrabiColor.textSecondary)
+                }
+            }
+            Spacer(minLength: 0)
+            if devices.isEmpty {
+                Text(L("app.settings.notConnected"))
+                    .font(GrabiFont.caption)
+                    .foregroundStyle(GrabiColor.textSecondary)
+            } else {
+                Picker("", selection: selection) {
+                    Text(L("app.settings.systemDefault")).tag(String?.none)
+                    ForEach(devices) { device in
+                        Text(device.name).tag(String?.some(device.id))
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 190)
+                .disabled(model.isActive)
+            }
+        }
+        .padding(12)
+        .opacity(devices.isEmpty ? 0.55 : 1)
     }
 
     /// Quality row: the whole row is clickable, brand-strong check on the

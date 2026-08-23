@@ -29,6 +29,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Screenshots.idleTest(model: AppShared.model)
             exit(0)
         }
+        if CommandLine.arguments.contains("--lifecycletest") {
+            NSApp.setActivationPolicy(.regular)
+            Screenshots.lifecycleTest(model: AppShared.model)
+            exit(0)
+        }
         if CommandLine.arguments.contains("--selftest") {
             NSApp.setActivationPolicy(.regular)
             MainMenuBuilder.install(model: AppShared.model)

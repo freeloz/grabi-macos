@@ -33,7 +33,7 @@ struct PanelView: View {
                           onPermissionTap: { model.openPermissionFlow(for: .screen) })
                     .disabled(model.isActive)
                 RowDivider()
-                SourceRow(icon: .forShape(model.cameraLayout.shape), title: RecordingSource.camera.displayName, subtitle: model.cameraSubtitle,
+                SourceRow(icon: .forShape(model.cameraLayout.shape), title: RecordingSource.camera.displayName, subtitle: model.cameraRowSubtitle,
                           status: model.status(for: .camera),
                           isOn: Binding(get: { model.cameraEnabled }, set: { model.cameraEnabled = $0 }),
                           onPermissionTap: { model.openPermissionFlow(for: .camera) })
@@ -50,7 +50,7 @@ struct PanelView: View {
                           subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
                           status: model.status(for: .systemAudio),
                           isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
-                          level: model.systemLevel > 0 ? model.systemLevel : nil,
+                          level: model.systemLevel,
                           onPermissionTap: { model.openPermissionFlow(for: .systemAudio) })
                     .disabled(model.isActive)
             }

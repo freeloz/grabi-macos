@@ -24,3 +24,5 @@
 "err.writeFailed" = "Le fichier d'enregistrement n'a pas pu être écrit : %@";
 "err.nothingRecorded" = "L'enregistrement s'est arrêté avant de recevoir la moindre donnée, aucun fichier n'a donc été créé.";
 "err.invalidState" = "Cette action n'est pas possible pour le moment : %@";
+
+"lang.system" = "Comme mon Mac";

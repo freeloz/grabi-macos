@@ -24,3 +24,5 @@
 "err.writeFailed" = "Die Aufnahmedatei konnte nicht geschrieben werden: %@";
 "err.nothingRecorded" = "Die Aufnahme wurde beendet, bevor Daten ankamen — es wurde keine Datei gespeichert.";
 "err.invalidState" = "Diese Aktion ist gerade nicht möglich: %@";
+
+"lang.system" = "Wie mein Mac";

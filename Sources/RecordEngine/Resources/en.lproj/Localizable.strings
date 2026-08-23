@@ -24,3 +24,5 @@
 "err.writeFailed" = "The recording file couldn't be written: %@";
 "err.nothingRecorded" = "The recording stopped before any data arrived, so no file was saved.";
 "err.invalidState" = "That action isn't valid right now: %@";
+
+"lang.system" = "Same as my Mac";

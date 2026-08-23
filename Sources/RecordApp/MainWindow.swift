@@ -54,12 +54,23 @@ final class MainWindowController: NSObject, ObservableObject, NSWindowDelegate {
             }
             window = win
         }
+        Self.dismissMenuBarPanel()
         window?.makeKeyAndOrderFront(nil)
         // Nothing steals focus on open: the ring belongs to keyboard users
         // who tab into a control, not to whoever opens the window.
         window?.makeFirstResponder(nil)
         NSApp.activate(ignoringOtherApps: true)
         model.mainWindowShown()
+    }
+
+    /// The menu bar panel is a floating window of its own: opening the main
+    /// window from it must put it away, or it stays hanging over the app.
+    static func dismissMenuBarPanel() {
+        for window in NSApp.windows
+        where String(describing: type(of: window)).contains("MenuBarExtra")
+            || String(describing: type(of: window)).contains("StatusBar") {
+            window.orderOut(nil)
+        }
     }
 
     func receive(_ pixelBuffer: CVPixelBuffer) {
@@ -114,7 +125,7 @@ struct MainWindowRoot: View {
             }
         }
         .background(GrabiColor.bg)
-        .onChange(of: controller.tab) { _ in model.restartPreviewIfNeeded() }
+        .onChange(of: controller.tab) { _ in model.updateCapture() }
     }
 
     private var appBody: some View {
@@ -235,11 +246,19 @@ private struct RecordPanel: View {
                 ))
                 .disabled(model.isActive)
 
-                Button(L("app.change")) { model.pickCaptureSource() }
-                    .buttonStyle(.plain)
-                    .font(GrabiFont.caption)
-                    .foregroundStyle(GrabiColor.brandStrong)
-                    .disabled(model.isActive)
+                Button(L("app.change")) {
+                    // Region draws a new region; screen and window open the
+                    // visual picker. Same behavior as the menu bar panel.
+                    if model.captureMode == .region {
+                        model.pickRegion()
+                    } else {
+                        model.pickCaptureSource()
+                    }
+                }
+                .buttonStyle(.plain)
+                .font(GrabiFont.caption)
+                .foregroundStyle(GrabiColor.brandStrong)
+                .disabled(model.isActive)
 
                 Spacer(minLength: GrabiSpace.s2)
 
@@ -263,7 +282,7 @@ private struct RecordPanel: View {
                     RowDivider()
                     SourceRow(icon: .forShape(model.cameraLayout.shape),
                               title: RecordingSource.camera.displayName,
-                              subtitle: model.cameraSubtitle,
+                              subtitle: model.cameraRowSubtitle,
                               status: model.status(for: .camera),
                               isOn: Binding(get: { model.cameraEnabled }, set: { model.cameraEnabled = $0 }),
                               onPermissionTap: { model.openPermissionFlow(for: .camera) })
@@ -282,7 +301,7 @@ private struct RecordPanel: View {
                               subtitle: model.systemAudioEnabled ? L("app.on") : L("app.off"),
                               status: model.status(for: .systemAudio),
                               isOn: Binding(get: { model.systemAudioEnabled }, set: { model.systemAudioEnabled = $0 }),
-                              level: model.systemLevel > 0 ? model.systemLevel : nil,
+                              level: model.systemLevel,
                               onPermissionTap: { model.openPermissionFlow(for: .systemAudio) })
                         .disabled(model.isActive)
                 }

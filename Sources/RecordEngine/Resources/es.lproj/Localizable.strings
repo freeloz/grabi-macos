@@ -24,3 +24,5 @@
 "err.writeFailed" = "No se pudo escribir el archivo de grabación: %@";
 "err.nothingRecorded" = "La grabación se detuvo antes de recibir ningún dato, así que no se guardó ningún archivo.";
 "err.invalidState" = "Operación no válida en el estado actual: %@";
+
+"lang.system" = "El mismo de mi Mac";

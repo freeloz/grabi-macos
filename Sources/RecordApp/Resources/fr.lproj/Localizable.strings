@@ -145,3 +145,13 @@
 "menu.front" = "Tout ramener au premier plan";
 "menu.help" = "Aide";
 "menu.website" = "grabi.net";
+
+"app.settings.devices" = "Appareils";
+"app.settings.camera" = "Caméra";
+"app.settings.microphone" = "Microphone";
+"app.settings.noCamera" = "Aucune caméra connectée";
+"app.settings.noMicrophone" = "Aucun microphone connecté";
+"app.settings.notConnected" = "Non disponible";
+"app.settings.systemDefault" = "Celui du système";
+"app.settings.language" = "Langue";
+"app.settings.language.sub" = "Grabi peut parler une autre langue que votre Mac.";
