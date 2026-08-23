@@ -542,6 +542,16 @@ final class GrabiAppModel: ObservableObject {
             library.newestURL = url
             refreshLibrary()
             NotificationManager.shared.showRecordingDone(url: url, duration: elapsed, model: self)
+
+            // The pipeline that fed the writer stays alive to keep feeding the
+            // preview — but it was built for RECORDING: full quality, 30 fps,
+            // microphone and system audio. Leaving it running keeps the camera
+            // light on and macOS showing "Currently Sharing" after the user
+            // pressed stop, which is exactly what Grabi promises never to do.
+            // Release it, and land on the recording that was just made.
+            await engine.stopPreview()
+            if mainWindow.isVisible { mainWindow.tab = .library }
+            restartPreviewIfNeeded()
         } catch {
             errorMessage = error.localizedDescription
         }

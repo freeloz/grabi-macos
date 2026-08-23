@@ -30,6 +30,7 @@ enum Screenshots {
         RunLoop.main.run(until: Date().addingTimeInterval(12))
         Task { await model.stop() }
         RunLoop.main.run(until: Date().addingTimeInterval(4))
+        print("stopped — holding 45s so the idle cost after stopping can be measured")
         if let url = model.lastRecordingURL {
             let size = (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
             print("✓ recorded: \(url.lastPathComponent) — \(ByteCountFormatter.string(fromByteCount: size ?? 0, countStyle: .file))")
@@ -37,6 +38,7 @@ enum Screenshots {
         } else {
             print("✗ no recording produced — \(model.errorMessage ?? "no error reported")")
         }
+        RunLoop.main.run(until: Date().addingTimeInterval(45))
     }
 
     /// Captures the REAL main window (AppKit render) — what ImageRenderer
