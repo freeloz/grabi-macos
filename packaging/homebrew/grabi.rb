@@ -7,8 +7,8 @@
 #
 # See packaging/homebrew/README.md for how and where to publish.
 cask "grabi" do
-  version "0.1.7"
-  sha256 "4250d64321ca4388ce4113c17c0bf78bf69e46271d8be27dcca08c6e7204b02c" # printed by scripts/publish-release.sh
+  version "0.1.8"
+  sha256 "7ecef7c1487a45ca69bc6c0d4af32d515de92026cf855400201ce7c7d23e82b8" # printed by scripts/publish-release.sh
 
   url "https://dl.grabi.net/macos/v#{version}/Grabi-#{version}.dmg"
   name "Grabi"
