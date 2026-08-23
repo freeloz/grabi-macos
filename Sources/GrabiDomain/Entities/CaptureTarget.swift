@@ -9,6 +9,21 @@ public enum CaptureTarget: Equatable, Hashable, Sendable {
     case region(displayID: CGDirectDisplayID?, rect: CGRect)
 
     public static let mainDisplay = CaptureTarget.display(nil)
+
+    /// Written by hand: CGRect's Hashable conformance is not something every
+    /// toolchain synthesizes for us here.
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .display(let id):
+            hasher.combine(0); hasher.combine(id)
+        case .window(let id):
+            hasher.combine(1); hasher.combine(id)
+        case .region(let id, let rect):
+            hasher.combine(2); hasher.combine(id)
+            hasher.combine(rect.origin.x); hasher.combine(rect.origin.y)
+            hasher.combine(rect.size.width); hasher.combine(rect.size.height)
+        }
+    }
 }
 
 /// How the user chose to frame the capture (drives the picker in the UI).
