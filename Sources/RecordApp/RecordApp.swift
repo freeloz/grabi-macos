@@ -17,6 +17,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Screenshots.renderAll(to: CommandLine.arguments[idx + 1], model: AppShared.model)
             exit(0)
         }
+        if let idx = CommandLine.arguments.firstIndex(of: "--press-shots"),
+           CommandLine.arguments.count > idx + 1 {
+            NSApp.setActivationPolicy(.regular)
+            MainMenuBuilder.install(model: AppShared.model)
+            Screenshots.captureStaged(to: CommandLine.arguments[idx + 1], model: AppShared.model)
+            exit(0)
+        }
         if let idx = CommandLine.arguments.firstIndex(of: "--window-shot"),
            CommandLine.arguments.count > idx + 1 {
             NSApp.setActivationPolicy(.regular)

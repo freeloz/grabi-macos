@@ -8,6 +8,77 @@ import RecordUI
 ///   .build/debug/RecordApp --screenshots <dir> -AppleLanguages "(de)"
 @MainActor
 enum Screenshots {
+    /// Press screenshots: the real app, staged so nothing personal ends up
+    /// in a public README — other apps hidden, camera off, and a staging
+    /// folder with clips recorded on the spot for the library thumbnails.
+    static func captureStaged(to dir: String, model: GrabiAppModel) {
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let staging = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("grabi-press-clips", isDirectory: true)
+        try? FileManager.default.removeItem(at: staging)
+        try? FileManager.default.createDirectory(at: staging, withIntermediateDirectories: true)
+
+        let previousFolder = model.destinationFolder
+        let previousCamera = model.cameraEnabled
+        let wasDone = model.onboardingDone
+        model.onboardingDone = true
+        model.destinationFolder = staging
+        model.showMainWindow(tab: .record)
+        RunLoop.main.run(until: Date().addingTimeInterval(3))
+        // A region of the wallpaper: no desktop icons, no file names, and
+        // no camera — a public screenshot should carry nobody's private
+        // anything. Re-asserted after the refresh that follows showing the
+        // window, which restores the sources from the permissions.
+        // Prefer a browser window showing grabi.net: it fills the preview,
+        // it is ours, and it carries nobody's private anything. Falls back
+        // to a clean strip of the wallpaper.
+        // Window mode captures only that window, so nothing else on the
+        // desktop can leak into the shot.
+        if let site = model.availableWindows.first(where: { $0.title.localizedCaseInsensitiveContains("Grabi") }) {
+            model.captureMode = .window
+            model.selectedWindow = site
+        } else {
+            NSApp.hideOtherApplications(nil)
+            model.captureMode = .region
+            model.regionRect = CGRect(x: 40, y: 120, width: 1160, height: 720) // preview aspect: no letterbox
+        }
+        model.cameraEnabled = false
+        RunLoop.main.run(until: Date().addingTimeInterval(3))
+
+        // Three real clips so the library has real thumbnails and durations.
+        for _ in 0..<3 {
+            model.cameraEnabled = false
+            model.requestStart()
+            RunLoop.main.run(until: Date().addingTimeInterval(8))
+            Task { await model.stop() }
+            RunLoop.main.run(until: Date().addingTimeInterval(3))
+        }
+        model.refreshLibrary()
+        RunLoop.main.run(until: Date().addingTimeInterval(3))
+
+        for (suffix, appearance) in [("dark", NSAppearance(named: .darkAqua)),
+                                     ("light", NSAppearance(named: .aqua))] {
+            NSApp.appearance = appearance
+            for tab in MainTab.allCases {
+                model.cameraEnabled = false
+                model.showMainWindow(tab: tab)
+                RunLoop.main.run(until: Date().addingTimeInterval(2))
+                guard let view = model.mainWindow.window?.contentView,
+                      let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { continue }
+                view.cacheDisplay(in: view.bounds, to: rep)
+                if let png = rep.representation(using: .png, properties: [:]) {
+                    try? png.write(to: URL(fileURLWithPath: dir)
+                        .appendingPathComponent("grabi-\(tab.rawValue)-\(suffix).png"))
+                    print("✓ grabi-\(tab.rawValue)-\(suffix).png")
+                }
+            }
+        }
+        NSApp.appearance = nil
+        model.destinationFolder = previousFolder
+        model.cameraEnabled = previousCamera
+        model.onboardingDone = wasDone
+    }
+
     /// Runtime check of the capture lifecycle and the in-app language.
     static func lifecycleTest(model: GrabiAppModel) {
         model.showMainWindow(tab: .record)
@@ -78,7 +149,28 @@ enum Screenshots {
         try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
         let wasDone = model.onboardingDone
         model.onboardingDone = true
-        for tab in MainTab.allCases {
+        // Both appearances: the README should show the app as each user sees it.
+        let appearances: [(String, NSAppearance?)] = [
+            ("dark", NSAppearance(named: .darkAqua)),
+            ("light", NSAppearance(named: .aqua)),
+        ]
+        for (suffix, appearance) in appearances {
+            NSApp.appearance = appearance
+            for tab in MainTab.allCases {
+                model.showMainWindow(tab: tab)
+                RunLoop.main.run(until: Date().addingTimeInterval(2.0))
+                guard let view = model.mainWindow.window?.contentView,
+                      let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { continue }
+                view.cacheDisplay(in: view.bounds, to: rep)
+                if let png = rep.representation(using: .png, properties: [:]) {
+                    try? png.write(to: URL(fileURLWithPath: dir)
+                        .appendingPathComponent("grabi-\(tab.rawValue)-\(suffix).png"))
+                    print("✓ grabi-\(tab.rawValue)-\(suffix).png")
+                }
+            }
+        }
+        NSApp.appearance = nil
+        for tab in [MainTab]() {
             model.showMainWindow(tab: tab)
             RunLoop.main.run(until: Date().addingTimeInterval(2.0))
             guard let view = model.mainWindow.window?.contentView,

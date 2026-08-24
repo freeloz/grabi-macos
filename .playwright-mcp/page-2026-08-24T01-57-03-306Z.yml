@@ -1,0 +1,353 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to content" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main"
+  - navigation "Main" [ref=f1e3]:
+    - link "Grabi" [ref=f1e4] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f1e11]:
+        - text: grab
+        - generic [ref=f1e12]: ı
+    - generic [ref=f1e14]:
+      - link "How it works" [ref=f1e15] [cursor=pointer]:
+        - /url: /#como
+      - link "Features" [ref=f1e16] [cursor=pointer]:
+        - /url: /#features
+      - link "Compare" [ref=f1e17] [cursor=pointer]:
+        - /url: /#comparativa
+      - link "FAQ" [ref=f1e18] [cursor=pointer]:
+        - /url: /#faq
+    - generic [ref=f1e19]:
+      - group [ref=f1e20]:
+        - generic "Choose language" [ref=f1e21] [cursor=pointer]:
+          - text: English
+          - generic [ref=f1e22]: ▾
+      - button "Switch between light and dark mode" [ref=f1e23] [cursor=pointer]
+      - link "GitHub" [ref=f1e27] [cursor=pointer]:
+        - /url: https://github.com/freeloz/grabi-macos
+        - generic [ref=f1e28]: ★
+      - link "Download" [ref=f1e30] [cursor=pointer]:
+        - /url: https://dl.grabi.net/macos/latest/Grabi.dmg
+  - main [ref=f1e31]:
+    - generic [ref=f1e32]:
+      - generic [ref=f1e33]:
+        - timer "Recording" [ref=f1e34]:
+          - generic [ref=f1e36]: REC
+          - generic [ref=f1e37]: 0:00
+        - generic [ref=f1e38]:
+          - heading "Record your screen, no drama." [level=1] [ref=f1e39]
+          - paragraph [ref=f1e40]: Everything the paid apps charge monthly for — screen, camera, microphone and system audio, up to 4K — free and easier. No account, no watermark.
+          - generic [ref=f1e41]:
+            - link "Download free for macOS" [ref=f1e42] [cursor=pointer]:
+              - /url: https://dl.grabi.net/macos/latest/Grabi.dmg
+            - generic [ref=f1e45]:
+              - text: ~3 MB · macOS 13+ · Apple Silicon & Intel ·
+              - link "view on GitHub ★" [ref=f1e46] [cursor=pointer]:
+                - /url: https://github.com/freeloz/grabi-macos
+        - generic "Interactive Grabi demo" [ref=f1e47]:
+          - generic [ref=f1e48]: Grabi — demo
+          - generic [ref=f1e53]:
+            - generic [ref=f1e54]:
+              - generic [ref=f1e55]: 
+              - generic [ref=f1e56]: Keynote
+              - generic [ref=f1e57]: File
+              - generic [ref=f1e58]: Edit
+              - generic [ref=f1e59]: Help
+              - generic [ref=f1e60]: 9:41
+            - generic [ref=f1e61]:
+              - generic [ref=f1e62]: Photosynthesis — class 4
+              - generic [ref=f1e67]:
+                - strong [ref=f1e68]: What does a plant need?
+                - generic [ref=f1e70]:
+                  - generic [ref=f1e71]: Sunlight
+                  - generic [ref=f1e73]: Water
+                  - generic [ref=f1e75]: CO₂
+            - generic [ref=f1e91]:
+              - button "watch the demo · 15 s · full flow" [ref=f1e92] [cursor=pointer]
+              - generic [ref=f1e95]: watch the demo · 15 s · full flow
+      - list [ref=f1e96]:
+        - listitem [ref=f1e97]: Free forever
+        - listitem [ref=f1e99]: No limits
+        - listitem [ref=f1e101]: No account
+        - listitem [ref=f1e103]: No watermark
+        - listitem [ref=f1e105]: Open source
+        - listitem [ref=f1e107]: 100% native
+    - generic [ref=f1e109]:
+      - generic [ref=f1e110]:
+        - generic [ref=f1e111]:
+          - generic [ref=f1e112]: How it works
+          - heading "Three steps. Zero setup." [level=2] [ref=f1e113]
+        - generic [ref=f1e114]:
+          - generic [ref=f1e115]:
+            - generic [ref=f1e116]: "1"
+            - generic [ref=f1e134]:
+              - strong [ref=f1e135]: Pick your sources
+              - paragraph [ref=f1e136]: Screen, camera, mic, system audio — one switch each.
+          - generic [ref=f1e137]:
+            - generic [ref=f1e138]: "2"
+            - generic [ref=f1e139]:
+              - generic [ref=f1e141]: Record
+              - generic [ref=f1e142]: ⌘⇧2
+            - generic [ref=f1e143]:
+              - strong [ref=f1e144]: Press record
+              - paragraph [ref=f1e145]: A 3-second countdown and you're recording. Pause anytime.
+          - generic [ref=f1e146]:
+            - generic [ref=f1e147]: "3"
+            - generic [ref=f1e148]: Done! Recording ready
+            - generic [ref=f1e155]:
+              - strong [ref=f1e156]: Your video, right on your Mac
+              - paragraph [ref=f1e157]: Saved as a normal file, uploaded nowhere. Share it however you like.
+        - paragraph [ref=f1e158]: No account. No scenes. No manual.
+      - generic [ref=f1e159]:
+        - generic [ref=f1e160]: Features
+        - heading "Everything you need. Nothing in the way." [level=2] [ref=f1e161]
+      - generic [ref=f1e162]:
+        - generic [ref=f1e163]:
+          - generic [ref=f1e164]: Four sources
+          - heading "One switch per source. Combine them any way." [level=2] [ref=f1e165]
+          - paragraph [ref=f1e166]: Screen, camera, microphone and system audio. Screen only, screen + face, voice only — you decide with four switches. No scenes, no mixers.
+        - generic [ref=f1e168]:
+          - generic [ref=f1e169]: Screen
+          - generic [ref=f1e174]: Camera
+          - generic [ref=f1e181]: Microphone
+          - generic [ref=f1e187]: System audio
+      - generic [ref=f1e193]:
+        - generic [ref=f1e194]: Your camera, your way
+        - generic [ref=f1e227]:
+          - generic [ref=f1e228]: Your camera, your way
+          - heading "Circle, square or rectangle. Wherever you say." [level=2] [ref=f1e229]
+          - paragraph [ref=f1e230]: Drag your camera to any corner, resize it from the corners and change its shape live — before and during the recording.
+      - generic [ref=f1e231]:
+        - generic [ref=f1e232]:
+          - generic [ref=f1e233]: Capture just enough
+          - heading "The whole screen, one window, or just a slice." [level=2] [ref=f1e234]
+          - paragraph [ref=f1e235]: "Choose what shows: the full screen, a single app (everything else doesn't exist), or an exact region you draw yourself."
+        - generic [ref=f1e237]:
+          - generic [ref=f1e238]: Screen
+          - generic [ref=f1e241]: Window
+          - generic [ref=f1e244]: Region
+      - generic [ref=f1e250]:
+        - generic [ref=f1e251]:
+          - generic [ref=f1e252]:
+            - generic [ref=f1e253]: Standard
+            - generic [ref=f1e254]: Sharp
+          - generic [ref=f1e255]:
+            - generic [ref=f1e256]: 1080p
+            - generic [ref=f1e257]: 1440p
+            - generic [ref=f1e258]: 4K
+            - generic [ref=f1e259]: 60 fps
+        - generic [ref=f1e260]:
+          - generic [ref=f1e261]: Quality without a toll
+          - heading "Sharp up to 4K. Still free." [level=2] [ref=f1e262]
+          - paragraph [ref=f1e263]: "Two modes, done: Standard for light sharing, Sharp up to 4K for tutorials where every pixel counts. Neither is behind a paywall."
+      - generic [ref=f1e264]:
+        - generic [ref=f1e265]:
+          - generic [ref=f1e266]: Control without clutter
+          - heading "Pause, resume and stop — without hunting for the window." [level=2] [ref=f1e267]
+          - paragraph [ref=f1e268]: A minimal floating pill (that never shows up in your video) and global shortcuts to control everything without interrupting what you're showing.
+          - generic [ref=f1e269]:
+            - generic [ref=f1e270]: ⌘⇧2 record/stop
+            - generic [ref=f1e271]: ⌘⇧P pause
+        - generic [ref=f1e272]: 12:34
+      - generic [ref=f1e288]:
+        - generic [ref=f1e289]:
+          - generic [ref=f1e290]: Who it’s for
+          - heading "Made for explaining things." [level=2] [ref=f1e291]
+        - generic [ref=f1e292]:
+          - generic [ref=f1e299]:
+            - strong [ref=f1e300]: Classes & tutorials
+            - paragraph [ref=f1e301]: Record the lesson once, share it a thousand times. Your face and your screen, together.
+          - generic [ref=f1e308]:
+            - strong [ref=f1e309]: Support & demos
+            - paragraph [ref=f1e310]: Show the steps instead of writing them. An exact region, zero noise.
+          - generic [ref=f1e319]:
+            - strong [ref=f1e320]: Team messages
+            - paragraph [ref=f1e321]: A two-minute video saves the thirty-minute meeting. Record it and paste it in the chat.
+          - generic [ref=f1e332]:
+            - strong [ref=f1e333]: Social content
+            - paragraph [ref=f1e334]: "Up to 4K with no watermark: from clip to feed, exactly as you recorded it."
+      - generic [ref=f1e335]:
+        - generic [ref=f1e336]:
+          - generic [ref=f1e337]: Honest comparison
+          - heading "Compare without fine print." [level=2] [ref=f1e338]
+        - table [ref=f1e340]:
+          - rowgroup [ref=f1e341]:
+            - row [ref=f1e342]:
+              - columnheader "Feature" [ref=f1e343]
+              - columnheader "Grabi" [ref=f1e345]
+              - columnheader "OBS" [ref=f1e350]
+              - columnheader "Loom" [ref=f1e351]
+              - columnheader "Screen Studio" [ref=f1e352]
+              - columnheader "CleanShot X" [ref=f1e353]
+          - rowgroup [ref=f1e354]:
+            - row [ref=f1e355]:
+              - rowheader "Price" [ref=f1e356]
+              - cell "Free, always" [ref=f1e357]
+              - cell "Free" [ref=f1e358]
+              - cell "Subscription" [ref=f1e359]
+              - cell "One-time" [ref=f1e360]
+              - cell "Paid" [ref=f1e361]
+            - row [ref=f1e362]:
+              - rowheader "Recording limits" [ref=f1e363]
+              - cell "None" [ref=f1e364]
+              - cell "None" [ref=f1e365]
+              - cell "On free plan" [ref=f1e366]
+              - cell "None" [ref=f1e367]
+              - cell "None" [ref=f1e368]
+            - row [ref=f1e369]:
+              - rowheader "Account required" [ref=f1e370]
+              - cell "No" [ref=f1e371]
+              - cell "No" [ref=f1e372]
+              - cell "Yes" [ref=f1e373]
+              - cell "No" [ref=f1e374]
+              - cell "No" [ref=f1e375]
+            - row [ref=f1e376]:
+              - rowheader "Watermark" [ref=f1e377]
+              - cell "Never" [ref=f1e378]
+              - cell "No" [ref=f1e379]
+              - cell "On free plan" [ref=f1e380]
+              - cell "No" [ref=f1e381]
+              - cell "No" [ref=f1e382]
+            - row [ref=f1e383]:
+              - rowheader "Learning curve" [ref=f1e384]
+              - cell "5 minutes" [ref=f1e385]
+              - cell "Steep" [ref=f1e386]
+              - cell "Low" [ref=f1e387]
+              - cell "Medium" [ref=f1e388]
+              - cell "Low" [ref=f1e389]
+            - row [ref=f1e390]:
+              - rowheader "100% native app" [ref=f1e391]
+              - cell "✓" [ref=f1e392]
+              - cell "✓" [ref=f1e393]
+              - cell "✕ web" [ref=f1e394]
+              - cell "✓" [ref=f1e395]
+              - cell "✓" [ref=f1e396]
+            - row [ref=f1e397]:
+              - rowheader "Records local & private" [ref=f1e398]
+              - cell "Always" [ref=f1e399]
+              - cell "✓" [ref=f1e400]
+              - cell "Cloud-first" [ref=f1e401]
+              - cell "✓" [ref=f1e402]
+              - cell "✓" [ref=f1e403]
+            - row [ref=f1e404]:
+              - rowheader "Open source" [ref=f1e405]
+              - cell "MIT" [ref=f1e406]
+              - cell "✓" [ref=f1e407]
+              - cell "✕" [ref=f1e408]
+              - cell "✕" [ref=f1e409]
+              - cell "✕" [ref=f1e410]
+            - row [ref=f1e411]:
+              - rowheader "Built-in editing" [ref=f1e412]
+              - cell "✕" [ref=f1e413]
+              - cell "Basic" [ref=f1e414]
+              - cell "Trims" [ref=f1e415]
+              - cell "✓ its strength" [ref=f1e416]
+              - cell "✓" [ref=f1e417]
+            - row [ref=f1e418]:
+              - rowheader "Cloud & links" [ref=f1e419]
+              - cell "✕ your file, your call" [ref=f1e420]
+              - cell "✕" [ref=f1e421]
+              - cell "✓ its strength" [ref=f1e422]
+              - cell "✕" [ref=f1e423]
+              - cell "Basic" [ref=f1e424]
+        - paragraph [ref=f1e425]: "Being honest: Screen Studio edits beautifully and Loom shares by link better than anyone. Grabi has a different focus — recording well, free and private. If you need an editor or cloud, those apps are good choices."
+      - generic [ref=f1e426]:
+        - generic [ref=f1e427]:
+          - generic [ref=f1e428]: Privacy
+          - heading "An app that sees your screen has to earn your trust." [level=2] [ref=f1e429]
+        - generic [ref=f1e430]:
+          - generic [ref=f1e431]:
+            - strong [ref=f1e436]: Everything stays on your Mac
+            - generic [ref=f1e437]: Every video is saved as a local file. Nothing uploads to any server, ever.
+          - generic [ref=f1e438]:
+            - strong [ref=f1e443]: No account, no sign-up
+            - generic [ref=f1e444]: We don't know who you are, and that's fine. Download, open, record.
+          - generic [ref=f1e445]:
+            - strong [ref=f1e451]: No hidden telemetry
+            - generic [ref=f1e452]: Zero trackers. The only statistic that exists is the download counter.
+          - generic [ref=f1e453]:
+            - strong [ref=f1e458]: Verifiable, not promised
+            - generic [ref=f1e459]: "The code is open: anyone can check that we do what we say."
+        - paragraph [ref=f1e460]: And while you record, the ● REC badge is always visible — Grabi never records without you seeing it.
+      - generic [ref=f1e462]:
+        - generic [ref=f1e463]: Open source
+        - heading "Open, because trust is verified." [level=3] [ref=f1e464]
+        - generic [ref=f1e465]:
+          - generic [ref=f1e466]: freeloz/grabi-macos
+          - generic [ref=f1e467]: MIT
+          - generic [ref=f1e468]: ★ —
+          - generic [ref=f1e469]: Swift
+        - generic [ref=f1e470]:
+          - link "View the code" [ref=f1e471] [cursor=pointer]:
+            - /url: https://github.com/freeloz/grabi-macos
+          - link "Contribute" [ref=f1e472] [cursor=pointer]:
+            - /url: https://github.com/freeloz/grabi-macos/blob/main/CONTRIBUTING.md
+          - link "Report a bug" [ref=f1e473] [cursor=pointer]:
+            - /url: https://github.com/freeloz/grabi-macos/issues/new
+      - generic [ref=f1e474]:
+        - generic [ref=f1e475]:
+          - generic [ref=f1e476]: FAQ
+          - heading "Frequently asked questions" [level=2] [ref=f1e477]
+        - generic [ref=f1e478]:
+          - group [ref=f1e479]:
+            - generic "Is it really free?" [ref=f1e480] [cursor=pointer]
+          - group [ref=f1e481]:
+            - generic "Are there limits or a watermark?" [ref=f1e482] [cursor=pointer]
+          - group [ref=f1e483]:
+            - generic "Do I need an account?" [ref=f1e484] [cursor=pointer]
+          - group [ref=f1e485]:
+            - generic "Which macOS versions are supported?" [ref=f1e486] [cursor=pointer]
+          - group [ref=f1e487]:
+            - generic "macOS says Grabi \"is damaged\" or it never opens?" [ref=f1e488] [cursor=pointer]
+          - group [ref=f1e489]:
+            - generic "Does it run on Apple Silicon and Intel?" [ref=f1e490] [cursor=pointer]
+          - group [ref=f1e491]:
+            - generic "What about Windows or Linux?" [ref=f1e492] [cursor=pointer]
+          - group [ref=f1e493]:
+            - generic "Where are my videos stored?" [ref=f1e494] [cursor=pointer]
+          - group [ref=f1e495]:
+            - generic "How big are the recordings?" [ref=f1e496] [cursor=pointer]
+          - group [ref=f1e497]:
+            - generic "Does it record system audio without installing drivers?" [ref=f1e498] [cursor=pointer]
+          - group [ref=f1e499]:
+            - generic "How is the project funded?" [ref=f1e500] [cursor=pointer]
+      - generic [ref=f1e501]:
+        - heading "Your next recording is one click away." [level=2] [ref=f1e511]
+        - link "Download free for macOS" [ref=f1e512] [cursor=pointer]:
+          - /url: https://dl.grabi.net/macos/latest/Grabi.dmg
+        - generic [ref=f1e515]: ~3 MB · macOS 13+ · free forever
+  - contentinfo [ref=f1e516]:
+    - generic [ref=f1e517]:
+      - generic [ref=f1e518]:
+        - generic [ref=f1e525]:
+          - text: grab
+          - generic [ref=f1e526]: ı
+        - generic [ref=f1e528]: Record your screen, no drama. Free, unlimited, and nothing leaves your Mac.
+        - group [ref=f1e529]:
+          - generic "Choose language" [ref=f1e530] [cursor=pointer]:
+            - text: English
+            - generic [ref=f1e531]: ▾
+      - navigation "Product" [ref=f1e532]:
+        - strong [ref=f1e533]: Product
+        - link "Download" [ref=f1e534] [cursor=pointer]:
+          - /url: https://dl.grabi.net/macos/latest/Grabi.dmg
+        - link "Changelog" [ref=f1e535] [cursor=pointer]:
+          - /url: /changelog
+        - link "Roadmap" [ref=f1e536] [cursor=pointer]:
+          - /url: https://github.com/freeloz/grabi-macos/milestones
+        - link "FAQ" [ref=f1e537] [cursor=pointer]:
+          - /url: /#faq
+      - navigation "Resources" [ref=f1e538]:
+        - strong [ref=f1e539]: Resources
+        - link "GitHub" [ref=f1e540] [cursor=pointer]:
+          - /url: https://github.com/freeloz/grabi-macos
+        - link "Press kit" [ref=f1e541] [cursor=pointer]:
+          - /url: /press
+        - link "Report a bug" [ref=f1e542] [cursor=pointer]:
+          - /url: https://github.com/freeloz/grabi-macos/issues/new
+      - navigation "Contact" [ref=f1e543]:
+        - strong [ref=f1e544]: Contact
+        - link "hola@grabi.net" [ref=f1e545] [cursor=pointer]:
+          - /url: mailto:hola@grabi.net
+    - generic [ref=f1e546]:
+      - generic [ref=f1e547]: © 2026 Grabi · MIT License · made calmly by Freeloz
+      - generic [ref=f1e548]: "The ● REC badge, always visible: we never record without you seeing it."

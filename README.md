@@ -1,198 +1,156 @@
+<div align="center">
+
+<img src="docs/images/grabi-mark.svg" width="88" alt="Grabi" />
+
 # Grabi
 
-**Record your screen, no drama.** Grabi is a native macOS screen recorder
-with one window that holds everything — record, your recordings, settings.
-Open it, hit the red dot, done. The opposite of OBS. It also keeps a menu
-bar item for recording without opening the window.
+### Record your screen, no drama.
 
-- **4 independent sources**, any combination: screen (full display, a
-  window, or a region), selfie camera, microphone, and system audio.
-- **Picture-in-picture camera** with free shape (circle / square /
-  rectangle), position and size — adjustable **live** while recording, by
-  dragging the floating box you always see while you record. Mirrored,
-  like every selfie.
-- **Live preview**: what you see is exactly what gets recorded.
-- **Pause/resume** with no gaps in the file. Floating pill with a timer,
-  excluded from the recording (like every Grabi window).
-- **A single .mov** with hardware HEVC video and the microphone and system
-  audio on **two separate tracks** (~2.2 GB/hour observed at 1080p).
-- Visual display and window picker with thumbnails, red border around the
-  recorded area, notification with thumbnail when you finish, onboarding
-  with Grabi (the mascot), global shortcuts ⌘⇧2 and ⌘⇧P.
-- In 5 languages (English default), with the brand voice. Everything local:
-  nothing leaves your Mac.
+A native macOS screen recorder that fits in one window: pick what to record,
+hit the red dot, done. Free, no account, no watermark, nothing leaves your Mac.
+
+[![Download](https://img.shields.io/badge/Download-macOS%2013%2B-C93A32?style=for-the-badge)](https://dl.grabi.net/macos/latest/Grabi.dmg)
+[![grabi.net](https://img.shields.io/badge/grabi.net-26221C?style=for-the-badge)](https://grabi.net)
+
+![CI](https://github.com/freeloz/grabi-macos/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-2E7D4C)
+![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)
+![Languages](https://img.shields.io/badge/languages-EN%20·%20ES%20·%20PT%20·%20FR%20·%20DE-5C5548)
+![Tests](https://img.shields.io/badge/tests-41%20passing-2E7D4C)
+
+<img src="docs/images/grabi-record-light.png" width="820" alt="Grabi's main window: live preview, sources and the record button" />
+
+</div>
+
+---
+
+## What it does
+
+Four independent sources — **screen** (a display, a window or a region you
+draw), **camera**, **microphone** and **system audio** — recorded together
+into a single `.mov`: hardware HEVC video plus the microphone and the system
+audio on **two separate tracks**, so you can mix them later.
+
+|  |  |
+|---|---|
+| **Live preview** | What you see is exactly what gets recorded. |
+| **Camera as you like it** | Circle, square or rectangle — dragged, resized and reshaped **while recording**. |
+| **Pause without gaps** | N pauses, zero seams in the file. |
+| **Live level meters** | Microphone and system audio, so you know they are actually there. |
+| **Global shortcuts** | ⌘⇧2 record/stop · ⌘⇧P pause, from any app. |
+| **Everything local** | No account, no cloud, no watermark. The ● REC badge is always visible. |
+
+## The window
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/grabi-record-dark.png" alt="Record" /><p align="center"><b>Record</b> — sources, preview and the red dot</p></td>
+<td width="50%"><img src="docs/images/grabi-library-dark.png" alt="Recordings" /><p align="center"><b>Recordings</b> — play, reveal, copy or trash</p></td>
+</tr>
+</table>
+
+<p align="center">
+<img src="docs/images/grabi-settings-light.png" width="620" alt="Settings" /><br/>
+<b>Settings</b> — devices, language, folder, quality, shortcuts and updates
+</p>
+
+While recording, the window steps aside: a floating pill (timer, pause, mute,
+camera off, stop), a red border around what is being captured, and the selfie
+frame you can drag live. Grabi's own windows never appear in your video.
 
 ## Download
 
-Latest version for macOS 13+ (signed DMG):
+**[Grabi for macOS 13+](https://dl.grabi.net/macos/latest/Grabi.dmg)** ·
+[all versions](https://github.com/freeloz/grabi-macos/releases) ·
+[checksums](https://dl.grabi.net/macos/latest.json)
 
-- **https://dl.grabi.net/macos/latest/Grabi.dmg**
-- Manifest with version and checksum: https://dl.grabi.net/macos/latest.json
-- Previous versions: `https://dl.grabi.net/macos/v<version>/…` and the
-  [GitHub releases](https://github.com/freeloz/grabi-macos/releases).
-
-Every DMG publishes its SHA-256 next to the file (`.sha256` and
-`SHA256SUMS.txt`). Verify it like this:
+Every DMG publishes its SHA-256 next to the file:
 
 ```bash
 shasum -a 256 Grabi-*.dmg   # must match the published .sha256
 ```
 
-> Interim signing: local "Grabi Dev" certificate with hardened runtime (no
-> Apple notarization yet). First launch: System Settings → Privacy &
-> Security → "Open Anyway". If macOS claims the app "is damaged" (recent
-> versions do this to non-notarized apps), run
-> `xattr -cr /Applications/Grabi.app` once — it only clears the download
-> mark. The official site is [grabi.net](https://grabi.net).
+> **Beta signing.** Builds are signed with a stable local certificate and a
+> hardened runtime, but Apple notarization is still pending. On first launch:
+> System Settings → Privacy & Security → *Open Anyway*. If macOS claims the
+> app "is damaged", run `xattr -cr /Applications/Grabi.app` once — it only
+> clears the download mark.
 
-## Updates
+From 0.1.4 on, Grabi updates itself ([Sparkle](https://sparkle-project.org),
+EdDSA-signed appcast at `dl.grabi.net/macos/appcast.xml`).
 
-From 0.1.4 on, Grabi updates itself with [Sparkle](https://sparkle-project.org):
-a quiet daily check against the EdDSA-signed feed at
-`https://dl.grabi.net/macos/appcast.xml`, plus a manual "Check for updates…"
-in Settings. Release architecture (one-command publishing, feed layout, key
-custody): [docs/RELEASING.md](docs/RELEASING.md). Homebrew packaging is
-prepared in [packaging/homebrew/](packaging/homebrew/) (publishes after
-notarization).
+## Build it yourself
 
-## Reporting problems
-
-Settings → "Report a problem…" opens a pre-filled GitHub issue with your app
-version, macOS version, chip and language (nothing else). Updater events are
-logged to `~/Library/Logs/Grabi/updater.log` — short lines, no personal data —
-attach it if your report is about updates. Or just open an
-[issue](https://github.com/freeloz/grabi-macos/issues/new/choose) — any
-language is welcome.
-
-## Build and run
-
-Requirements: macOS 13+, Swift 5.9+ (the Command Line Tools are enough), no
-external dependencies — Apple frameworks only.
+Requirements: macOS 13+, Swift 5.9+ (Command Line Tools are enough). One
+external dependency — Sparkle — everything else is Apple frameworks.
 
 ```bash
-./make-app.sh          # builds (release) and packages dist/Grabi.app
-open dist/Grabi.app
+./make-app.sh           # builds and packages dist/Grabi.app
+swift test              # domain + use cases, in-memory fakes, ~20 ms
+swift run EngineChecks  # engine integration checks, no permissions needed
 ```
 
-`make-app.sh` signs with the local **"Grabi Dev"** identity if it exists in
-your keychain (create it once: Keychain Access → Certificate Assistant →
-Create a Certificate → type *Code Signing*, name `Grabi Dev`). With a
-stable signature, the screen/camera/mic permissions survive rebuilds; with
-an ad-hoc signature, macOS re-asks for the screen permission on every
-build.
+## How it is built
 
-Engine verification (no permissions needed, runs on any machine):
-
-```bash
-swift run EngineChecks
-```
-
-Endurance test (stable memory during long recordings):
-
-```bash
-./scripts/monitor-memory.sh   # while you record 30-60 min
-```
-
-## Architecture
-
-Layered, with the dependencies pointing inward — see
-[ARCHITECTURE.md](ARCHITECTURE.md) for the full picture and how to extend it:
+Layers, with the dependencies pointing inward — the full map and how to
+extend it live in **[ARCHITECTURE.md](ARCHITECTURE.md)**:
 
 ```
-GrabiDomain    entities, value objects and ports — no frameworks, testable anywhere
-GrabiUseCases  what the app does (capture lifecycle, record, devices, library)
-RecordApp      SwiftUI screens + the adapters that satisfy each port
-RecordEngine   ScreenCaptureKit / AVFoundation capture and writing
-RecordUI       the design system as SwiftUI components
+GrabiDomain     entities, value objects and ports · pure Swift, no frameworks
+GrabiUseCases   capture lifecycle · record/stop/pause · devices · library
+RecordApp       SwiftUI screens + one adapter per port + composition root
+RecordEngine    ScreenCaptureKit · AVFoundation · AVAssetWriter · Metal PiP
+RecordUI        the design system as SwiftUI components
 ```
 
-```bash
-swift test              # domain + use cases with in-memory fakes
-swift run EngineChecks  # engine integration checks
-```
+Engine decisions worth knowing: one pipeline feeds both the preview and the
+writer; every source stamps its timestamps with the host clock and pausing
+subtracts the accumulated offset; frames stream straight to disk (RAM stays
+flat at ~50 MB through hour-long recordings); and **nothing captures unless
+someone is looking** — leaving the Record tab releases the camera, the screen
+and the microphone.
 
-The capture targets in detail:
-
-```
-Sources/
-├── RecordEngine/    The engine. Zero UI.
-│   ├── RecordEngine.swift       Facade: preflight → preview → start/pause/stop
-│   ├── CapturePipeline.swift    Capture shared between preview and recording
-│   ├── ScreenCapturer.swift     ScreenCaptureKit: screen/window/region + system audio
-│   ├── CameraCapturer.swift     AVFoundation: camera
-│   ├── MicrophoneCapturer.swift AVFoundation: microphone (native channels)
-│   ├── PiPCompositor.swift      Core Image + Metal: PiP with shapes, on the GPU
-│   ├── MovieWriter.swift        Streaming AVAssetWriter; pause via PTS offset
-│   └── Preflight.swift          Availability and permissions per source
-├── RecordUI/        The Grabi design system (design/) as SwiftUI.
-│   ├── Tokens.swift             Light/dark colors, spacing, radii, motion
-│   ├── Mascot.swift             The mascot and the traffic light (8 poses)
-│   └── …                        Buttons, source rows, segmented, toasts, gallery
-├── RecordApp/       The app: main window (record · library · settings),
-│                   menu bar quick access, overlays and the pill
-└── EngineChecks/    Engine integration verification
-```
-
-Key engine decisions:
-
-- **One pipeline, two consumers**: the preview and the writer share
-  capturers and compositor; starting a recording just "hooks up" the
-  writer.
-- **Synchronization**: every source stamps PTS with the host clock; the
-  writer starts its session on the first video frame and AVAssetWriter
-  aligns the rest. Pausing accumulates an offset (measured with the same
-  clock) that is subtracted from each PTS: N pauses, zero gaps.
-- **Thread-safety**: buffers arrive on different queues; all appends are
-  serialized on the writer's internal queue.
-- **Streaming to disk**: frames are never accumulated in RAM; frames that
-  arrive while the encoder is busy are dropped (real time).
-
-`design/` contains the brand manual, the design system, and the approved
-prototype (Phases 0–4): it is the UI specification. The internal gallery
-(Settings → System gallery) shows every component in all of its states to
-verify fidelity.
-
-## Settings
-
-- **Recording quality** (v0.1.1): *Standard* (up to 1080p, ~3 GB/hour,
-  default) or *Sharp* (native source resolution up to 4K; the bitrate
-  scales proportionally with the pixel area to keep per-pixel quality,
-  capped at 32 Mbps). Aspect ratio is always preserved.
-- **Recordings folder** and **global shortcuts** (⌘⇧2 · ⌘⇧P).
-- **Quick access in the menu bar**: on by default; turn it off to keep Grabi
-  in its window only.
+`design/` holds the brand manual, the design system and the approved
+prototypes: it is the UI specification, and Settings → *Design system gallery*
+shows every component in all of its states.
 
 ## Languages
 
-Grabi speaks **English** (the default language), **Spanish**,
-**Portuguese**, **French**, and **German**, automatically following the
-system language (no language picker of its own). The permission messages
-use the real System Settings paths in each language. The folder
-(`~/Movies/Grabi`) and the file names (`Grabi 2026-08-20 18.30.45.mov`)
-are deliberately neutral: they don't change if you switch languages.
+Grabi speaks **English, Spanish, Portuguese, French and German**, following
+the system language — or whichever one you pick in Settings, applied without
+relaunching. Recording file names stay neutral
+(`Grabi 2026-08-23 20.53.29.mov`) so they never change with the language.
 
-**Contributing a translation**: each target keeps its catalogs in
-`Sources/<Target>/Resources/<language>.lproj/Localizable.strings` (plus
-`Support/InfoPlist/` for the permission dialogs). Copy the `en.lproj`
-folder to your language code, translate with the brand voice (warm,
-simple, honest — see `design/`), keep the `%@`/`%d` placeholders, and
-verify the result with the screenshot tool:
+**Contributing a translation:** copy `Sources/<Target>/Resources/en.lproj` to
+your language code, translate with the brand voice (warm, simple, honest —
+see `design/`), keep the `%@`/`%d` placeholders, and check it with
 `.build/debug/RecordApp --screenshots /tmp/i18n -AppleLanguages "(xx)"`.
 
 ## Permissions
 
-Grabi needs Screen Recording (includes system audio), Camera, and
-Microphone — only to record; the app explains it and takes you to the
-exact System Settings pane. If a source is unavailable or missing a
-permission, Grabi warns you **before** starting and offers to record
-without it.
+Screen Recording (which covers system audio), Camera and Microphone — only to
+record. Grabi tells you what is missing **before** you start, takes you to the
+exact System Settings pane, and offers to record without whatever is blocked.
 
-## Known limitations (v0.1)
+## Reporting problems
 
-- Distribution: without an Apple Developer account there is no
-  notarization; the app only runs on machines where it is built/signed
-  locally.
-- Window capture follows the window, but the indicator border and the
-  selfie-box mapping use the position it had when recording started.
-- Device picker (another camera/mic) and quality settings: deliberately
-  out of scope for v0.1.
+Settings → **Report a problem…** opens a pre-filled issue with your app
+version, macOS version, chip and language. Updater events are logged to
+`~/Library/Logs/Grabi/updater.log` (short lines, no personal data). Or open an
+[issue](https://github.com/freeloz/grabi-macos/issues/new/choose) — any
+language is welcome.
+
+## Honest limits today
+
+No Apple notarization yet (see above). Window capture follows the window, but
+the indicator border uses the position it had when recording started. And
+Grabi records — it does not edit.
+
+---
+
+<div align="center">
+
+**[grabi.net](https://grabi.net)** · MIT · made with calm by
+[Freeloz](https://github.com/freeloz)
+
+</div>
