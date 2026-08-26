@@ -5,26 +5,26 @@ import GrabiDomain
 // identity, api.grabi.net for uploads/links. No SDKs — two REST APIs and
 // URLSession. Session policy (Keychain, refresh) lives in GrabiCloudAdapter.
 
-struct CloudEnvironment: Sendable {
+public struct CloudEnvironment: Sendable {
     let apiBase: URL
     let supabaseURL: URL
     let supabaseAnonKey: String
 
-    static let production = CloudEnvironment(
+    public static let production = CloudEnvironment(
         apiBase: URL(string: "https://api.grabi.net")!,
         supabaseURL: URL(string: "https://ynjwtzhlzhpqgbkcoplc.supabase.co")!,
         // Anon/publishable key: public by design; RLS protects the data.
         supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluand0emhsemhwcWdia2NvcGxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MjE1MTcsImV4cCI6MjEwMzI5NzUxN30.I0b4vlKrgPYqqrorPcIxGdKXHi8j288o9F-BKcQi0HA"
     )
 
-    static let staging = CloudEnvironment(
+    public static let staging = CloudEnvironment(
         apiBase: URL(string: "https://grabi-cloud-api-staging.freeloz.workers.dev")!,
         supabaseURL: URL(string: "https://gullyxdyyiulchcsafps.supabase.co")!,
         supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1bGx5eGR5eWl1bGNoY3NhZnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MjE1MTYsImV4cCI6MjEwMzI5NzUxNn0.JW-PdMXWDq5y7NpTgg3iaqkiYS3m9wlutGLW4xDUsBk"
     )
 
     /// `defaults write net.grabi.Grabi GrabiCloudEnvironment staging`
-    static var current: CloudEnvironment {
+    public static var current: CloudEnvironment {
         UserDefaults.standard.string(forKey: "GrabiCloudEnvironment") == "staging"
             ? .staging : .production
     }

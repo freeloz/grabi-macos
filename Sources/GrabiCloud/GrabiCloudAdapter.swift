@@ -4,7 +4,7 @@ import GrabiDomain
 /// The CloudPort adapter: sessions in the Keychain (with silent refresh),
 /// export via WebSafeExporter, upload via CloudAPI. An actor because the
 /// session is mutable state shared across the app.
-actor GrabiCloudAdapter: CloudPort {
+public actor GrabiCloudAdapter: CloudPort {
     private let api: CloudAPI
     private let store: CloudSessionStore
     private let exporter: WebSafeExporter
@@ -14,7 +14,11 @@ actor GrabiCloudAdapter: CloudPort {
     private static let singleUploadMax: Int64 = 95 * 1024 * 1024
     private static let partSize = 50 * 1024 * 1024
 
-    init(api: CloudAPI = CloudAPI(), store: CloudSessionStore = CloudSessionStore(),
+    public init(environment: CloudEnvironment = .current) {
+        self.init(api: CloudAPI(env: environment))
+    }
+
+    init(api: CloudAPI, store: CloudSessionStore = CloudSessionStore(),
          exporter: WebSafeExporter = WebSafeExporter()) {
         self.api = api
         self.store = store
@@ -24,13 +28,13 @@ actor GrabiCloudAdapter: CloudPort {
 
     // ---- CloudPort -------------------------------------------------------
 
-    func account() async -> CloudAccount? {
+    public func account() async -> CloudAccount? {
         guard let tokens = try? await validTokens() else { return nil }
         let plan = (try? await api.me(accessToken: tokens.accessToken).plan) ?? "free"
         return CloudAccount(email: tokens.email, plan: plan)
     }
 
-    func signIn(email: String, password: String) async throws -> CloudAccount {
+    public func signIn(email: String, password: String) async throws -> CloudAccount {
         let fresh = try await api.signIn(email: email, password: password)
         tokens = fresh
         store.save(fresh)
@@ -38,7 +42,7 @@ actor GrabiCloudAdapter: CloudPort {
         return CloudAccount(email: fresh.email, plan: plan)
     }
 
-    func signUp(email: String, password: String, locale: String) async throws -> Bool {
+    public func signUp(email: String, password: String, locale: String) async throws -> Bool {
         guard let fresh = try await api.signUp(email: email, password: password, locale: locale) else {
             return false // cuenta creada; falta confirmar el correo
         }
@@ -47,12 +51,12 @@ actor GrabiCloudAdapter: CloudPort {
         return true
     }
 
-    func signOut() async {
+    public func signOut() async {
         tokens = nil
         store.clear()
     }
 
-    func share(_ recording: Recording, title: String,
+    public func share(_ recording: Recording, title: String,
                onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload {
         let tokens = try await validTokens()
 

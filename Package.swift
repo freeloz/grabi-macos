@@ -30,6 +30,14 @@ let package = Package(
             dependencies: ["GrabiDomain"],
             resources: [.process("Resources")]
         ),
+        // Grabi Cloud: the CloudPort adapter — auth, web-safe export, upload.
+        // A library so CloudChecks can exercise the real flow headlessly.
+        .target(name: "GrabiCloud", dependencies: ["GrabiDomain"]),
+        // Cloud integration checks against staging, without the app UI:
+        // `swift run CloudChecks <video> <email> <password> [staging]`
+        .executableTarget(name: "CloudChecks",
+                          dependencies: ["GrabiCloud", "GrabiUseCases", "GrabiDomain"]),
+
         // Grabi design system: tokens, icons, mascot, and SwiftUI components.
         .target(
             name: "RecordUI",
@@ -40,7 +48,7 @@ let package = Package(
         .executableTarget(
             name: "RecordApp",
             dependencies: [
-                "GrabiDomain", "GrabiUseCases", "RecordEngine", "RecordUI",
+                "GrabiDomain", "GrabiUseCases", "GrabiCloud", "RecordEngine", "RecordUI",
                 .product(name: "Sparkle", package: "Sparkle"),
             ],
             resources: [.process("Resources")],
