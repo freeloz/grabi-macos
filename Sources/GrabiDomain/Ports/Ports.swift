@@ -80,3 +80,17 @@ public protocol NotifierPort: Sendable {
 public protocol ClockPort: Sendable {
     func now() -> Date
 }
+
+/// Grabi Cloud — optional sharing. The adapter owns tokens, export and
+/// upload; the domain only cares that a recording becomes a link.
+public protocol CloudPort: AnyObject, Sendable {
+    /// nil when nobody is signed in (the app's default state, forever).
+    func account() async -> CloudAccount?
+    func signIn(email: String, password: String) async throws -> CloudAccount
+    /// true = signed in right away; false = confirmation email pending.
+    func signUp(email: String, password: String, locale: String) async throws -> Bool
+    func signOut() async
+    /// Export web-safe, upload, and return the share link.
+    func share(_ recording: Recording, title: String,
+               onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload
+}
