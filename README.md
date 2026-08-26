@@ -146,6 +146,15 @@ No Apple notarization yet (see above). Window capture follows the window, but
 the indicator border uses the position it had when recording started. And
 Grabi records — it does not edit.
 
+## Grabi Cloud, and how this stays free
+
+The app is and will remain **open source (MIT) and 100% functional without an
+account** — recording is local, forever, no strings. **Grabi Cloud** is our
+optional hosted service (share a recording as a link, coming soon): videos
+only leave your Mac when *you* tap "Share to Grabi Cloud", and its paid plan
+is how we fund the free app. The cloud backend is a separate private service;
+nothing in this repo depends on it.
+
 ---
 
 <div align="center">
