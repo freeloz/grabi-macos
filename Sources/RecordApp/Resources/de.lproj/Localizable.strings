@@ -155,3 +155,30 @@
 "app.settings.systemDefault" = "Systemvorgabe";
 "app.settings.language" = "Sprache";
 "app.settings.language.sub" = "Grabi kann eine andere Sprache sprechen als dein Mac.";
+
+/* Grabi Cloud */
+"app.cloud.share" = "In Grabi Cloud teilen";
+"app.cloud.signInTitle" = "Bei Grabi Cloud anmelden";
+"app.cloud.createTitle" = "Konto erstellen";
+"app.cloud.signedInTitle" = "Grabi Cloud";
+"app.cloud.hint" = "Teile deine Aufnahmen per Link. Optional: Dein Mac bleibt 100 % lokal.";
+"app.cloud.email" = "du@email.com";
+"app.cloud.password" = "Passwort (min. 8)";
+"app.cloud.signIn" = "Anmelden";
+"app.cloud.create" = "Konto erstellen";
+"app.cloud.toggleCreate" = "Neues Konto erstellen";
+"app.cloud.toggleHave" = "Ich habe schon ein Konto";
+"app.cloud.done" = "Fertig";
+"app.cloud.signOut" = "Von Grabi Cloud abmelden";
+"app.cloud.signInFirst" = "Melde dich an, um zu teilen.";
+"app.cloud.badCredentials" = "E-Mail oder Passwort falsch.";
+"app.cloud.checkEmail" = "Prüfe deine E-Mail, um das Konto zu bestätigen, und melde dich erneut an.";
+"app.cloud.exporting" = "Video wird vorbereitet…";
+"app.cloud.uploading" = "Wird hochgeladen… %d %%";
+"app.cloud.finishing" = "Link wird erstellt…";
+"app.cloud.linkCopied" = "Link kopiert! Füge ihn überall ein.";
+"app.cloud.failed" = "Teilen fehlgeschlagen. Versuch es noch einmal.";
+"app.cloud.exportFailed" = "Video konnte nicht vorbereitet werden.";
+"app.cloud.limit.duration" = "Der Gratis-Plan erlaubt bis zu 15 Min pro Video. Grabi Pro hat kein Limit.";
+"app.cloud.limit.count" = "Du hast das Video-Limit des Gratis-Plans erreicht.";
+"app.cloud.limit.storage" = "Dein Speicher im Gratis-Plan ist voll.";

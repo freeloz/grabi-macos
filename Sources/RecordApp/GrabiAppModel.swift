@@ -34,6 +34,9 @@ final class GrabiAppModel: ObservableObject {
     let environment: AppEnvironment
     var engine: RecordingEngine { environment.engine }
 
+    /// Grabi Cloud: session + share progress for the library cards.
+    let cloud: CloudStore
+
     /// The current selection as a value the use cases understand.
     var sourceSelection: SourceSelection {
         SourceSelection(screen: screenEnabled, camera: cameraEnabled,
@@ -169,6 +172,7 @@ final class GrabiAppModel: ObservableObject {
 
     init(environment: AppEnvironment) {
         self.environment = environment
+        self.cloud = CloudStore(cloud: environment.cloud, share: environment.shareToCloud)
         let preferences = environment.preferences
         destinationFolder = preferences.destinationFolder
         onboardingDone = preferences.onboardingDone

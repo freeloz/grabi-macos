@@ -21,6 +21,7 @@ final class AppEnvironment {
     let localization: LocalizationPort
     let notifier: NotifierPort
     let clock: ClockPort
+    let cloud: CloudPort
 
     // Use cases
     let syncCapture: SyncCaptureUseCase
@@ -32,6 +33,7 @@ final class AppEnvironment {
     let listRecordings: ListRecordingsUseCase
     let deleteRecording: DeleteRecordingUseCase
     let evaluateRecordability: EvaluateRecordability
+    let shareToCloud: ShareToCloudUseCase
 
     init(engine: RecordingEngine = RecordingEngine(),
          notifier: NotifierPort = SystemNotifier(),
@@ -47,6 +49,7 @@ final class AppEnvironment {
         self.localization = RuntimeLocalization()
         self.notifier = notifier
         self.clock = SystemClock()
+        self.cloud = GrabiCloudAdapter()
 
         self.syncCapture = SyncCaptureUseCase(engine: capture, microphone: microphone)
         self.startRecording = StartRecordingUseCase(engine: capture, permissions: permissions, clock: clock)
@@ -57,6 +60,7 @@ final class AppEnvironment {
         self.listRecordings = ListRecordingsUseCase(library: library)
         self.deleteRecording = DeleteRecordingUseCase(library: library)
         self.evaluateRecordability = EvaluateRecordability()
+        self.shareToCloud = ShareToCloudUseCase(cloud: cloud)
     }
 }
 

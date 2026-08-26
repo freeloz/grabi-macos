@@ -140,7 +140,7 @@ struct MainWindowRoot: View {
             Group {
                 switch controller.tab {
                 case .record: RecordPanel(model: model, controller: controller, library: library)
-                case .library: LibraryPanel(model: model, controller: controller, library: library)
+                case .library: LibraryPanel(model: model, controller: controller, library: library, cloud: model.cloud)
                 case .settings: SettingsPanel(model: model)
                 }
             }
@@ -387,7 +387,9 @@ private struct LibraryPanel: View {
     @ObservedObject var model: GrabiAppModel
     @ObservedObject var controller: MainWindowController
     @ObservedObject var library: LibraryStore
+    @ObservedObject var cloud: CloudStore
     @State private var pendingDelete: RecordingItem?
+    @State private var showCloudSheet = false
 
     private let columns = [GridItem(.adaptive(minimum: 210), spacing: GrabiSpace.s3)]
 
@@ -410,7 +412,11 @@ private struct LibraryPanel: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GrabiColor.bg)
-        .task { model.refreshLibrary() }
+        .task {
+            model.refreshLibrary()
+            cloud.refreshAccount()
+        }
+        .sheet(isPresented: $showCloudSheet) { CloudSheet(store: cloud) }
         .confirmationDialog(
             L("app.library.deleteTitle"),
             isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
@@ -480,6 +486,7 @@ private struct LibraryPanel: View {
                     .font(.system(size: 10.5))
                     .foregroundStyle(GrabiColor.textSecondary)
                 Spacer(minLength: 0)
+                cloudAction(item)
                 action("play.fill", help: L("app.library.play")) { library.play(item) }
                 action("folder", help: L("app.library.finder")) { library.revealInFinder(item) }
                 action("doc.on.doc", help: L("app.library.copy")) { library.copy(item) }
@@ -504,6 +511,56 @@ private struct LibraryPanel: View {
         }
         .buttonStyle(.plain)
         .help(help)
+    }
+
+    /// The cloud action cycles with the share: icon → progress → check
+    /// ("link copied") → back. Errors explain themselves on hover and
+    /// dismiss on click.
+    @ViewBuilder
+    private func cloudAction(_ item: RecordingItem) -> some View {
+        switch cloud.shares[item.id] {
+        case .working(let stage):
+            ProgressView(value: stage.fraction)
+                .progressViewStyle(.circular)
+                .controlSize(.small)
+                .frame(width: 14, height: 14)
+                .help(stage.helpText)
+        case .done:
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 11.5))
+                .foregroundStyle(GrabiColor.success)
+                .help(L("app.cloud.linkCopied"))
+        case .failed(let error):
+            Button { cloud.dismissFailure(item) } label: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(GrabiColor.advertencia)
+            }
+            .buttonStyle(.plain)
+            .help(error.userMessage)
+        case nil:
+            action("icloud.and.arrow.up", help: L("app.cloud.share")) {
+                if cloud.account == nil { showCloudSheet = true } else { cloud.share(item) }
+            }
+        }
+    }
+}
+
+private extension CloudShareStage {
+    var fraction: Double {
+        switch self {
+        case .exporting(let p): return p * 0.4
+        case .uploading(let p): return 0.4 + p * 0.55
+        case .finishing: return 0.97
+        }
+    }
+
+    var helpText: String {
+        switch self {
+        case .exporting: return L("app.cloud.exporting")
+        case .uploading(let p): return LF("app.cloud.uploading", Int(p * 100))
+        case .finishing: return L("app.cloud.finishing")
+        }
     }
 }
 
