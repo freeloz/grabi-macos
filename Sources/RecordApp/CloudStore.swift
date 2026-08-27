@@ -59,20 +59,29 @@ final class CloudStore: ObservableObject {
         let recording = Recording(id: item.id, name: item.name, date: item.date,
                                   sizeBytes: item.sizeBytes, duration: item.duration)
         shares[item.id] = .working(.exporting(0))
-        Task {
+        let useCase = self.share // la use case (propiedad), no este método
+        let box = WeakStoreBox(self) // capturable en closures @Sendable sin quejas
+        Task { [weak self] in
+            var outcome: ShareState
             do {
-                let upload = try await share(recording) { [weak self] stage in
-                    Task { @MainActor in self?.shares[recording.id] = .working(stage) }
+                let upload = try await useCase(recording) { stage in
+                    Task { @MainActor in
+                        box.store?.shares[recording.id] = .working(stage)
+                    }
                 }
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(upload.watchURL.absoluteString, forType: .string)
-                shares[recording.id] = .done(upload)
-                try? await Task.sleep(nanoseconds: 8_000_000_000)
-                if case .done = shares[recording.id] { shares[recording.id] = nil }
+                outcome = .done(upload)
             } catch let error as CloudError {
-                shares[recording.id] = .failed(error)
+                outcome = .failed(error)
             } catch {
-                shares[recording.id] = .failed(.network(error.localizedDescription))
+                outcome = .failed(.network(error.localizedDescription))
+            }
+            guard let self else { return }
+            self.shares[recording.id] = outcome
+            if case .done = outcome {
+                try? await Task.sleep(nanoseconds: 8_000_000_000)
+                if case .done = self.shares[recording.id] { self.shares[recording.id] = nil }
             }
         }
     }
@@ -80,6 +89,13 @@ final class CloudStore: ObservableObject {
     func dismissFailure(_ item: RecordingItem) {
         if case .failed = shares[item.id] { shares[item.id] = nil }
     }
+}
+
+/// Referencia débil empaquetada como constante Sendable: los closures
+/// @Sendable pueden capturarla sin el error "captured var" de Swift 6.
+private final class WeakStoreBox: @unchecked Sendable {
+    weak var store: CloudStore?
+    init(_ store: CloudStore) { self.store = store }
 }
 
 extension CloudStore.ShareState {
