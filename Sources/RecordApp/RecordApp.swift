@@ -56,6 +56,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.showMainWindow()
     }
 
+    /// Grabi Cloud OAuth: el navegador vuelve por grabi://auth-callback.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            AppShared.model.cloud.handleAuthCallback(url)
+        }
+    }
+
     /// Closing the window doesn't quit: Grabi stays in the menu bar, and
     /// clicking the Dock icon brings the window back.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

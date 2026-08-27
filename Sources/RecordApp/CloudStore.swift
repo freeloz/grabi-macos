@@ -54,6 +54,37 @@ final class CloudStore: ObservableObject {
         }
     }
 
+    /// Abre el navegador con el flujo de Google; la vuelta llega por el
+    /// esquema grabi:// a `handleAuthCallback`.
+    func signInWithGoogle() {
+        NSWorkspace.shared.open(cloud.googleAuthorizeURL())
+    }
+
+    /// grabi://auth-callback#access_token=…&refresh_token=…&expires_in=…
+    /// Devuelve true si la URL era nuestra y se procesó.
+    @discardableResult
+    func handleAuthCallback(_ url: URL) -> Bool {
+        guard url.scheme == "grabi", url.host == "auth-callback",
+              let fragment = url.fragment else { return false }
+        var params: [String: String] = [:]
+        for pair in fragment.split(separator: "&") {
+            let parts = pair.split(separator: "=", maxSplits: 1)
+            guard parts.count == 2 else { continue }
+            params[String(parts[0])] = String(parts[1]).removingPercentEncoding
+        }
+        guard let access = params["access_token"], let refresh = params["refresh_token"] else {
+            return false
+        }
+        let expires = Double(params["expires_in"] ?? "") ?? 3600
+        Task {
+            account = try? await cloud.adoptSession(
+                accessToken: access, refreshToken: refresh, expiresIn: expires
+            )
+            accountLoaded = true
+        }
+        return true
+    }
+
     func share(_ item: RecordingItem) {
         guard shares[item.id]?.isWorking != true else { return }
         let recording = Recording(id: item.id, name: item.name, date: item.date,

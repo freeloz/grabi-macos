@@ -182,3 +182,6 @@
 "app.cloud.limit.duration" = "O plano grátis permite até 15 min por vídeo. O Grabi Pro não tem limite.";
 "app.cloud.limit.count" = "Você chegou ao limite de vídeos do plano grátis.";
 "app.cloud.limit.storage" = "Seu espaço do plano grátis está cheio.";
+"app.cloud.google" = "Continuar com o Google";
+"app.cloud.or" = "ou";
+"app.cloud.googleWaiting" = "Abrimos seu navegador — volte aqui ao terminar.";

@@ -93,4 +93,11 @@ public protocol CloudPort: AnyObject, Sendable {
     /// Export web-safe, upload, and return the share link.
     func share(_ recording: Recording, title: String,
                onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload
+
+    /// Google Sign-In: the URL to open in the browser; the flow comes back
+    /// via the app's URL scheme and lands in `adoptSession`.
+    func googleAuthorizeURL() -> URL
+    /// Adopt tokens delivered by the OAuth callback.
+    func adoptSession(accessToken: String, refreshToken: String,
+                      expiresIn: Double) async throws -> CloudAccount
 }

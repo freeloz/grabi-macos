@@ -68,6 +68,28 @@ struct CloudSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
+            // Google: abre el navegador; la vuelta llega por grabi:// y esta
+            // sheet cambia sola al estado con sesión.
+            Button {
+                store.signInWithGoogle()
+                messageIsError = false
+                message = L("app.cloud.googleWaiting")
+            } label: {
+                Text(L("app.cloud.google"))
+                    .font(.system(size: 13.5, weight: .semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.bordered)
+
+            HStack(spacing: GrabiSpace.s3) {
+                Rectangle().fill(GrabiColor.border).frame(height: 1)
+                Text(L("app.cloud.or"))
+                    .font(GrabiFont.caption)
+                    .foregroundStyle(GrabiColor.textSecondary)
+                Rectangle().fill(GrabiColor.border).frame(height: 1)
+            }
+
             TextField(L("app.cloud.email"), text: $email)
                 .textFieldStyle(.roundedBorder)
                 .disableAutocorrection(true)

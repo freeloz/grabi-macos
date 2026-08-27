@@ -56,6 +56,25 @@ public actor GrabiCloudAdapter: CloudPort {
         store.clear()
     }
 
+    /// La vuelta del navegador: grabi://auth-callback#access_token=…
+    public static let oauthRedirect = "grabi://auth-callback"
+
+    public nonisolated func googleAuthorizeURL() -> URL {
+        api.googleAuthorizeURL(redirect: Self.oauthRedirect)
+    }
+
+    public func adoptSession(accessToken: String, refreshToken: String,
+                             expiresIn: Double) async throws -> CloudAccount {
+        let email = try await api.userEmail(accessToken: accessToken)
+        let fresh = CloudTokens(accessToken: accessToken, refreshToken: refreshToken,
+                                expiresAt: Date().addingTimeInterval(expiresIn),
+                                email: email)
+        tokens = fresh
+        store.save(fresh)
+        let plan = (try? await api.me(accessToken: accessToken).plan) ?? "free"
+        return CloudAccount(email: email, plan: plan)
+    }
+
     public func share(_ recording: Recording, title: String,
                onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload {
         let tokens = try await validTokens()

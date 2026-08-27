@@ -108,6 +108,28 @@ struct CloudAPI: Sendable {
     // ---- Grabi Cloud API -------------------------------------------------
 
     struct Me: Decodable, Sendable { let plan: String }
+    struct AuthUserInfo: Decodable, Sendable { let email: String? }
+
+    /// El correo del dueño del token (tras un OAuth no lo conocemos aún).
+    func userEmail(accessToken: String) async throws -> String {
+        var request = URLRequest(url: env.supabaseURL.appendingPathComponent("auth/v1/user"))
+        request.setValue(env.supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        let (data, response) = try await send(request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw CloudError.notSignedIn }
+        return (try JSONDecoder().decode(AuthUserInfo.self, from: data)).email ?? ""
+    }
+
+    /// URL de autorización de Google con vuelta al esquema de la app.
+    func googleAuthorizeURL(redirect: String) -> URL {
+        var comps = URLComponents(url: env.supabaseURL.appendingPathComponent("auth/v1/authorize"),
+                                  resolvingAgainstBaseURL: false)!
+        comps.queryItems = [
+            URLQueryItem(name: "provider", value: "google"),
+            URLQueryItem(name: "redirect_to", value: redirect),
+        ]
+        return comps.url!
+    }
     struct CreatedUpload: Decodable, Sendable {
         let video_id: String
         let slug: String

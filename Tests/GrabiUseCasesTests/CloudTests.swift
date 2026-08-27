@@ -20,6 +20,13 @@ final class ShareToCloudUseCaseTests: XCTestCase {
         }
         func signUp(email: String, password: String, locale: String) async throws -> Bool { true }
         func signOut() async { storedAccount = nil }
+        func googleAuthorizeURL() -> URL { URL(string: "https://example.test/authorize")! }
+        func adoptSession(accessToken: String, refreshToken: String,
+                          expiresIn: Double) async throws -> CloudAccount {
+            let account = CloudAccount(email: "google@grabi.net", plan: "free")
+            storedAccount = account
+            return account
+        }
         func share(_ recording: Recording, title: String,
                    onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload {
             sharedTitle = title
