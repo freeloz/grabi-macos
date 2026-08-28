@@ -18,6 +18,9 @@ final class CloudStore: ObservableObject {
     @Published private(set) var account: CloudAccount?
     @Published private(set) var accountLoaded = false
     @Published private(set) var shares: [URL: ShareState] = [:]
+    /// Google mientras el servidor responde: es el que siempre ha estado
+    /// activo, así el sheet nunca aparece sin ninguna forma de entrar.
+    @Published private(set) var providers: [CloudIdentityProvider] = [.google]
 
     private let cloud: CloudPort
     private let share: ShareToCloudUseCase
@@ -55,10 +58,16 @@ final class CloudStore: ObservableObject {
         }
     }
 
-    /// Abre el navegador con el flujo de Google; la vuelta llega por el
-    /// esquema grabi:// a `handleAuthCallback`.
-    func signInWithGoogle() {
-        NSWorkspace.shared.open(cloud.googleAuthorizeURL())
+    /// Se consulta al abrir el sheet: así Apple aparece en cuanto el
+    /// servidor lo active, sin publicar una versión nueva de la app.
+    func loadProviders() {
+        Task { providers = await cloud.identityProviders() }
+    }
+
+    /// Abre el navegador con el flujo del proveedor elegido; la vuelta llega
+    /// por el esquema grabi:// a `handleAuthCallback`.
+    func signIn(with provider: CloudIdentityProvider) {
+        NSWorkspace.shared.open(cloud.oauthAuthorizeURL(provider: provider))
     }
 
     /// Entrar/crear cuenta con correo: también en el navegador — ahí vive el

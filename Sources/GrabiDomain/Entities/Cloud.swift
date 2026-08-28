@@ -16,6 +16,20 @@ public struct CloudAccount: Equatable, Sendable {
     }
 }
 
+/// Cómo entra alguien a su cuenta. Todos los caminos pasan por el navegador
+/// —ahí vive el captcha que Supabase exige—, así que el proveedor solo
+/// decide qué botón se pulsa y qué valor viaja en `?provider=`.
+///
+/// Apple es obligatorio para publicar en la App Store en cuanto ofrezcamos
+/// cualquier otro inicio de sesión de terceros (App Review 4.8).
+public enum CloudIdentityProvider: String, CaseIterable, Sendable {
+    case google
+    case apple
+
+    /// Clave de la etiqueta del botón en Localizable.strings.
+    public var labelKey: String { "app.cloud.\(rawValue)" }
+}
+
 /// The result of sharing a recording: the link that gets pasted into
 /// a deliverable. This IS the product.
 public struct CloudUpload: Equatable, Sendable {

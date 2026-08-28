@@ -60,8 +60,17 @@ public actor GrabiCloudAdapter: CloudPort {
     /// (grabi-staging:// en la app de pruebas, para no cruzar ambientes).
     public static var oauthRedirect: String { "\(CloudEnvironment.urlScheme)://auth-callback" }
 
-    public nonisolated func googleAuthorizeURL() -> URL {
-        api.googleAuthorizeURL(redirect: Self.oauthRedirect)
+    /// Los proveedores que el servidor tiene activos hoy. Si la red falla nos
+    /// quedamos con Google, que es el que siempre ha estado configurado:
+    /// mejor un botón de menos que uno que no funciona.
+    public func identityProviders() async -> [CloudIdentityProvider] {
+        guard let names = try? await api.availableProviders() else { return [.google] }
+        let providers = names.compactMap(CloudIdentityProvider.init(rawValue:))
+        return providers.isEmpty ? [.google] : providers
+    }
+
+    public nonisolated func oauthAuthorizeURL(provider: CloudIdentityProvider) -> URL {
+        api.oauthAuthorizeURL(provider: provider.rawValue, redirect: Self.oauthRedirect)
     }
 
     /// Entrar con correo: se hace en la web, no en la app. Ahí vive el

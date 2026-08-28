@@ -24,6 +24,7 @@ struct CloudSheet: View {
         .padding(GrabiSpace.s6)
         .frame(width: 340)
         .background(GrabiColor.bg)
+        .task { store.loadProviders() }
     }
 
     private func signedIn(_ account: CloudAccount) -> some View {
@@ -67,17 +68,9 @@ struct CloudSheet: View {
             // Todo el inicio de sesión ocurre en el navegador: ahí vive el
             // widget de captcha que Supabase exige, y la web devuelve la
             // sesión a la app por el esquema grabi://.
-            Button {
-                store.signInWithGoogle()
-                messageIsError = false
-                message = L("app.cloud.googleWaiting")
-            } label: {
-                Text(L("app.cloud.google"))
-                    .font(.system(size: 13.5, weight: .semibold))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+            ForEach(store.providers, id: \.self) { provider in
+                providerButton(provider)
             }
-            .buttonStyle(.bordered)
 
             HStack(spacing: GrabiSpace.s3) {
                 Rectangle().fill(GrabiColor.border).frame(height: 1)
@@ -90,7 +83,7 @@ struct CloudSheet: View {
             GrabiButton(L("app.cloud.emailWeb"), kind: .primario) {
                 store.signInWithEmail()
                 messageIsError = false
-                message = L("app.cloud.googleWaiting")
+                message = L("app.cloud.browserWaiting")
             }
 
             Button(L("app.cancel")) { dismiss() }
@@ -100,4 +93,30 @@ struct CloudSheet: View {
         }
     }
 
+    /// Un botón por proveedor. El logotipo va anclado a la izquierda y el
+    /// texto centrado en el ancho completo: así las dos etiquetas quedan
+    /// alineadas entre sí aunque midan distinto, que es como se ven los
+    /// botones de identidad bien hechos.
+    private func providerButton(_ provider: CloudIdentityProvider) -> some View {
+        Button {
+            store.signIn(with: provider)
+            messageIsError = false
+            message = L("app.cloud.browserWaiting")
+        } label: {
+            ZStack {
+                HStack {
+                    switch provider {
+                    case .google: GoogleMark()
+                    case .apple:  AppleMark()
+                    }
+                    Spacer()
+                }
+                Text(L(provider.labelKey))
+                    .font(.system(size: 13.5, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.bordered)
+    }
 }

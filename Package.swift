@@ -64,6 +64,7 @@ let package = Package(
                 ])
             ]
         ),
+        .testTarget(name: "RecordUITests", dependencies: ["RecordUI"]),
         // Engine integration checks (CLT ships without XCTest):
         // `swift run EngineChecks` — synthetic sources, no TCC permissions.
         .executableTarget(

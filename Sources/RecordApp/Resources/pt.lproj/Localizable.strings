@@ -183,8 +183,9 @@
 "app.cloud.limit.count" = "Você chegou ao limite de vídeos do plano grátis.";
 "app.cloud.limit.storage" = "Seu espaço do plano grátis está cheio.";
 "app.cloud.google" = "Continuar com o Google";
+"app.cloud.apple" = "Continuar com a Apple";
 "app.cloud.or" = "ou";
-"app.cloud.googleWaiting" = "Abrimos seu navegador — volte aqui ao terminar.";
+"app.cloud.browserWaiting" = "Abrimos seu navegador — volte aqui ao terminar.";
 "app.cloud.emailWeb" = "Entrar com e-mail";
 "app.notif.share" = "Compartilhar";
 "menu.shareLast" = "Compartilhar última gravação";

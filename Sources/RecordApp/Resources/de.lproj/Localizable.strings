@@ -183,8 +183,9 @@
 "app.cloud.limit.count" = "Du hast das Video-Limit des Gratis-Plans erreicht.";
 "app.cloud.limit.storage" = "Dein Speicher im Gratis-Plan ist voll.";
 "app.cloud.google" = "Weiter mit Google";
+"app.cloud.apple" = "Weiter mit Apple";
 "app.cloud.or" = "oder";
-"app.cloud.googleWaiting" = "Wir haben deinen Browser geöffnet — komm danach hierher zurück.";
+"app.cloud.browserWaiting" = "Wir haben deinen Browser geöffnet — komm danach hierher zurück.";
 "app.cloud.emailWeb" = "Mit E-Mail anmelden";
 "app.notif.share" = "Teilen";
 "menu.shareLast" = "Letzte Aufnahme teilen";

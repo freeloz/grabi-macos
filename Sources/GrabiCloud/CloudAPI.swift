@@ -140,12 +140,27 @@ struct CloudAPI: Sendable {
         return comps.url!
     }
 
-    /// URL de autorización de Google con vuelta al esquema de la app.
-    func googleAuthorizeURL(redirect: String) -> URL {
+    /// Proveedores de identidad que el servidor tiene realmente activos.
+    /// Preguntarlo evita el peor caso: un botón "Continuar con Apple" que al
+    /// pulsarlo devuelve "Unsupported provider" porque el proveedor todavía
+    /// no está dado de alta en Supabase. Activar uno nuevo es una variable
+    /// en el Worker, no una versión nueva de la app.
+    func availableProviders() async throws -> [String] {
+        struct Health: Decodable { let providers: [String]? }
+        let request = URLRequest(url: env.apiBase.appendingPathComponent("health"))
+        let (data, response) = try await send(request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { return [] }
+        return (try JSONDecoder().decode(Health.self, from: data)).providers ?? []
+    }
+
+    /// URL de autorización de un proveedor OAuth con vuelta al esquema de la
+    /// app. Supabase acepta el proveedor como parámetro, así que añadir uno
+    /// nuevo (Apple, GitHub…) no toca nada más que la lista de botones.
+    func oauthAuthorizeURL(provider: String, redirect: String) -> URL {
         var comps = URLComponents(url: env.supabaseURL.appendingPathComponent("auth/v1/authorize"),
                                   resolvingAgainstBaseURL: false)!
         comps.queryItems = [
-            URLQueryItem(name: "provider", value: "google"),
+            URLQueryItem(name: "provider", value: provider),
             URLQueryItem(name: "redirect_to", value: redirect),
         ]
         return comps.url!

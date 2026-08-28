@@ -183,8 +183,9 @@
 "app.cloud.limit.count" = "You reached the free plan's video limit.";
 "app.cloud.limit.storage" = "Your free plan storage is full.";
 "app.cloud.google" = "Continue with Google";
+"app.cloud.apple" = "Continue with Apple";
 "app.cloud.or" = "or";
-"app.cloud.googleWaiting" = "We opened your browser — come back here when done.";
+"app.cloud.browserWaiting" = "We opened your browser — come back here when done.";
 "app.cloud.emailWeb" = "Sign in with email";
 "app.notif.share" = "Share";
 "menu.shareLast" = "Share last recording";

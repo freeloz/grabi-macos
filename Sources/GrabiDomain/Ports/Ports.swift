@@ -94,9 +94,15 @@ public protocol CloudPort: AnyObject, Sendable {
     func share(_ recording: Recording, title: String,
                onStage: @escaping @Sendable (CloudShareStage) -> Void) async throws -> CloudUpload
 
-    /// Google Sign-In: the URL to open in the browser; the flow comes back
-    /// via the app's URL scheme and lands in `adoptSession`.
-    func googleAuthorizeURL() -> URL
+    /// Which identity providers the server has actually enabled, so the UI
+    /// never shows a button that errors out when tapped.
+    func identityProviders() async -> [CloudIdentityProvider]
+
+    /// Sign-in with an identity provider: the URL to open in the browser;
+    /// the flow comes back via the app's URL scheme and lands in
+    /// `adoptSession`. One entry point for all providers — adding one is a
+    /// new case in `CloudIdentityProvider`, not a new port method.
+    func oauthAuthorizeURL(provider: CloudIdentityProvider) -> URL
     /// Email sign-in also happens in the browser (that's where the captcha
     /// widget lives); same round trip back into `adoptSession`.
     func emailSignInURL() -> URL
