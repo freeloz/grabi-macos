@@ -10,19 +10,30 @@
 	<true/>
 	<!-- The interim "Grabi Dev" identity is self-signed (no Team ID), so
 	     hardened-runtime library validation would refuse to load the
-	     embedded Sparkle.framework. Once every build is signed with the
-	     Freeloz SAS Developer ID (Team F6X8HM2S7A), this can be removed:
-	     app and framework share a Team ID and validation passes. -->
+	     embedded Sparkle.framework. Comprobado el 28 ago 2026 con el
+	     Developer ID real: quitarlo impide arrancar (launchd 163), porque
+	     Sparkle trae XPC services internos que habría que firmar uno a uno.
+	     Se queda; es habitual en apps con frameworks embebidos y no impide
+	     la notarización. Refinamiento pendiente, no bloqueante. -->
 	<key>com.apple.security.cs.disable-library-validation</key>
 	<true/>
 
-	<!-- Universal Links: un enlace https://app.grabi.net/w/<slug> abre la
-	     app en vez del navegador. Requiere que el App ID en el portal de
-	     Apple tenga habilitada la capability "Associated Domains" y que el
-	     dominio sirva /.well-known/apple-app-site-association (ya lo hace). -->
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:app.grabi.net</string>
-	</array>
+	<!-- Universal Links (https://app.grabi.net/w/<slug> abre la app):
+	     el entitlement va comentado A PROPÓSITO. Comprobado el 28 ago 2026:
+	     com.apple.developer.associated-domains es una "capability" y con
+	     Developer ID exige un provisioning profile embebido en el .app;
+	     sin él, launchd rechaza el arranque con el error 163 aunque la
+	     firma sea válida. Para activarlo hacen falta, en este orden:
+	       1. developer.apple.com → Identifiers → registrar net.grabi.Grabi
+	          (y .staging) con Associated Domains habilitado
+	       2. Profiles → crear un "Developer ID" profile para ese App ID
+	       3. copiar el .provisionprofile a Contents/embedded.provisionprofile
+	          en make-app.sh, y reponer aquí:
+	          <key>com.apple.developer.associated-domains</key>
+	          <array><string>applinks:app.grabi.net</string></array>
+	     El AASA del servidor ya está publicado y esperando.
+	     Mientras tanto el esquema grabi:// cubre el login, que es el uso
+	     crítico; los universal links son mejora, no bloqueo. -->
+
 </dict>
 </plist>
