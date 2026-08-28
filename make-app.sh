@@ -69,8 +69,62 @@ scripts/embed-sparkle.sh "$APP"
 TEAM_ID="F6X8HM2S7A"
 ENTITLEMENTS=Support/Grabi.entitlements
 
-if DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
-    | grep -o "Developer ID Application: [^\"]*($TEAM_ID)" | head -1); then
+# --- Provisioning profile → Universal Links ---------------------------------
+# associated-domains es una "capability": Apple solo la respeta si la app
+# lleva dentro un provisioning profile que la autorice. Y si el entitlement
+# va SIN perfil, launchd se niega a arrancar la app (error 163) aunque la
+# firma sea impecable — comprobado el 28 ago 2026.
+#
+# Por eso el entitlement no vive en Grabi.entitlements: se añade aquí, y
+# solo cuando hay perfil. Sin perfil el build sigue saliendo y funcionando,
+# nada más que sin universal links (el esquema grabi:// no depende de esto).
+#
+# Los perfiles se bajan una vez de developer.apple.com → Profiles. El script
+# los busca en Downloads y los archiva en Support/profiles/ para los
+# siguientes builds.
+PROFILE=""
+find_profile() {
+  local want="$TEAM_ID.$BUNDLE_ID" f appid
+  # (N): en zsh, un glob sin coincidencias se borra en vez de ser un error
+  for f in Support/profiles/*.provisionprofile(N) ~/Downloads/*.provisionprofile(N); do
+    [[ -f "$f" ]] || continue
+    appid=$(security cms -D -i "$f" 2>/dev/null \
+      | plutil -extract Entitlements.application-identifier raw -o - - 2>/dev/null) || continue
+    if [[ "$appid" == "$want" ]]; then
+      # archivar el que llegó por Downloads, para no depender de esa carpeta
+      if [[ "$f" != Support/profiles/* ]]; then
+        mkdir -p Support/profiles
+        cp "$f" "Support/profiles/$BUNDLE_ID.provisionprofile"
+        f="Support/profiles/$BUNDLE_ID.provisionprofile"
+      fi
+      PROFILE="$f"
+      return 0
+    fi
+  done
+  return 1
+}
+
+DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
+  | grep -o "Developer ID Application: [^\"]*($TEAM_ID)" | head -1) || true
+
+# El perfil solo vale firmado con el certificado que lo respalda: si vamos a
+# caer a "Grabi Dev", ni perfil ni entitlement (volveríamos al error 163).
+if [[ -n "$DEV_ID" ]] && find_profile; then
+  cp "$PROFILE" "$APP/Contents/embedded.provisionprofile"
+  # entitlements = los del repo + associated-domains, en un temporal
+  ENTITLEMENTS=$(mktemp -t grabi-entitlements).plist
+  cp Support/Grabi.entitlements "$ENTITLEMENTS"
+  /usr/libexec/PlistBuddy \
+    -c "Add :com.apple.developer.associated-domains array" \
+    -c "Add :com.apple.developer.associated-domains:0 string applinks:app.grabi.net" \
+    "$ENTITLEMENTS" >/dev/null
+  echo "Universal Links activos (perfil: $PROFILE)"
+elif [[ -n "$DEV_ID" ]]; then
+  echo "Sin provisioning profile para $BUNDLE_ID → build sin universal links."
+  echo "   Bájalo de developer.apple.com → Profiles y vuelve a compilar."
+fi
+
+if [[ -n "$DEV_ID" ]]; then
   # El framework se firma primero: la firma del .app abarca lo que contiene.
   codesign --force --options runtime --timestamp \
     --sign "$DEV_ID" "$APP/Contents/Frameworks/Sparkle.framework"
