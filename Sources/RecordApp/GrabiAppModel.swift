@@ -256,6 +256,27 @@ final class GrabiAppModel: ObservableObject {
         library.refresh(folder: destinationFolder)
     }
 
+    /// Compartir a Grabi Cloud desde fuera de la galería (la notificación de
+    /// "grabación lista" o el menú). Sin sesión abre la ventana para que el
+    /// usuario entre; con sesión sube directo y el enlace queda copiado.
+    func shareToCloud(url: URL) {
+        refreshLibrary()
+        guard let item = library.items.first(where: { $0.id == url })
+            ?? library.items.first else { return }
+        if cloud.account == nil {
+            showMainWindow()
+            mainWindow.tab = .library
+            return
+        }
+        cloud.share(item)
+    }
+
+    /// La grabación más reciente de la carpeta — para el atajo del menú.
+    var newestRecordingURL: URL? {
+        refreshLibrary()
+        return library.items.first?.id
+    }
+
     // MARK: - Status shown by the mascot in the sidebar
 
     var statusPose: MascotPose {

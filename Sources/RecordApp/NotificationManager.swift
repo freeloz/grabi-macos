@@ -19,8 +19,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
         let ver = UNNotificationAction(identifier: "VIEW", title: L("app.notif.view"), options: [.foreground])
         let copiar = UNNotificationAction(identifier: "COPY", title: L("app.notif.copy"), options: [])
+        // Compartir desde la propia notificación: el gesto más repetido del
+        // producto no debería obligar a abrir la galería.
+        let compartir = UNNotificationAction(
+            identifier: "SHARE", title: L("app.notif.share"), options: [.foreground])
         let category = UNNotificationCategory(
-            identifier: "GRABI_DONE", actions: [ver, copiar], intentIdentifiers: [])
+            identifier: "GRABI_DONE", actions: [compartir, ver, copiar], intentIdentifiers: [])
         center.setNotificationCategories([category])
         center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
@@ -89,6 +93,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             // paste into Messages or Slack.
             NSPasteboard.general.clearContents()
             NSPasteboard.general.writeObjects([url as NSURL])
+        case "SHARE":
+            await MainActor.run { model?.shareToCloud(url: url) }
         default:
             // Click on the body → reveal in Finder.
             NSWorkspace.shared.activateFileViewerSelecting([url])

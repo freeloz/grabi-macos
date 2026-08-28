@@ -186,3 +186,5 @@
 "app.cloud.or" = "ou";
 "app.cloud.googleWaiting" = "Nous avons ouvert votre navigateur — revenez ici une fois terminé.";
 "app.cloud.emailWeb" = "Se connecter par e-mail";
+"app.notif.share" = "Partager";
+"menu.shareLast" = "Partager le dernier enregistrement";

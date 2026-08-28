@@ -186,3 +186,5 @@
 "app.cloud.or" = "oder";
 "app.cloud.googleWaiting" = "Wir haben deinen Browser geöffnet — komm danach hierher zurück.";
 "app.cloud.emailWeb" = "Mit E-Mail anmelden";
+"app.notif.share" = "Teilen";
+"menu.shareLast" = "Letzte Aufnahme teilen";

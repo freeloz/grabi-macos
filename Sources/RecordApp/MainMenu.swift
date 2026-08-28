@@ -39,6 +39,10 @@ enum MainMenuBuilder {
             model.togglePause()
         })
         fileMenu.addItem(.separator())
+        // El gesto más repetido del producto, a un atajo de distancia.
+        fileMenu.addItem(action(L("menu.shareLast"), key: "s", modifiers: [.command, .shift]) {
+            if let url = model.newestRecordingURL { model.shareToCloud(url: url) }
+        })
         fileMenu.addItem(action(L("app.openFolder"), key: "o", modifiers: [.command, .shift]) {
             model.openRecordingsFolder()
         })

@@ -186,3 +186,5 @@
 "app.cloud.or" = "ou";
 "app.cloud.googleWaiting" = "Abrimos seu navegador — volte aqui ao terminar.";
 "app.cloud.emailWeb" = "Entrar com e-mail";
+"app.notif.share" = "Compartilhar";
+"menu.shareLast" = "Compartilhar última gravação";
