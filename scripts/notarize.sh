@@ -42,7 +42,20 @@ if [[ "$TARGET" == *.app ]]; then
 fi
 
 echo "→ Enviando a Apple: $UPLOAD"
-xcrun notarytool submit "$UPLOAD" --keychain-profile "$PROFILE" --wait
+# --wait devuelve 0 aunque el veredicto sea Invalid, así que hay que leer el
+# estado: sin esto, un rechazo se disfraza de fallo de stapler y el motivo
+# real (que está en el log) no aparece por ningún lado.
+SUBMIT_OUT=$(xcrun notarytool submit "$UPLOAD" --keychain-profile "$PROFILE" --wait 2>&1)
+echo "$SUBMIT_OUT"
+SUBMISSION_ID=$(echo "$SUBMIT_OUT" | awk '/id: /{print $2; exit}')
+if ! echo "$SUBMIT_OUT" | grep -q "status: Accepted"; then
+  echo ""
+  echo "✗ Apple rechazó el envío. Motivo:"
+  xcrun notarytool log "$SUBMISSION_ID" --keychain-profile "$PROFILE" 2>&1 \
+    | grep -E '"(message|path)"' | sort -u | head -20
+  [[ -n "$TEMP_ZIP" ]] && rm -f "$TEMP_ZIP"
+  exit 1
+fi
 
 # El ticket se grapa al artefacto original (el .app, no el zip).
 echo "→ Grapando el ticket"

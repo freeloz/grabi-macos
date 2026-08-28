@@ -8,15 +8,14 @@
 	<true/>
 	<key>com.apple.security.device.audio-input</key>
 	<true/>
-	<!-- The interim "Grabi Dev" identity is self-signed (no Team ID), so
-	     hardened-runtime library validation would refuse to load the
-	     embedded Sparkle.framework. Comprobado el 28 ago 2026 con el
-	     Developer ID real: quitarlo impide arrancar (launchd 163), porque
-	     Sparkle trae XPC services internos que habría que firmar uno a uno.
-	     Se queda; es habitual en apps con frameworks embebidos y no impide
-	     la notarización. Refinamiento pendiente, no bloqueante. -->
-	<key>com.apple.security.cs.disable-library-validation</key>
-	<true/>
+	<!-- Aquí vivía com.apple.security.cs.disable-library-validation. Se quitó
+	     el 28 ago 2026 y no vuelve: solo hacía falta porque Sparkle se
+	     firmaba mal. Ahora make-app.sh firma sus binarios anidados
+	     (Updater.app, Autoupdate) con el mismo Developer ID, así que la
+	     validación de librerías pasa sola — mismo Team ID, misma cadena.
+	     Verificado: la app arranca sin él y Apple la notarizó.
+	     Si algún día vuelve el error de carga de Sparkle, el arreglo es
+	     revisar la firma de lo anidado, no reabrir este agujero. -->
 
 	<!-- Universal Links: com.apple.developer.associated-domains NO va aquí,
 	     y su ausencia es deliberada. Es una "capability": Apple solo la

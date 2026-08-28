@@ -125,9 +125,21 @@ elif [[ -n "$DEV_ID" ]]; then
 fi
 
 if [[ -n "$DEV_ID" ]]; then
-  # El framework se firma primero: la firma del .app abarca lo que contiene.
-  codesign --force --options runtime --timestamp \
-    --sign "$DEV_ID" "$APP/Contents/Frameworks/Sparkle.framework"
+  # Sparkle no es un framework plano: trae ejecutables anidados (Autoupdate y
+  # Updater.app) que la notarización revisa POR SEPARADO. Firmar solo el
+  # framework los deja sin Developer ID ni timestamp, y Apple devuelve
+  # "Invalid" señalando cada uno — comprobado el 28 ago 2026.
+  # Hay que ir de adentro hacia afuera: lo más profundo primero, porque cada
+  # firma sella lo que contiene y firmar el contenedor antes invalida al hijo.
+  SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+  for nested in \
+      "$SPARKLE/Versions/B/Updater.app" \
+      "$SPARKLE/Versions/B/Autoupdate" \
+      "$SPARKLE"; do
+    [[ -e "$nested" ]] || continue
+    codesign --force --options runtime --timestamp \
+      --sign "$DEV_ID" "$nested"
+  done
   codesign --force --options runtime --timestamp \
     --entitlements "$ENTITLEMENTS" --sign "$DEV_ID" "$APP"
   echo "Firmado para distribución: $DEV_ID"
