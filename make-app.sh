@@ -60,17 +60,32 @@ done
 # Sparkle.framework (auto-updates) lives in Contents/Frameworks.
 scripts/embed-sparkle.sh "$APP"
 
-# Signing: with the stable local identity "Grabi Dev" if it exists (TCC
-# permissions survive rebuilds); otherwise ad-hoc (screen permissions are
-# lost on every new build).
-if security find-identity -v -p codesigning 2>/dev/null | grep -q "Grabi Dev"; then
+# Firma, en orden de preferencia:
+#   1. Developer ID Application (Freeloz SAS, Team F6X8HM2S7A) — la de
+#      distribución: hardened runtime + timestamp, lista para notarizar.
+#   2. "Grabi Dev" (self-signed local) — interina: los permisos TCC
+#      sobreviven a los rebuilds, pero macOS avisa que la app "está dañada".
+#   3. Ad-hoc — último recurso: pide permisos de pantalla en cada build.
+TEAM_ID="F6X8HM2S7A"
+ENTITLEMENTS=Support/Grabi.entitlements
+
+if DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
+    | grep -o "Developer ID Application: [^\"]*($TEAM_ID)" | head -1); then
+  # El framework se firma primero: la firma del .app abarca lo que contiene.
+  codesign --force --options runtime --timestamp \
+    --sign "$DEV_ID" "$APP/Contents/Frameworks/Sparkle.framework"
+  codesign --force --options runtime --timestamp \
+    --entitlements "$ENTITLEMENTS" --sign "$DEV_ID" "$APP"
+  echo "Firmado para distribución: $DEV_ID"
+  echo "   Siguiente paso: scripts/notarize.sh \"$APP\""
+elif security find-identity -v -p codesigning 2>/dev/null | grep -q "Grabi Dev"; then
   codesign --force --sign "Grabi Dev" "$APP/Contents/Frameworks/Sparkle.framework"
   codesign --force --sign "Grabi Dev" "$APP"
-  echo "Signed with stable identity: Grabi Dev"
+  echo "Firmado con la identidad interina: Grabi Dev (sin notarizar)"
 else
   codesign --force --sign - "$APP/Contents/Frameworks/Sparkle.framework"
   codesign --force --sign - "$APP"
-  echo "⚠️  Ad-hoc signature: macOS will re-ask for the screen permission after each rebuild"
+  echo "⚠️  Firma ad-hoc: macOS volverá a pedir el permiso de pantalla en cada build"
 fi
 
 echo "✅ Done: $APP  ($BUNDLE_ID)"
