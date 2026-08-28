@@ -57,7 +57,8 @@ public actor GrabiCloudAdapter: CloudPort {
     }
 
     /// La vuelta del navegador: grabi://auth-callback#access_token=…
-    public static let oauthRedirect = "grabi://auth-callback"
+    /// (grabi-staging:// en la app de pruebas, para no cruzar ambientes).
+    public static var oauthRedirect: String { "\(CloudEnvironment.urlScheme)://auth-callback" }
 
     public nonisolated func googleAuthorizeURL() -> URL {
         api.googleAuthorizeURL(redirect: Self.oauthRedirect)

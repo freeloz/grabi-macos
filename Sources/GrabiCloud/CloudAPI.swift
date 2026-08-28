@@ -23,10 +23,22 @@ public struct CloudEnvironment: Sendable {
         supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1bGx5eGR5eWl1bGNoY3NhZnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MjE1MTYsImV4cCI6MjEwMzI5NzUxNn0.JW-PdMXWDq5y7NpTgg3iaqkiYS3m9wlutGLW4xDUsBk"
     )
 
-    /// `defaults write net.grabi.Grabi GrabiCloudEnvironment staging`
+    /// El ambiente lo decide el propio bundle: "Grabi Staging.app" lleva
+    /// GrabiCloudEnvironment=staging en su Info.plist, así que apunta sola
+    /// al cloud de pruebas. `defaults write <bundle-id> GrabiCloudEnvironment
+    /// staging` sigue funcionando para forzarlo en un build de producción.
     public static var current: CloudEnvironment {
-        UserDefaults.standard.string(forKey: "GrabiCloudEnvironment") == "staging"
-            ? .staging : .production
+        let fromDefaults = UserDefaults.standard.string(forKey: "GrabiCloudEnvironment")
+        let fromBundle = Bundle.main.object(forInfoDictionaryKey: "GrabiCloudEnvironment") as? String
+        return (fromDefaults ?? fromBundle) == "staging" ? .staging : .production
+    }
+
+    /// Esquema de vuelta del OAuth, distinto por ambiente para que el
+    /// callback aterrice en la app correcta cuando ambas están instaladas.
+    public static var urlScheme: String {
+        let types = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+        let schemes = types?.first?["CFBundleURLSchemes"] as? [String]
+        return schemes?.first ?? "grabi"
     }
 }
 

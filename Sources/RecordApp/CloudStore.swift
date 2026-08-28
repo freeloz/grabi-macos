@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import GrabiCloud
 import GrabiDomain
 import GrabiUseCases
 
@@ -70,7 +71,7 @@ final class CloudStore: ObservableObject {
     /// Devuelve true si la URL era nuestra y se procesó.
     @discardableResult
     func handleAuthCallback(_ url: URL) -> Bool {
-        guard url.scheme == "grabi", url.host == "auth-callback",
+        guard url.scheme == CloudEnvironment.urlScheme, url.host == "auth-callback",
               let fragment = url.fragment else { return false }
         var params: [String: String] = [:]
         for pair in fragment.split(separator: "&") {

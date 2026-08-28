@@ -8,8 +8,23 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# Dos ambientes, dos apps instalables a la vez:
+#   ./make-app.sh                 → Grabi.app          · net.grabi.Grabi
+#   ./make-app.sh release staging → Grabi Staging.app  · net.grabi.Grabi.staging
+# Los permisos TCC y las preferencias se atribuyen al bundle ID, así que
+# probar staging nunca toca la instalación de producción.
 CONFIG="${1:-release}"
-APP=dist/Grabi.app
+ENVIRONMENT="${2:-production}"
+
+if [[ "$ENVIRONMENT" == "staging" ]]; then
+  APP="dist/Grabi Staging.app"
+  BUNDLE_ID="net.grabi.Grabi.staging"
+  APP_NAME="Grabi Staging"
+else
+  APP=dist/Grabi.app
+  BUNDLE_ID="net.grabi.Grabi"
+  APP_NAME="Grabi"
+fi
 
 swift build -c "$CONFIG"
 
@@ -17,6 +32,16 @@ rm -rf "$APP" dist/RecordApp.app
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp ".build/$CONFIG/RecordApp" "$APP/Contents/MacOS/Grabi"
 cp Support/Info.plist "$APP/Contents/Info.plist"
+
+# Identidad por ambiente. La app de staging apunta sola al cloud de staging
+# (GrabiCloudEnvironment en su Info.plist) — sin `defaults write` a mano.
+if [[ "$ENVIRONMENT" == "staging" ]]; then
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "$APP/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleName $APP_NAME" "$APP/Contents/Info.plist"
+  /usr/libexec/PlistBuddy -c "Add :GrabiCloudEnvironment string staging" "$APP/Contents/Info.plist"
+  # esquema propio para que el callback OAuth vuelva a ESTA app, no a la de producción
+  /usr/libexec/PlistBuddy -c "Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 grabi-staging" "$APP/Contents/Info.plist"
+fi
 cp Support/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
@@ -48,5 +73,5 @@ else
   echo "⚠️  Ad-hoc signature: macOS will re-ask for the screen permission after each rebuild"
 fi
 
-echo "✅ Done: $APP"
-echo "Open it with: open $APP"
+echo "✅ Done: $APP  ($BUNDLE_ID)"
+echo "Open it with: open \"$APP\""
