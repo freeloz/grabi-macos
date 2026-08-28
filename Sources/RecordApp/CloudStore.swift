@@ -60,6 +60,12 @@ final class CloudStore: ObservableObject {
         NSWorkspace.shared.open(cloud.googleAuthorizeURL())
     }
 
+    /// Entrar/crear cuenta con correo: también en el navegador — ahí vive el
+    /// widget de captcha que Supabase exige.
+    func signInWithEmail() {
+        NSWorkspace.shared.open(cloud.emailSignInURL())
+    }
+
     /// grabi://auth-callback#access_token=…&refresh_token=…&expires_in=…
     /// Devuelve true si la URL era nuestra y se procesó.
     @discardableResult

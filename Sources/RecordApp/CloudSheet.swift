@@ -8,10 +8,6 @@ struct CloudSheet: View {
     @ObservedObject var store: CloudStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var creating = false
-    @State private var email = ""
-    @State private var password = ""
-    @State private var working = false
     @State private var message: String?
     @State private var messageIsError = false
 
@@ -51,7 +47,7 @@ struct CloudSheet: View {
 
     private var form: some View {
         VStack(spacing: GrabiSpace.s3) {
-            Text(creating ? L("app.cloud.createTitle") : L("app.cloud.signInTitle"))
+            Text(L("app.cloud.signInTitle"))
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(GrabiColor.text)
             Text(L("app.cloud.hint"))
@@ -68,8 +64,9 @@ struct CloudSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // Google: abre el navegador; la vuelta llega por grabi:// y esta
-            // sheet cambia sola al estado con sesión.
+            // Todo el inicio de sesión ocurre en el navegador: ahí vive el
+            // widget de captcha que Supabase exige, y la web devuelve la
+            // sesión a la app por el esquema grabi://.
             Button {
                 store.signInWithGoogle()
                 messageIsError = false
@@ -90,24 +87,11 @@ struct CloudSheet: View {
                 Rectangle().fill(GrabiColor.border).frame(height: 1)
             }
 
-            TextField(L("app.cloud.email"), text: $email)
-                .textFieldStyle(.roundedBorder)
-                .disableAutocorrection(true)
-            SecureField(L("app.cloud.password"), text: $password)
-                .textFieldStyle(.roundedBorder)
-                .onSubmit(submit)
-
-            GrabiButton(creating ? L("app.cloud.create") : L("app.cloud.signIn"),
-                        kind: .primario, action: submit)
-                .disabled(working || email.isEmpty || password.count < 8)
-
-            Button(creating ? L("app.cloud.toggleHave") : L("app.cloud.toggleCreate")) {
-                creating.toggle()
-                message = nil
+            GrabiButton(L("app.cloud.emailWeb"), kind: .primario) {
+                store.signInWithEmail()
+                messageIsError = false
+                message = L("app.cloud.googleWaiting")
             }
-            .buttonStyle(.plain)
-            .font(GrabiFont.caption)
-            .foregroundStyle(GrabiColor.brandStrong)
 
             Button(L("app.cancel")) { dismiss() }
                 .buttonStyle(.plain)
@@ -116,31 +100,4 @@ struct CloudSheet: View {
         }
     }
 
-    private func submit() {
-        guard !working, !email.isEmpty, password.count >= 8 else { return }
-        working = true
-        message = nil
-        Task {
-            defer { working = false }
-            do {
-                if creating {
-                    let signedIn = try await store.signUp(email: email, password: password)
-                    if signedIn { dismiss() }
-                    else {
-                        messageIsError = false
-                        message = L("app.cloud.checkEmail")
-                    }
-                } else {
-                    try await store.signIn(email: email, password: password)
-                    dismiss()
-                }
-            } catch let error as CloudError {
-                messageIsError = true
-                message = error.userMessage
-            } catch {
-                messageIsError = true
-                message = L("app.cloud.failed")
-            }
-        }
-    }
 }

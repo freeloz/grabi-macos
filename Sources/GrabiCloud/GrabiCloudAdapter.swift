@@ -63,6 +63,13 @@ public actor GrabiCloudAdapter: CloudPort {
         api.googleAuthorizeURL(redirect: Self.oauthRedirect)
     }
 
+    /// Entrar con correo: se hace en la web, no en la app. Ahí vive el
+    /// widget de Turnstile que Supabase exige desde el 28 ago, y la web
+    /// devuelve la sesión a la app por el esquema grabi://.
+    public nonisolated func emailSignInURL() -> URL {
+        api.webLoginURL(redirect: Self.oauthRedirect)
+    }
+
     public func adoptSession(accessToken: String, refreshToken: String,
                              expiresIn: Double) async throws -> CloudAccount {
         let email = try await api.userEmail(accessToken: accessToken)

@@ -120,6 +120,14 @@ struct CloudAPI: Sendable {
         return (try JSONDecoder().decode(AuthUserInfo.self, from: data)).email ?? ""
     }
 
+    /// Login web (correo o Google) con vuelta al esquema de la app.
+    func webLoginURL(redirect: String) -> URL {
+        var comps = URLComponents(url: env.apiBase.appendingPathComponent("login"),
+                                  resolvingAgainstBaseURL: false)!
+        comps.queryItems = [URLQueryItem(name: "app", value: redirect)]
+        return comps.url!
+    }
+
     /// URL de autorización de Google con vuelta al esquema de la app.
     func googleAuthorizeURL(redirect: String) -> URL {
         var comps = URLComponents(url: env.supabaseURL.appendingPathComponent("auth/v1/authorize"),

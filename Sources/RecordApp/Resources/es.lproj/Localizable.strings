@@ -185,3 +185,4 @@
 "app.cloud.google" = "Continuar con Google";
 "app.cloud.or" = "o";
 "app.cloud.googleWaiting" = "Abrimos tu navegador — vuelve aquí al terminar.";
+"app.cloud.emailWeb" = "Entrar con correo";

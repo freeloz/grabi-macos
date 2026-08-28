@@ -97,6 +97,9 @@ public protocol CloudPort: AnyObject, Sendable {
     /// Google Sign-In: the URL to open in the browser; the flow comes back
     /// via the app's URL scheme and lands in `adoptSession`.
     func googleAuthorizeURL() -> URL
+    /// Email sign-in also happens in the browser (that's where the captcha
+    /// widget lives); same round trip back into `adoptSession`.
+    func emailSignInURL() -> URL
     /// Adopt tokens delivered by the OAuth callback.
     func adoptSession(accessToken: String, refreshToken: String,
                       expiresIn: Double) async throws -> CloudAccount
