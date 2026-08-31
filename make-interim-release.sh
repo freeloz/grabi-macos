@@ -46,12 +46,18 @@ scripts/embed-sparkle.sh "$APP"
 BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Contents/Info.plist")
 scripts/sign-app.sh "$APP" "$BUNDLE_ID"
 
-# 4. Presentable DMG: app + alias to Applications + instructions + background
+# 4. DMG presentable: app + alias a Aplicaciones + fondo.
+#    Ya no lleva instrucciones: el README explicaba cómo saltarse el aviso
+#    de Gatekeeper, y desde la notarización ese aviso no aparece. Un manual
+#    para un problema que no existe solo siembra la duda de que exista.
 mkdir -p "$STAGE/.background"
 cp -R "$APP" "$STAGE/Grabi.app"
 ln -s /Applications "$STAGE/Applications"
-cp docs/install-grabi.html "$STAGE/README · How to install.html"
 cp Support/dmg-fondo.png "$STAGE/.background/fondo.png"
+
+# El punto inicial no basta si el usuario tiene activado "mostrar archivos
+# ocultos" —cosa común entre desarrolladores—: hay que marcarlos invisibles.
+chflags hidden "$STAGE/.background" 2>/dev/null || true
 
 hdiutil create -volname "Grabi $VERSION" -srcfolder "$STAGE" -ov -format UDRW \
   -fs HFS+ "$DMG.rw.dmg" > /dev/null
@@ -67,14 +73,13 @@ tell application "Finder"
     set current view of container window to icon view
     set toolbar visible of container window to false
     set statusbar visible of container window to false
-    set the bounds of container window to {200, 140, 860, 560}
+    set the bounds of container window to {200, 140, 860, 588}
     set viewOptions to the icon view options of container window
     set arrangement of viewOptions to not arranged
     set icon size of viewOptions to 104
     set background picture of viewOptions to file ".background:fondo.png"
-    set position of item "Grabi.app" of container window to {180, 210}
-    set position of item "Applications" of container window to {480, 210}
-    set position of item "README · How to install.html" of container window to {330, 350}
+    set position of item "Grabi.app" of container window to {180, 232}
+    set position of item "Applications" of container window to {480, 232}
     close
     open
     delay 1
@@ -82,6 +87,9 @@ tell application "Finder"
   end tell
 end tell
 EOF
+  # macOS crea .fseventsd al montar el volumen; fuera antes de comprimir.
+  rm -rf "$MOUNT/.fseventsd" 2>/dev/null || true
+  chflags hidden "$MOUNT/.background" 2>/dev/null || true
   sync
   hdiutil detach "$MOUNT" -quiet
 fi
@@ -105,4 +113,3 @@ if [[ "$NOTARIZE" == "1" ]]; then
 fi
 
 echo "✅ $DMG ready ($(du -h "$DMG" | cut -f1 | tr -d ' '))"
-echo "   Share it together with docs/install-grabi.html (also included inside the DMG)."
