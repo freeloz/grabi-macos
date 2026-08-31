@@ -118,18 +118,46 @@ PY
 
 # 5. Upload to R2 (dl.grabi.net)
 put() { npx -y wrangler r2 object put "$BUCKET/$1" --file "$2" --content-type "$3" --remote; }
+# Las rutas versionadas son inmutables y se pueden cachear años; las "latest"
+# son punteros que cambian en cada release, así que van con caché corta.
+put_mutable() { npx -y wrangler r2 object put "$BUCKET/$1" --file "$2" --content-type "$3" \
+  --cache-control "public, max-age=60" --remote; }
 put "$PLATFORM/v$V/Grabi-$V.dmg"        "$DMG"                       application/x-apple-diskimage
 put "$PLATFORM/v$V/Grabi-$V.dmg.sha256" "$STAGE/Grabi-$V.dmg.sha256" text/plain
 put "$PLATFORM/v$V/SHA256SUMS.txt"      "$STAGE/SHA256SUMS.txt"      text/plain
-put "$PLATFORM/latest/Grabi.dmg"        "$DMG"                       application/x-apple-diskimage
-put "$PLATFORM/latest/Grabi.dmg.sha256" "$STAGE/Grabi-$V.dmg.sha256" text/plain
-put "$PLATFORM/latest.json"             "$STAGE/latest.json"         application/json
-put "$PLATFORM/appcast.xml"             "$STAGE/appcast.xml"         application/xml
+put_mutable "$PLATFORM/latest/Grabi.dmg"        "$DMG"                       application/x-apple-diskimage
+put_mutable "$PLATFORM/latest/Grabi.dmg.sha256" "$STAGE/Grabi-$V.dmg.sha256" text/plain
+put_mutable "$PLATFORM/latest.json"             "$STAGE/latest.json"         application/json
+put_mutable "$PLATFORM/appcast.xml"             "$STAGE/appcast.xml"         application/xml
 
-# 6. End-to-end checks: the CDN must serve exactly what we published.
+# 6. Purgar la caché de Cloudflare de las rutas móviles. Sin esto el CDN
+#    sigue sirviendo el DMG anterior hasta 4 horas — y el botón de descarga
+#    de grabi.net apunta justo a latest/. Pasó en la v0.3.0: R2 tenía el
+#    archivo nuevo y el CDN entregaba el del release anterior.
+if [[ -n "${CLOUDFLARE_EMAIL:-}" && -n "${CLOUDFLARE_API_KEY:-}" ]]; then
+  ZONE=$(curl -s "https://api.cloudflare.com/client/v4/zones?name=grabi.net" \
+    -H "X-Auth-Email: $CLOUDFLARE_EMAIL" -H "X-Auth-Key: $CLOUDFLARE_API_KEY" \
+    | /usr/bin/env python3 -c 'import sys,json;r=json.load(sys.stdin);print(r["result"][0]["id"] if r.get("result") else "")')
+  [ -n "$ZONE" ] && curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/purge_cache" \
+    -H "X-Auth-Email: $CLOUDFLARE_EMAIL" -H "X-Auth-Key: $CLOUDFLARE_API_KEY" \
+    -H "Content-Type: application/json" \
+    --data "{\"files\":[\"$BASE_URL/latest/Grabi.dmg\",\"$BASE_URL/latest/Grabi.dmg.sha256\",\"$BASE_URL/latest.json\",\"$BASE_URL/appcast.xml\"]}" \
+    >/dev/null && echo "Caché de Cloudflare purgada (rutas latest/)"
+else
+  echo "⚠️  Sin CLOUDFLARE_EMAIL/CLOUDFLARE_API_KEY: no se purgó la caché."
+  echo "    latest/ puede servir el DMG anterior hasta 60s."
+fi
+
+# 7. Comprobación end-to-end: el CDN debe servir exactamente lo publicado,
+#    y se comprueba latest/ — que es lo que descarga la gente — no solo la
+#    ruta versionada, que es la que siempre estuvo bien.
 sleep 5
 REMOTE_SHA=$(curl -fsSL "$BASE_URL/v$V/Grabi-$V.dmg" | shasum -a 256 | awk '{print $1}')
 [ "$REMOTE_SHA" = "$SHA" ] || { echo "Remote SHA does NOT match"; exit 1; }
+LATEST_SHA=$(curl -fsSL "$BASE_URL/latest/Grabi.dmg" | shasum -a 256 | awk '{print $1}')
+[ "$LATEST_SHA" = "$SHA" ] || {
+  echo "✗ latest/Grabi.dmg NO coincide con el release: el CDN sirve algo viejo."
+  echo "  Purga la caché de $BASE_URL/latest/Grabi.dmg y reintenta."; exit 1; }
 REMOTE_CAST=$(curl -fsSL "$BASE_URL/appcast.xml")
 echo "$REMOTE_CAST" | grep -q "sparkle:edSignature=\"$ED_SIG\"" || {
   echo "Remote appcast is missing this release's EdDSA signature"; exit 1; }
