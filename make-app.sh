@@ -85,18 +85,27 @@ ENTITLEMENTS=Support/Grabi.entitlements
 PROFILE=""
 find_profile() {
   local want="$TEAM_ID.$BUNDLE_ID" f appid
-  # Se busca en los cuatro sitios por donde puede llegar un perfil, sin
-  # obligar a nadie a moverlo de sitio: el archivo del repo, la descarga
+  # Se busca en todos los sitios por donde puede llegar un perfil, sin
+  # obligar a nadie a moverlo: el archivo del repo, ~/.grabi/secrets (donde
+  # Iván los guarda, fuera del repo a propósito), la descarga
   # manual del portal, y las dos carpetas donde Xcode deja los que baja con
   # "Download Manual Profiles" (la segunda es la ruta de Xcode antiguo).
   # (N): en zsh, un glob sin coincidencias se borra en vez de ser un error.
   for f in Support/profiles/*.provisionprofile(N) \
+           ~/.grabi/secrets/*.provisionprofile(N) \
            ~/Downloads/*.provisionprofile(N) \
            ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/*.provisionprofile(N) \
            ~/Library/MobileDevice/Provisioning\ Profiles/*.provisionprofile(N); do
     [[ -f "$f" ]] || continue
-    appid=$(security cms -D -i "$f" 2>/dev/null \
-      | plutil -extract Entitlements.application-identifier raw -o - - 2>/dev/null) || continue
+    # Los perfiles de macOS guardan el App ID en com.apple.application-identifier;
+    # los de iOS, en application-identifier a secas. Se prueban los dos, y los
+    # puntos de la clave van escapados porque plutil los trata como separador
+    # de ruta (buscar la clave sin escapar devuelve "no value at that key path").
+    appid=$(security cms -D -i "$f" 2>/dev/null | plutil \
+      -extract 'Entitlements.com\.apple\.application-identifier' raw -o - - 2>/dev/null) \
+      || appid=$(security cms -D -i "$f" 2>/dev/null | plutil \
+      -extract 'Entitlements.application-identifier' raw -o - - 2>/dev/null) \
+      || continue
     if [[ "$appid" == "$want" ]]; then
       # archivar el que llegó por Downloads, para no depender de esa carpeta
       if [[ "$f" != Support/profiles/* ]]; then
