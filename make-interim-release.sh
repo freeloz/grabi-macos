@@ -90,9 +90,16 @@ hdiutil convert "$DMG.rw.dmg" -format UDZO -o "$DMG" > /dev/null
 rm -f "$DMG.rw.dmg"
 rm -rf "$STAGE"
 
-# 5. Notarización del DMG. Se grapa al propio DMG para que Gatekeeper lo
-#    acepte sin consultar a Apple — y sin red, que es el caso real de quien
-#    lo descarga y lo abre después.
+# 5. Firmar el DMG y notarizarlo. Gatekeeper evalúa PRIMERO el contenedor:
+#    un DMG sin firma sale "rejected / no usable signature" aunque la app de
+#    dentro esté impecable. El orden importa — firmar después de grapar
+#    invalidaría el ticket.
+DEV_ID=$(security find-identity -v -p codesigning 2>/dev/null \
+  | grep -o "Developer ID Application: [^\"]*(F6X8HM2S7A)" | head -1) || true
+if [[ -n "$DEV_ID" ]]; then
+  codesign --force --timestamp --sign "$DEV_ID" "$DMG"
+  echo "DMG firmado: $DEV_ID"
+fi
 if [[ "$NOTARIZE" == "1" ]]; then
   scripts/notarize.sh "$DMG"
 fi

@@ -10,17 +10,6 @@
 	<string>Grabi</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Grabi Cloud Auth</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>grabi</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleIdentifier</key>
 	<string>net.grabi.Grabi</string>
 	<key>CFBundleLocalizations</key>
@@ -36,9 +25,20 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.1</string>
+	<string>0.3.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Grabi Cloud Auth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>grabi</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
-	<string>12</string>
+	<string>13</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>NSCameraUsageDescription</key>

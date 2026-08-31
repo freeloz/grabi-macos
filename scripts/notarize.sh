@@ -64,6 +64,13 @@ xcrun stapler validate "$TARGET"
 
 [[ -n "$TEMP_ZIP" ]] && rm -f "$TEMP_ZIP"
 
+# El tipo de evaluación depende del artefacto: "execute" para una app,
+# "open" (con el contexto de la firma primaria) para un DMG. Preguntar con
+# el tipo equivocado devuelve "rejected" en un DMG perfectamente válido.
 echo "→ Veredicto de Gatekeeper:"
-spctl --assess --type execute --verbose "$TARGET" 2>&1 | tail -2 || true
+if [[ "$TARGET" == *.dmg ]]; then
+  spctl -a -t open --context context:primary-signature -v "$TARGET" 2>&1 | tail -2 || true
+else
+  spctl --assess --type execute --verbose "$TARGET" 2>&1 | tail -2 || true
+fi
 echo "✅ Notarizado: $TARGET"
