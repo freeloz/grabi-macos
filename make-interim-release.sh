@@ -1,33 +1,24 @@
 #!/bin/zsh
-# Interim distribution of Grabi (beta, no Apple Developer account):
-# builds release, signs with the stable local identity, and generates a
-# presentable DMG with instructions. Regenerate everything with:
+# El DMG que se publica en dl.grabi.net: build universal (Apple Silicon +
+# Intel), firmado con Developer ID, con el perfil embebido para universal
+# links, y NOTARIZADO con el ticket grapado al propio DMG.
 #
 #   ./make-interim-release.sh
 #
-# When the Apple Developer account arrives:
-#   1. SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
-#   2. Add notarization (notarytool submit + stapler) after creating the DMG.
-# Nothing else changes.
+# La firma vive en scripts/sign-app.sh, compartida con make-app.sh: este
+# script tenía su propia copia y se quedó atrás — durante días publicó DMGs
+# con la identidad interina mientras el build local ya salía notarizado.
+#
+# NOTARIZE=0 para saltarse la notarización (pruebas locales).
 set -euo pipefail
 cd "$(dirname "$0")"
 
-SIGN_IDENTITY="${SIGN_IDENTITY:-Grabi Dev}"
-# HARDENED=0 ./make-interim-release.sh to sign without hardened runtime if
-# some macOS version misbehaves without notarization.
-HARDENED="${HARDENED:-1}"
+NOTARIZE="${NOTARIZE:-1}"
 
 VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Support/Info.plist)
 APP=dist/Grabi.app
 DMG=dist/Grabi-$VERSION.dmg
 STAGE=dist/dmg-stage
-
-# 1. Signing identity (stable: TCC permissions persist across versions)
-if ! security find-identity -v -p codesigning | grep -q "$SIGN_IDENTITY"; then
-  echo "The identity \"$SIGN_IDENTITY\" does not exist. Create it with:"
-  echo "  ./scripts/create-signing-identity.sh"
-  exit 1
-fi
 
 # 2. Release build + bundle — universal (Apple Silicon + Intel)
 swift build -c release --arch arm64 --arch x86_64
@@ -50,27 +41,10 @@ for l in Support/InfoPlist/*.lproj; do
   cp "$l/InfoPlist.strings" "$APP/Contents/Resources/$(basename "$l")/"
 done
 
-# 3. Embed Sparkle (auto-updates), then sign inside-out: Sparkle's nested
-#    executables first, then the framework, then the app. The entitlements
-#    include disable-library-validation because "Grabi Dev" has no Team ID.
+# 3. Sparkle + firma (perfil, entitlements y binarios anidados incluidos)
 scripts/embed-sparkle.sh "$APP"
-SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
-if [[ "$HARDENED" == "1" ]]; then
-  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
-  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Updater.app"
-  codesign --force --options runtime --sign "$SIGN_IDENTITY" "$SPARKLE"
-  codesign --force --options runtime \
-    --entitlements Support/Grabi.entitlements \
-    --sign "$SIGN_IDENTITY" "$APP"
-  echo "Signed: \"$SIGN_IDENTITY\" + hardened runtime (ready to notarize)"
-else
-  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
-  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE/Versions/B/Updater.app"
-  codesign --force --sign "$SIGN_IDENTITY" "$SPARKLE"
-  codesign --force --sign "$SIGN_IDENTITY" "$APP"
-  echo "Signed: \"$SIGN_IDENTITY\" (no hardened runtime)"
-fi
-codesign --verify --strict "$APP" && echo "Signature verification: OK"
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Contents/Info.plist")
+scripts/sign-app.sh "$APP" "$BUNDLE_ID"
 
 # 4. Presentable DMG: app + alias to Applications + instructions + background
 mkdir -p "$STAGE/.background"
@@ -115,6 +89,13 @@ fi
 hdiutil convert "$DMG.rw.dmg" -format UDZO -o "$DMG" > /dev/null
 rm -f "$DMG.rw.dmg"
 rm -rf "$STAGE"
+
+# 5. Notarización del DMG. Se grapa al propio DMG para que Gatekeeper lo
+#    acepte sin consultar a Apple — y sin red, que es el caso real de quien
+#    lo descarga y lo abre después.
+if [[ "$NOTARIZE" == "1" ]]; then
+  scripts/notarize.sh "$DMG"
+fi
 
 echo "✅ $DMG ready ($(du -h "$DMG" | cut -f1 | tr -d ' '))"
 echo "   Share it together with docs/install-grabi.html (also included inside the DMG)."

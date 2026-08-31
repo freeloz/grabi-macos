@@ -59,8 +59,9 @@ print(json.dumps({
     "url": f"https://dl.grabi.net/macos/v{v}/Grabi-{v}.dmg",
     "sha256": sha, "sizeBytes": size,
     "publishedAt": datetime.date.today().isoformat(),
-    "signature": {"type": "self-signed", "identity": "Grabi Dev",
-                  "note": "Interim beta signing; Developer ID + notarization pending"},
+    "signature": {"type": "developer-id", "team": "F6X8HM2S7A",
+                  "identity": "Developer ID Application: Freeloz SAS",
+                  "notarized": True},
 }, indent=2))
 PY
 
@@ -141,8 +142,9 @@ git tag "v$V" 2>/dev/null || true
 git push origin "v$V"
 gh release create "v$V" "$DMG" "$STAGE/SHA256SUMS.txt" \
   --title "Grabi $V (macOS)" \
-  --notes "Signed DMG (interim \"Grabi Dev\" identity, hardened runtime).
-Existing installs with Grabi ≥ 0.1.4 update themselves via Sparkle.
+  --notes "DMG firmado con Developer ID (Freeloz SAS, Team F6X8HM2S7A), hardened
+runtime y **notarizado por Apple** — macOS ya no muestra ningún aviso.
+Las instalaciones con Grabi ≥ 0.1.4 se actualizan solas por Sparkle.
 
 **Recommended download:** https://dl.grabi.net/macos/v$V/Grabi-$V.dmg
 **SHA-256:** \`$SHA\`
