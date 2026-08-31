@@ -85,8 +85,15 @@ ENTITLEMENTS=Support/Grabi.entitlements
 PROFILE=""
 find_profile() {
   local want="$TEAM_ID.$BUNDLE_ID" f appid
-  # (N): en zsh, un glob sin coincidencias se borra en vez de ser un error
-  for f in Support/profiles/*.provisionprofile(N) ~/Downloads/*.provisionprofile(N); do
+  # Se busca en los cuatro sitios por donde puede llegar un perfil, sin
+  # obligar a nadie a moverlo de sitio: el archivo del repo, la descarga
+  # manual del portal, y las dos carpetas donde Xcode deja los que baja con
+  # "Download Manual Profiles" (la segunda es la ruta de Xcode antiguo).
+  # (N): en zsh, un glob sin coincidencias se borra en vez de ser un error.
+  for f in Support/profiles/*.provisionprofile(N) \
+           ~/Downloads/*.provisionprofile(N) \
+           ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles/*.provisionprofile(N) \
+           ~/Library/MobileDevice/Provisioning\ Profiles/*.provisionprofile(N); do
     [[ -f "$f" ]] || continue
     appid=$(security cms -D -i "$f" 2>/dev/null \
       | plutil -extract Entitlements.application-identifier raw -o - - 2>/dev/null) || continue
