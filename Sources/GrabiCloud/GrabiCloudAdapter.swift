@@ -69,8 +69,10 @@ public actor GrabiCloudAdapter: CloudPort {
         return providers.isEmpty ? [.google] : providers
     }
 
+    /// Google y Apple entran por la web, igual que el correo: la página
+    /// arranca el proveedor y devuelve la sesión por el esquema de la app.
     public nonisolated func oauthAuthorizeURL(provider: CloudIdentityProvider) -> URL {
-        api.oauthAuthorizeURL(provider: provider.rawValue, redirect: Self.oauthRedirect)
+        api.webLoginURL(redirect: Self.oauthRedirect, provider: provider.rawValue)
     }
 
     /// Entrar con correo: se hace en la web, no en la app. Ahí vive el
@@ -82,14 +84,28 @@ public actor GrabiCloudAdapter: CloudPort {
 
     public func adoptSession(accessToken: String, refreshToken: String,
                              expiresIn: Double) async throws -> CloudAccount {
-        let email = try await api.userEmail(accessToken: accessToken)
-        let fresh = CloudTokens(accessToken: accessToken, refreshToken: refreshToken,
-                                expiresAt: Date().addingTimeInterval(expiresIn),
-                                email: email)
+        let handed = CloudTokens(accessToken: accessToken, refreshToken: refreshToken,
+                                 expiresAt: Date().addingTimeInterval(expiresIn),
+                                 email: "")
+        let fresh: CloudTokens
+        if let email = try? await api.userEmail(accessToken: accessToken) {
+            fresh = CloudTokens(accessToken: accessToken, refreshToken: refreshToken,
+                                expiresAt: handed.expiresAt, email: email)
+        } else {
+            // El access token puede llegar caducado (la web entrega la sesión
+            // que tenía guardada). El refresh token sigue valiendo: se canjea
+            // antes de rendirse.
+            let renewed = try await api.refresh(handed)
+            let email = renewed.email.isEmpty
+                ? try await api.userEmail(accessToken: renewed.accessToken)
+                : renewed.email
+            fresh = CloudTokens(accessToken: renewed.accessToken, refreshToken: renewed.refreshToken,
+                                expiresAt: renewed.expiresAt, email: email)
+        }
         tokens = fresh
         store.save(fresh)
-        let plan = (try? await api.me(accessToken: accessToken).plan) ?? "free"
-        return CloudAccount(email: email, plan: plan)
+        let plan = (try? await api.me(accessToken: fresh.accessToken).plan) ?? "free"
+        return CloudAccount(email: fresh.email, plan: plan)
     }
 
     public func share(_ recording: Recording, title: String,

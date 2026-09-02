@@ -21,6 +21,9 @@ final class CloudStore: ObservableObject {
     /// Google mientras el servidor responde: es el que siempre ha estado
     /// activo, así el sheet nunca aparece sin ninguna forma de entrar.
     @Published private(set) var providers: [CloudIdentityProvider] = [.google]
+    /// La vuelta del navegador falló al adoptar la sesión. Antes se tragaba
+    /// con un `try?` y el usuario veía el sheet igual que antes de intentar.
+    @Published var authError: CloudError?
 
     private let cloud: CloudPort
     private let share: ShareToCloudUseCase
@@ -67,12 +70,14 @@ final class CloudStore: ObservableObject {
     /// Abre el navegador con el flujo del proveedor elegido; la vuelta llega
     /// por el esquema grabi:// a `handleAuthCallback`.
     func signIn(with provider: CloudIdentityProvider) {
+        authError = nil
         NSWorkspace.shared.open(cloud.oauthAuthorizeURL(provider: provider))
     }
 
     /// Entrar/crear cuenta con correo: también en el navegador — ahí vive el
     /// widget de captcha que Supabase exige.
     func signInWithEmail() {
+        authError = nil
         NSWorkspace.shared.open(cloud.emailSignInURL())
     }
 
@@ -92,11 +97,21 @@ final class CloudStore: ObservableObject {
             return false
         }
         let expires = Double(params["expires_in"] ?? "") ?? 3600
+        authError = nil
         Task {
-            account = try? await cloud.adoptSession(
-                accessToken: access, refreshToken: refresh, expiresIn: expires
-            )
+            do {
+                account = try await cloud.adoptSession(
+                    accessToken: access, refreshToken: refresh, expiresIn: expires
+                )
+            } catch let error as CloudError {
+                authError = error
+            } catch {
+                authError = .network(error.localizedDescription)
+            }
             accountLoaded = true
+            // La vuelta llega con el navegador delante: traer la app al frente
+            // para que el usuario vea que ya está dentro.
+            NSApp.activate(ignoringOtherApps: true)
         }
         return true
     }

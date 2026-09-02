@@ -132,11 +132,22 @@ struct CloudAPI: Sendable {
         return (try JSONDecoder().decode(AuthUserInfo.self, from: data)).email ?? ""
     }
 
-    /// Login web (correo o Google) con vuelta al esquema de la app.
-    func webLoginURL(redirect: String) -> URL {
+    /// Login web con vuelta al esquema de la app. TODO el inicio de sesión de
+    /// la app pasa por aquí, también Google y Apple: `provider` hace que la
+    /// página arranque ese flujo sola.
+    ///
+    /// Por qué no se llama a Supabase directamente con redirect_to=grabi://:
+    /// Supabase solo devuelve la sesión a destinos de su allowlist, y ahí
+    /// están las URLs https de la web, no el esquema de la app. Un destino
+    /// que no está en la lista no da error: Supabase cae al Site URL, el
+    /// usuario queda logueado en la web y la app nunca se entera. Fue el
+    /// motivo de que el botón de Google "no volviera" (31 ago 2026).
+    func webLoginURL(redirect: String, provider: String? = nil) -> URL {
         var comps = URLComponents(url: env.apiBase.appendingPathComponent("login"),
                                   resolvingAgainstBaseURL: false)!
-        comps.queryItems = [URLQueryItem(name: "app", value: redirect)]
+        var items = [URLQueryItem(name: "app", value: redirect)]
+        if let provider { items.append(URLQueryItem(name: "provider", value: provider)) }
+        comps.queryItems = items
         return comps.url!
     }
 
@@ -153,18 +164,6 @@ struct CloudAPI: Sendable {
         return (try JSONDecoder().decode(Health.self, from: data)).providers ?? []
     }
 
-    /// URL de autorización de un proveedor OAuth con vuelta al esquema de la
-    /// app. Supabase acepta el proveedor como parámetro, así que añadir uno
-    /// nuevo (Apple, GitHub…) no toca nada más que la lista de botones.
-    func oauthAuthorizeURL(provider: String, redirect: String) -> URL {
-        var comps = URLComponents(url: env.supabaseURL.appendingPathComponent("auth/v1/authorize"),
-                                  resolvingAgainstBaseURL: false)!
-        comps.queryItems = [
-            URLQueryItem(name: "provider", value: provider),
-            URLQueryItem(name: "redirect_to", value: redirect),
-        ]
-        return comps.url!
-    }
     struct CreatedUpload: Decodable, Sendable {
         let video_id: String
         let slug: String

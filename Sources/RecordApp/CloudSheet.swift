@@ -57,7 +57,13 @@ struct CloudSheet: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let message {
+            if let authError = store.authError {
+                Text(authError.userMessage)
+                    .font(GrabiFont.caption)
+                    .foregroundStyle(GrabiColor.error)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if let message {
                 Text(message)
                     .font(GrabiFont.caption)
                     .foregroundStyle(messageIsError ? GrabiColor.error : GrabiColor.text)

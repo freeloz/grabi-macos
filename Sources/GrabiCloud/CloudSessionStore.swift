@@ -5,7 +5,13 @@ import Security
 /// never in a file. One generic-password item, JSON payload.
 struct CloudSessionStore: Sendable {
     private static let service = "net.grabi.cloud"
-    private static let account = "session"
+    /// Un slot por ambiente. Las dos apps van firmadas por el mismo equipo y
+    /// ven el mismo llavero: con un solo slot, entrar en staging dejaba
+    /// tokens de staging que la app de producción cargaba, no validaba y
+    /// borraba — deslogueando a las dos (31 ago 2026).
+    private static var account: String {
+        Bundle.main.bundleIdentifier?.hasSuffix(".staging") == true ? "session.staging" : "session"
+    }
 
     func load() -> CloudTokens? {
         var query = base()
