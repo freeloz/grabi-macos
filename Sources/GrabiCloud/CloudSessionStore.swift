@@ -9,9 +9,12 @@ struct CloudSessionStore: Sendable {
     /// ven el mismo llavero: con un solo slot, entrar en staging dejaba
     /// tokens de staging que la app de producción cargaba, no validaba y
     /// borraba — deslogueando a las dos (31 ago 2026).
-    private static var account: String {
+    private static var defaultAccount: String {
         Bundle.main.bundleIdentifier?.hasSuffix(".staging") == true ? "session.staging" : "session"
     }
+    private let account: String
+
+    init(account: String = CloudSessionStore.defaultAccount) { self.account = account }
 
     func load() -> CloudTokens? {
         var query = base()
@@ -42,7 +45,7 @@ struct CloudSessionStore: Sendable {
         [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: Self.service,
-            kSecAttrAccount as String: Self.account,
+            kSecAttrAccount as String: account,
         ]
     }
 }

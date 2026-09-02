@@ -33,6 +33,8 @@ public struct CloudEnvironment: Sendable {
         return (fromDefaults ?? fromBundle) == "staging" ? .staging : .production
     }
 
+    public var isStaging: Bool { apiBase.host?.contains("staging") == true }
+
     /// Esquema de vuelta del OAuth, distinto por ambiente para que el
     /// callback aterrice en la app correcta cuando ambas están instaladas.
     public static var urlScheme: String {

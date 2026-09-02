@@ -18,6 +18,12 @@ public actor GrabiCloudAdapter: CloudPort {
         self.init(api: CloudAPI(env: environment))
     }
 
+    /// Para herramientas sin bundle propio (CloudChecks): elegir el slot del
+    /// llavero explícitamente en vez de deducirlo del bundle ID.
+    public init(environment: CloudEnvironment, sessionSlot: String) {
+        self.init(api: CloudAPI(env: environment), store: CloudSessionStore(account: sessionSlot))
+    }
+
     init(api: CloudAPI, store: CloudSessionStore = CloudSessionStore(),
          exporter: WebSafeExporter = WebSafeExporter()) {
         self.api = api
