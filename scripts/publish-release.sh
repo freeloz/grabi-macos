@@ -32,9 +32,16 @@ NOTES_DIR="releases/v$V"
 [ -f "$NOTES_DIR/notes.en.html" ] || {
   echo "Missing $NOTES_DIR/notes.en.html — write the release notes first."; exit 1; }
 
-# 1. Build + signing
-./make-interim-release.sh
+# 1. Build + firma + notarización. SKIP_BUILD=1 reutiliza un DMG ya
+#    construido y notarizado en dist/ (ahorra ~10 min de notarización
+#    cuando el build se lanzó aparte); se valida igual antes de subir.
 DMG="dist/Grabi-$V.dmg"
+if [[ "${SKIP_BUILD:-0}" == "1" && -f "$DMG" ]]; then
+  xcrun stapler validate "$DMG" >/dev/null 2>&1 || { echo "$DMG existe pero no está notarizado"; exit 1; }
+  echo "Reutilizando $DMG (notarizado)"
+else
+  ./make-interim-release.sh
+fi
 [ -f "$DMG" ] || { echo "$DMG does not exist"; exit 1; }
 [ -x "$SIGN_UPDATE" ] || { echo "sign_update not found — run 'swift build' first"; exit 1; }
 
