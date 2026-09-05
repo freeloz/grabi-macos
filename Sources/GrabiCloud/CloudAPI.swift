@@ -7,11 +7,17 @@ import GrabiDomain
 
 public struct CloudEnvironment: Sendable {
     let apiBase: URL
+    /// Dónde viven las páginas HTML (/login, /panel). En producción es OTRO
+    /// host que el API: el OAuth construye la URL de retorno con el origen de
+    /// la página, y Supabase solo devuelve la sesión a los orígenes de su
+    /// allowlist — app.grabi.net sí, api.grabi.net no (aprendido el 4 sep 2026).
+    let webBase: URL
     let supabaseURL: URL
     let supabaseAnonKey: String
 
     public static let production = CloudEnvironment(
         apiBase: URL(string: "https://api.grabi.net")!,
+        webBase: URL(string: "https://app.grabi.net")!,
         supabaseURL: URL(string: "https://ynjwtzhlzhpqgbkcoplc.supabase.co")!,
         // Anon/publishable key: public by design; RLS protects the data.
         supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inluand0emhsemhwcWdia2NvcGxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MjE1MTcsImV4cCI6MjEwMzI5NzUxN30.I0b4vlKrgPYqqrorPcIxGdKXHi8j288o9F-BKcQi0HA"
@@ -19,6 +25,7 @@ public struct CloudEnvironment: Sendable {
 
     public static let staging = CloudEnvironment(
         apiBase: URL(string: "https://grabi-cloud-api-staging.freeloz.workers.dev")!,
+        webBase: URL(string: "https://grabi-cloud-api-staging.freeloz.workers.dev")!,
         supabaseURL: URL(string: "https://gullyxdyyiulchcsafps.supabase.co")!,
         supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1bGx5eGR5eWl1bGNoY3NhZnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3MjE1MTYsImV4cCI6MjEwMzI5NzUxNn0.JW-PdMXWDq5y7NpTgg3iaqkiYS3m9wlutGLW4xDUsBk"
     )
@@ -145,7 +152,7 @@ struct CloudAPI: Sendable {
     /// usuario queda logueado en la web y la app nunca se entera. Fue el
     /// motivo de que el botón de Google "no volviera" (31 ago 2026).
     func webLoginURL(redirect: String, provider: String? = nil) -> URL {
-        var comps = URLComponents(url: env.apiBase.appendingPathComponent("login"),
+        var comps = URLComponents(url: env.webBase.appendingPathComponent("login"),
                                   resolvingAgainstBaseURL: false)!
         var items = [URLQueryItem(name: "app", value: redirect)]
         if let provider { items.append(URLQueryItem(name: "provider", value: provider)) }
